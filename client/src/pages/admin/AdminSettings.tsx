@@ -1,0 +1,746 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { Settings, Shield, Mail, Users, Save, ArrowLeft, Eye, EyeOff, Key } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { adminApiRequest } from '@/lib/queryClient';
+
+export const AdminSettings: React.FC = () => {
+  const { toast } = useToast();
+  const { user, updateUser } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModerationLoading, setIsModerationLoading] = useState(false);
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [isEmailChangeDialogOpen, setIsEmailChangeDialogOpen] = useState(false);
+  const [isPasswordChangeDialogOpen, setIsPasswordChangeDialogOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [currentEmail, setCurrentEmail] = useState(user?.email || '');
+  const [passwordFormData, setPasswordFormData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  const [platformSettings, setPlatformSettings] = useState({
+    siteName: 'Xclusive',
+    siteDescription: 'Premium content monetization platform',
+    commissionRate: 10,
+    minimumAge: 18,
+    maintenanceMode: false,
+    newUserRegistration: true,
+  });
+
+  const [moderationSettings, setModerationSettings] = useState({
+    autoModeration: true,
+    requireApproval: false,
+    bannedWords: 'spam, scam, fake',
+    maxFileSize: 100,
+    allowedFileTypes: 'jpg, png, gif, mp4, pdf',
+  });
+
+  const [emailSettings, setEmailSettings] = useState({
+    smtpServer: 'smtp.gmail.com',
+    smtpPort: 587,
+    smtpUsername: 'noreply@xclusive.com',
+    fromEmail: 'Xclusive <noreply@xclusive.com>',
+  });
+
+  const handleSave = () => {
+    toast({
+      title: "Settings saved",
+      description: "Your settings have been updated successfully.",
+    });
+  };
+
+  const handlePlatformUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const data = await adminApiRequest('/api/admin/platform-settings', {
+        method: 'PUT',
+        body: JSON.stringify({
+          commission_rate: platformSettings.commissionRate / 100, // Convert percentage to decimal
+          site_name: platformSettings.siteName,
+          site_description: platformSettings.siteDescription,
+          maintenance_mode: platformSettings.maintenanceMode,
+          new_user_registration: platformSettings.newUserRegistration
+        }),
+      });
+
+      if (data.success) {
+        toast({
+          title: "Settings Updated",
+          description: "Platform settings have been saved successfully.",
+        });
+      } else {
+        throw new Error(data.message || 'Failed to update settings');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update platform settings.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleModerationUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsModerationLoading(true);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast({
+        title: "Moderation settings updated",
+        description: "Content moderation settings have been successfully updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: "Failed to update moderation settings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsModerationLoading(false);
+    }
+  };
+
+  const handleEmailUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsEmailLoading(true);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast({
+        title: "Email settings updated",
+        description: "Email configuration has been successfully updated.",
+      });
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: "Failed to update email settings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsEmailLoading(false);
+    }
+  };
+
+  const handleEmailChange = async () => {
+    if (!newEmail) {
+      toast({
+        title: "Email required",
+        description: "Please enter a new email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // API call to change email would go here
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      toast({
+        title: "Email updated",
+        description: "Your email address has been successfully updated.",
+      });
+
+      // Update the displayed email
+      setCurrentEmail(newEmail);
+      updateUser({ email: newEmail });
+      setIsEmailChangeDialogOpen(false);
+      setNewEmail('');
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: "Failed to update email. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
+      toast({
+        title: "Password mismatch",
+        description: "New passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (passwordFormData.newPassword.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsPasswordLoading(true);
+    try {
+      const response = await fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: passwordFormData.currentPassword,
+          newPassword: passwordFormData.newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to change password');
+      }
+
+      toast({
+        title: "Password changed",
+        description: "Your password has been successfully updated.",
+      });
+
+      setPasswordFormData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+      setIsPasswordChangeDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: error instanceof Error ? error.message : "Failed to update password. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsPasswordLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8 text-center sm:text-left">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+            Admin Settings
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Configure platform settings and policies
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <Tabs defaultValue="platform" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="platform">Platform</TabsTrigger>
+              <TabsTrigger value="moderation">Content</TabsTrigger>
+              <TabsTrigger value="email">Email</TabsTrigger>
+              <TabsTrigger value="security">Security</TabsTrigger>
+              <TabsTrigger value="users">Users</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="platform" className="space-y-6">
+              <Card className="bg-gradient-card border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    Platform Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Configure basic platform information and policies
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <form onSubmit={handlePlatformUpdate} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="siteName">Site Name</Label>
+                        <Input
+                          id="siteName"
+                          value={platformSettings.siteName}
+                          onChange={(e) => setPlatformSettings(prev => ({ ...prev, siteName: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+                        <Input
+                          id="commissionRate"
+                          type="number"
+                          min="0"
+                          max="50"
+                          value={platformSettings.commissionRate}
+                          onChange={(e) => setPlatformSettings(prev => ({ ...prev, commissionRate: parseInt(e.target.value) }))}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="siteDescription">Site Description</Label>
+                      <Textarea
+                        id="siteDescription"
+                        value={platformSettings.siteDescription}
+                        onChange={(e) => setPlatformSettings(prev => ({ ...prev, siteDescription: e.target.value }))}
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Maintenance Mode</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Temporarily disable the platform for maintenance
+                          </p>
+                        </div>
+                        <Switch
+                          checked={platformSettings.maintenanceMode}
+                          onCheckedChange={(checked) => 
+                            setPlatformSettings(prev => ({ ...prev, maintenanceMode: checked }))
+                          }
+                        />
+                      </div>
+
+                      <Separator />
+
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>New User Registration</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Allow new users to register accounts
+                          </p>
+                        </div>
+                        <Switch
+                          checked={platformSettings.newUserRegistration}
+                          onCheckedChange={(checked) => 
+                            setPlatformSettings(prev => ({ ...prev, newUserRegistration: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading ? "Updating..." : "Update Platform Settings"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="moderation" className="space-y-6">
+              <Card className="bg-gradient-card border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Content Moderation
+                  </CardTitle>
+                  <CardDescription>
+                    Configure content moderation and safety settings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <form onSubmit={handleModerationUpdate} className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Auto Moderation</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Automatically flag potentially inappropriate content
+                          </p>
+                        </div>
+                        <Switch
+                          checked={moderationSettings.autoModeration}
+                          onCheckedChange={(checked) => 
+                            setModerationSettings(prev => ({ ...prev, autoModeration: checked }))
+                          }
+                        />
+                      </div>
+
+                      <Separator />
+
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Require Content Approval</Label>
+                          <p className="text-sm text-muted-foreground">
+                            All content must be approved before going live
+                          </p>
+                        </div>
+                        <Switch
+                          checked={moderationSettings.requireApproval}
+                          onCheckedChange={(checked) => 
+                            setModerationSettings(prev => ({ ...prev, requireApproval: checked }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bannedWords">Banned Words (comma-separated)</Label>
+                        <Textarea
+                          id="bannedWords"
+                          value={moderationSettings.bannedWords}
+                          onChange={(e) => setModerationSettings(prev => ({ ...prev, bannedWords: e.target.value }))}
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="maxFileSize">Max File Size (MB)</Label>
+                          <Input
+                            id="maxFileSize"
+                            type="number"
+                            min="1"
+                            max="1000"
+                            value={moderationSettings.maxFileSize}
+                            onChange={(e) => setModerationSettings(prev => ({ ...prev, maxFileSize: parseInt(e.target.value) }))}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="allowedFileTypes">Allowed File Types</Label>
+                          <Input
+                            id="allowedFileTypes"
+                            value={moderationSettings.allowedFileTypes}
+                            onChange={(e) => setModerationSettings(prev => ({ ...prev, allowedFileTypes: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button type="submit" disabled={isModerationLoading}>
+                      {isModerationLoading ? "Saving..." : "Save Moderation Settings"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="email" className="space-y-6">
+              <Card className="bg-gradient-card border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="w-5 h-5" />
+                    Email Configuration
+                  </CardTitle>
+                  <CardDescription>
+                    Configure SMTP settings for platform emails
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleEmailUpdate} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="smtpServer">SMTP Server</Label>
+                        <Input
+                          id="smtpServer"
+                          value={emailSettings.smtpServer}
+                          onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpServer: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="smtpPort">SMTP Port</Label>
+                        <Input
+                          id="smtpPort"
+                          type="number"
+                          value={emailSettings.smtpPort}
+                          onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpPort: parseInt(e.target.value) }))}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="smtpUsername">SMTP Username</Label>
+                        <Input
+                          id="smtpUsername"
+                          value={emailSettings.smtpUsername}
+                          onChange={(e) => setEmailSettings(prev => ({ ...prev, smtpUsername: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="fromEmail">From Email</Label>
+                        <Input
+                          id="fromEmail"
+                          value={emailSettings.fromEmail}
+                          onChange={(e) => setEmailSettings(prev => ({ ...prev, fromEmail: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+
+                    <Button type="submit" disabled={isEmailLoading}>
+                      {isEmailLoading ? "Saving..." : "Save Email Settings"}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="security" className="space-y-6">
+              <Card className="bg-gradient-card border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Security Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your account security and authentication
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-base font-medium">Email Address</Label>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/20">
+                        <span className="text-sm text-muted-foreground">{currentEmail}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsEmailChangeDialogOpen(true)}
+                          data-testid="button-change-email"
+                        >
+                          Change Email
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-2">
+                      <Label className="text-base font-medium">Password</Label>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/20">
+                        <span className="text-sm text-muted-foreground">••••••••••••</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsPasswordChangeDialogOpen(true)}
+                          data-testid="button-change-password"
+                        >
+                          Change Password
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Email Change Dialog */}
+              <AlertDialog open={isEmailChangeDialogOpen} onOpenChange={setIsEmailChangeDialogOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Change Email Address</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Please enter your new email address below.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="current-email">Current Email</Label>
+                      <Input
+                        id="current-email"
+                        value={currentEmail}
+                        disabled
+                        className="bg-muted"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-email">New Email</Label>
+                      <Input
+                        id="new-email"
+                        type="email"
+                        placeholder="Enter new email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        data-testid="input-new-email"
+                      />
+                    </div>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleEmailChange} data-testid="button-confirm-email-change">
+                      Update Email
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              {/* Password Change Dialog */}
+              <AlertDialog open={isPasswordChangeDialogOpen} onOpenChange={setIsPasswordChangeDialogOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Change Password</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Enter your current password and choose a new one.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="current-password">Current Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="current-password"
+                          type={showCurrentPassword ? "text" : "password"}
+                          placeholder="Enter current password"
+                          value={passwordFormData.currentPassword}
+                          onChange={(e) => setPasswordFormData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                          data-testid="input-current-password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        >
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">New Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="new-password"
+                          type={showNewPassword ? "text" : "password"}
+                          placeholder="Enter new password"
+                          value={passwordFormData.newPassword}
+                          onChange={(e) => setPasswordFormData(prev => ({ ...prev, newPassword: e.target.value }))}
+                          data-testid="input-new-password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm New Password</Label>
+                      <Input
+                        id="confirm-password"
+                        type="password"
+                        placeholder="Confirm new password"
+                        value={passwordFormData.confirmPassword}
+                        onChange={(e) => setPasswordFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        data-testid="input-confirm-password"
+                      />
+                    </div>
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handlePasswordChange}
+                      disabled={isPasswordLoading}
+                      data-testid="button-confirm-password-change"
+                    >
+                      {isPasswordLoading ? "Updating..." : "Change Password"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </TabsContent>
+
+            <TabsContent value="users" className="space-y-6">
+              <Card className="bg-gradient-card border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    User Management
+                  </CardTitle>
+                  <CardDescription>
+                    Configure user-related settings and policies
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="minimumAge">Minimum Age</Label>
+                      <Input
+                        id="minimumAge"
+                        type="number"
+                        min="13"
+                        max="21"
+                        value={platformSettings.minimumAge}
+                        onChange={(e) => setPlatformSettings(prev => ({ ...prev, minimumAge: parseInt(e.target.value) }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Minimum age required to create an account
+                      </p>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-foreground">User Statistics</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-4 rounded-lg bg-muted/20">
+                          <p className="text-sm text-muted-foreground">Total Users</p>
+                          <p className="text-2xl font-bold text-foreground">1,234</p>
+                        </div>
+                        <div className="p-4 rounded-lg bg-muted/20">
+                          <p className="text-sm text-muted-foreground">Active Creators</p>
+                          <p className="text-2xl font-bold text-foreground">456</p>
+                        </div>
+                        <div className="p-4 rounded-lg bg-muted/20">
+                          <p className="text-sm text-muted-foreground">Verified Users</p>
+                          <p className="text-2xl font-bold text-foreground">89</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-foreground">User Actions</h4>
+                      <div className="space-y-2">
+                        <Button variant="outline" className="w-full">
+                          Export User Data
+                        </Button>
+                        <Button variant="outline" className="w-full">
+                          Send Platform Announcement
+                        </Button>
+                        <Button variant="outline" className="w-full">
+                          Generate User Report
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+};

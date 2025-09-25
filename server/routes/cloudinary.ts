@@ -1,0 +1,268 @@
+import express from 'express';
+import multer from 'multer';
+import { CloudinaryService } from '../services/cloudinaryService';
+import { db } from '../db';
+import { users } from '../../shared/schema';
+import { eq } from 'drizzle-orm';
+
+const router = express.Router();
+
+// Configure multer for memory storage (files will be processed in memory)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit (higher for Cloudinary)
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|mp4|mov|webp|heic/;
+    const extname = allowedTypes.test(file.originalname.toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Supported formats: JPEG, PNG, GIF, WebP, HEIC, MP4, MOV'));
+    }
+  }
+});
+
+// Upload profile photo (avatar)
+router.post('/profile-photo', upload.single('profilePhoto'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    if (!req.session?.userId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    console.log('Uploading profile photo to Cloudinary for user:', req.session.userId);
+    
+    const uploadResult = await CloudinaryService.uploadProfileImage(
+      req.file.buffer,
+      req.file.mimetype,
+      req.session.userId,
+      'avatar'
+    );
+
+    // Update user's avatar in database
+    await db.update(users)
+      .set({ avatar: uploadResult.secure_url })
+      .where(eq(users.id, req.session.userId));
+
+    console.log('Profile photo uploaded successfully:', uploadResult.secure_url);
+
+    res.json({ 
+      success: true, 
+      url: uploadResult.secure_url,
+      public_id: uploadResult.public_id,
+      message: 'Profile photo uploaded successfully' 
+    });
+  } catch (error) {
+    console.error('Profile photo upload error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Failed to upload profile photo' 
+    });
+  }
+});
+
+// Upload cover photo
+router.post('/cover-photo', upload.single('coverPhoto'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    if (!req.session?.userId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
+
+    console.log('Uploading cover photo to Cloudinary for user:', req.session.userId);
+    
+    const uploadResult = await CloudinaryService.uploadProfileImage(
+      req.file.buffer,
+      req.file.mimetype,
+      req.session.userId,
+      'cover'
+    );
+
+    // Update user's cover image in database
+    await db.update(users)
+      .set({ cover_image: uploadResult.secure_url })
+      .where(eq(users.id, req.session.userId));
+
+    console.log('Cover photo uploaded successfully:', uploadResult.secure_url);
+
+    res.json({ 
+      success: true, 
+      url: uploadResult.secure_url,
+      public_id: uploadResult.public_id,
+      message: 'Cover photo uploaded successfully' 
+    });
+  } catch (error) {
+    console.error('Cover photo upload error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Failed to upload cover photo' 
+    });
+  }
+});
+
+// Upload post media (images/videos)
+router.post('/post-media', upload.single('media'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    console.log('Uploading post media to Cloudinary for user:', req.session.userId);
+    
+    const isVideo = req.file.mimetype.startsWith('video/');
+    const mediaType = isVideo ? 'video' : 'image';
+    
+    const uploadResult = await CloudinaryService.uploadPostMedia(
+      req.file.buffer,
+      req.file.mimetype,
+      req.session.userId,
+      mediaType
+    );
+
+    console.log('Post media uploaded successfully:', uploadResult.secure_url);
+
+    res.json({ 
+      success: true, 
+      url: uploadResult.secure_url,
+      public_id: uploadResult.public_id,
+      media_type: mediaType,
+      width: uploadResult.width,
+      height: uploadResult.height,
+      duration: uploadResult.duration,
+      format: uploadResult.format,
+      message: "Media uploaded successfully" 
+    });
+  } catch (error) {
+    console.error('Post media upload error:', error);
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : "Failed to upload media" 
+    });
+  }
+});
+
+// Upload multiple files for a post
+router.post('/post-media-multiple', upload.array('media', 10), async (req, res) => {
+  try {
+    const files = req.files as Express.Multer.File[];
+    
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
+
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    console.log(`Uploading ${files.length} media files to Cloudinary for user:`, req.session.userId);
+    
+    const uploadPromises = files.map(async (file) => {
+      const isVideo = file.mimetype.startsWith('video/');
+      const mediaType = isVideo ? 'video' : 'image';
+      
+      return CloudinaryService.uploadPostMedia(
+        file.buffer,
+        file.mimetype,
+        req.session.userId!,
+        mediaType
+      );
+    });
+
+    const uploadResults = await Promise.all(uploadPromises);
+
+    console.log('Multiple media files uploaded successfully');
+
+    res.json({ 
+      success: true, 
+      uploads: uploadResults.map(result => ({
+        url: result.secure_url,
+        public_id: result.public_id,
+        media_type: result.resource_type,
+        width: result.width,
+        height: result.height,
+        duration: result.duration,
+        format: result.format
+      })),
+      message: `${files.length} files uploaded successfully` 
+    });
+  } catch (error) {
+    console.error('Multiple media upload error:', error);
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : "Failed to upload media files" 
+    });
+  }
+});
+
+// Delete media from Cloudinary
+router.delete('/media/:publicId', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { publicId } = req.params;
+    const { resourceType = 'image' } = req.query;
+
+    const deleted = await CloudinaryService.deleteMedia(
+      publicId,
+      req.session.userId!,
+      resourceType as 'image' | 'video'
+    );
+
+    if (deleted) {
+      res.json({ 
+        success: true, 
+        message: 'Media deleted successfully' 
+      });
+    } else {
+      res.status(404).json({ 
+        success: false, 
+        message: 'Media not found or already deleted' 
+      });
+    }
+  } catch (error) {
+    console.error('Delete media error:', error);
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : "Failed to delete media" 
+    });
+  }
+});
+
+// Generate signed upload URL for direct frontend uploads
+router.post('/signed-url', async (req, res) => {
+  try {
+    if (!req.session?.userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { folder, publicId } = req.body;
+    const userFolder = folder || `users/${req.session.userId}`;
+
+    const signedUrl = CloudinaryService.generateSignedUploadUrl(userFolder, publicId);
+
+    res.json({ 
+      success: true, 
+      ...signedUrl 
+    });
+  } catch (error) {
+    console.error('Generate signed URL error:', error);
+    res.status(500).json({ 
+      error: error instanceof Error ? error.message : "Failed to generate signed URL" 
+    });
+  }
+});
+
+export default router;

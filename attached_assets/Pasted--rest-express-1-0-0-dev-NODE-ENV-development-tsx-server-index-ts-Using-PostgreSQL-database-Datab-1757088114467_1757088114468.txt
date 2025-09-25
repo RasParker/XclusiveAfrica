@@ -1,0 +1,157 @@
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+Using PostgreSQL database
+Database setup completed successfully
+Starting route registration...
+Route registration completed
+Starting database initialization in background...
+Initializing database tables...
+Testing database connection...
+Database initialization started in background
+Setting up Vite for development...
+Database connection test successful Result {
+  command: 'SELECT',
+  rowCount: 1,
+  oid: null,
+  rows: [ { test: 1 } ],
+  fields: [
+    Field {
+      name: 'test',
+      tableID: 0,
+      columnID: 0,
+      dataTypeID: 23,
+      dataTypeSize: 4,
+      dataTypeModifier: -1,
+      format: 'text'
+    }
+  ],
+  _parsers: [ [Function: parseInteger] ],
+  _types: { getTypeParser: [Function: getTypeParser] },
+  RowCtor: null,
+  rowAsArray: false,
+  _prebuiltEmptyResultObject: { test: null }
+}
+Vite setup completed
+Starting cron service in background...
+Starting server on port 5000...
+3:59:19 PM [express] serving on port 5000
+Existing tables: [
+  'categories',
+  'comment_likes',
+  'comments',
+  'conversations',
+  'creator_categories',
+  'creator_favorites',
+  'creator_likes',
+  'creator_payout_settings',
+  'creator_payouts',
+  'messages',
+  'notification_preferences',
+  'notifications',
+  'payment_transactions',
+  'pending_subscription_changes',
+  'post_likes',
+  'posts',
+  'proration_credits',
+  'reports',
+  'subscription_changes',
+  'subscription_tiers',
+  'subscriptions',
+  'users'
+]
+All required tables exist, seeding essential data...
+Checking if categories need to be seeded...
+Categories table already has 12 categories, skipping seed
+Database initialization complete
+Starting cron service...
+Cron service started with scheduled jobs:
+- Monthly payouts: 1st of every month at 9:00 AM
+- Weekly status checks: Every Monday at 10:00 AM
+- Post publishing: Every minute
+Cron service started successfully
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Login attempt received: { email: 'fan@example.com' }
+Demo user login successful: fan@example.com
+4:01:25 PM [express] POST /api/auth/login 200 in 4ms :: {"user":{"id":3,"email":"fan@example.com","u…
+4:01:25 PM [express] GET /api/notifications/unread-count 304 in 8ms :: {"count":"0"}
+4:01:25 PM [express] GET /api/notifications 304 in 17ms :: []
+WebSocket client connected
+User 3 connected via WebSocket
+Fetching subscriptions for fan ID: 3
+Found subscriptions: []
+4:01:26 PM [express] GET /api/subscriptions/fan/3 304 in 5ms :: []
+4:01:26 PM [express] GET /api/fan/3/recent-activity 304 in 7ms :: {"activities":[],"total":0,"hasMor…
+4:01:26 PM [express] GET /api/fan/3/new-content-count 200 in 7ms
+4:01:31 PM [express] GET /api/categories 304 in 4ms :: [{"id":1,"name":"Art & Design","slug":"art-de…
+4:01:31 PM [express] GET /api/creators 304 in 3ms :: [{"id":1,"username":"RasParker1","email":"raspa…
+4:01:31 PM [express] GET /api/creators/1/tiers 304 in 4ms :: [{"id":1,"creator_id":1,"name":"Starter…
+4:01:34 PM [vite] Internal server error: /home/runner/workspace/client/src/pages/CreatorProfile.tsx: Unexpected token (1837:24)
+
+  1835 |                             </div>
+  1836 |                           </div>
+> 1837 |                         </div>
+       |                         ^
+  1838 |                       </div>
+  1839 |                     ))}
+  1840 |                   </div>
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/client/src/pages/CreatorProfile.tsx:1837:24
+  1835|                              </div>
+  1836|                            </div>
+  1837|                          </div>
+     |                          ^
+  1838|                        </div>
+  1839|                      ))}
+      at toParseError (/home/runner/workspace/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1497:19)
+      at unexpected (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1537:16)
+      at checkExpressionErrors (/home/runner/workspace/node_modules/@babel/parser/src/parser/util.ts:258:12)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:341:12)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3607:22)
+      at parseExpressionBase (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:221:23)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:212:39)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3117:12)
+      at parseExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:212:17)
+      at jsxParseExpressionContainer (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:376:33)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:500:24)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElementAt (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:483:34)
+      at jsxParseElement (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:559:19)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:573:21)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:714:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:693:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:655:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3735:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at fn (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3588:23)
+      at tryParse (/home/runner/workspace/node_modules/@babel/parser/src/parser/util.ts:174:20)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3587:20)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:252:12)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3117:12)
+      at parseMaybeAssignAllowIn (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:251:17)
+      at parseParenAndDistinguishExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1771:16)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1131:21)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:583:22)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:714:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:693:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:655:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3735:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3607:22)
+      at parseExpressionBase (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:221:23)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:212:39)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3112:16)
+      at parseExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:212:17)

@@ -1,0 +1,41 @@
+Based on my analysis of your current implementation, here's what I found about the Follow and Subscribe button functionality:
+
+Current Button Functionality
+Follow Button:
+
+Purpose: Free social engagement to stay updated with creator activity
+Action: Updates follower count, shows in feeds/notifications
+Location: Both Explore page (creator cards) and creator profiles
+User Experience: Simple one-click action with immediate feedback
+Subscribe Button:
+
+Purpose: Paid access to exclusive content through subscription tiers
+Action: Opens tier selection → payment process → access to premium content
+Location: Both Explore page and creator profiles
+User Experience: Shows pricing (e.g., "Subscribe from GHS X/month")
+Analysis of Potential Competition
+Yes, there is some UX friction between these buttons on the Explore page:
+
+Decision Paralysis: Users see 3 buttons (Follow, View Profile, Subscribe) and might hesitate about which action to take first
+
+Hierarchy Confusion: Both Follow and Subscribe are primary actions but serve different purposes - this can confuse users about the relationship between following and subscribing
+
+Discovery Flow Disruption: The Explore page is for discovery, and having too many action options might overwhelm users in their browsing experience
+
+Recommendation
+I'd suggest keeping the Follow button only on creator profiles and removing it from the Explore page. Here's why:
+
+For Explore Page:
+
+Focus on "View Profile" and "Subscribe" buttons only
+"View Profile" allows users to learn more about the creator before making any commitment
+"Subscribe" is the primary monetization action you want to drive
+Cleaner, less cluttered interface focused on discovery and conversion
+For Creator Profiles:
+
+Keep all three buttons (Follow, View Content, Subscribe)
+Users have more context about the creator and can make informed decisions
+Following makes more sense after users have explored the creator's content and bio
+This approach creates a clearer user journey: Discover → Explore Profile → Follow/Subscribe
+
+Would you like me to implement this change by removing the Follow button from the Explore page creator cards?

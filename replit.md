@@ -1,0 +1,72 @@
+# Xclusive Creator Platform
+
+## Overview
+This is a full-stack creator platform application that allows content creators to monetize their content through subscriptions and fan interactions. The platform includes features for creators to manage content, tiers, earnings, and interact with fans, while fans can subscribe, access exclusive content, and message creators.
+
+## Architecture
+- **Frontend**: React with TypeScript, using Vite for development and building
+- **Backend**: Express.js with TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **UI Framework**: Tailwind CSS with shadcn/ui components
+- **State Management**: TanStack Query (React Query)
+- **Authentication**: Custom JWT-based authentication
+- **File Uploads**: Multer for handling media uploads
+- **Payment Processing**: Stripe integration
+- **Real-time Features**: WebSocket support for notifications and messaging
+
+## Project Structure
+```
+├── client/           # React frontend
+│   ├── src/
+│   │   ├── components/   # React components organized by feature
+│   │   ├── pages/       # Page components
+│   │   ├── lib/         # Utilities and shared functions
+│   │   └── types/       # TypeScript type definitions
+├── server/           # Express backend
+│   ├── routes/       # API route handlers
+│   ├── services/     # Business logic services
+│   └── middleware/   # Express middleware
+├── shared/          # Shared types and schemas
+└── migrations/      # Database migration files
+```
+
+## Key Features
+- **Multi-role System**: Admin, Creator, and Fan roles with different permissions
+- **Content Management**: Creators can create posts with different access tiers
+- **Subscription System**: Tiered subscriptions with different access levels
+- **Real-time Messaging**: Direct messaging between fans and creators
+- **Payment Processing**: Stripe integration for subscriptions and tips
+- **Analytics Dashboard**: Revenue and engagement analytics for creators
+- **Admin Panel**: User management, content moderation, and platform analytics
+- **Mobile-responsive Design**: Optimized for both desktop and mobile devices
+
+## Development Setup
+The project is configured to run on Replit with:
+- **Port 5000**: Single port serving both frontend and backend
+- **Host Configuration**: Properly configured for Replit proxy with `allowedHosts: true`
+- **Database**: PostgreSQL with auto-initialization and seeding
+- **Hot Module Replacement**: Vite HMR properly configured for development
+
+## Database
+- Uses PostgreSQL with 25+ tables including users, posts, subscriptions, payments, etc.
+- Includes database seeding with default categories and admin user
+- Admin credentials: username: `admin`, password: `admin123`
+
+## Recent Changes
+- 2025-09-25: Successfully imported from GitHub and configured for Replit environment
+- Database tables created and seeded with essential data (25 tables total)
+- All services (monitoring, cron jobs, WebSocket) properly initialized
+- Frontend and backend integration verified and working
+- Workflow properly configured with webview output type on port 5000
+- Deployment configuration set for autoscale with proper build and start commands
+
+## Deployment
+- Configured for Replit autoscale deployment
+- Build process: `npm run build` (builds both frontend and backend)
+- Production start: `npm run start` (serves optimized production build)
+- Environment variables properly configured for database connection
+
+## User Preferences
+- Development workflow: Use `npm run dev` for development with hot reload
+- Database management: Use `npm run db:push` for schema changes
+- Code style: TypeScript with proper type definitions throughout
