@@ -6,7 +6,7 @@ This is a full-stack creator platform application that allows content creators t
 ## Architecture
 - **Frontend**: React with TypeScript, using Vite for development and building
 - **Backend**: Express.js with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
+- **Database**: Supabase PostgreSQL with Drizzle ORM and postgres-js client
 - **UI Framework**: Tailwind CSS with shadcn/ui components
 - **State Management**: TanStack Query (React Query)
 - **Authentication**: Custom JWT-based authentication
@@ -44,15 +44,35 @@ This is a full-stack creator platform application that allows content creators t
 The project is configured to run on Replit with:
 - **Port 5000**: Single port serving both frontend and backend
 - **Host Configuration**: Properly configured for Replit proxy with `allowedHosts: true`
-- **Database**: PostgreSQL with auto-initialization and seeding
+- **Database**: Supabase PostgreSQL with auto-initialization and seeding
+- **Environment**: DATABASE_URL secret managed via Replit Secrets
 - **Hot Module Replacement**: Vite HMR properly configured for development
 
 ## Database
-- Uses PostgreSQL with 25+ tables including users, posts, subscriptions, payments, etc.
-- Includes database seeding with default categories and admin user
-- Admin credentials: username: `admin`, password: `admin123`
+- **Provider**: Supabase PostgreSQL (managed cloud database)
+- **Connection**: Uses postgres-js client with `prepare: false` for Supabase transaction pooling
+- **ORM**: Drizzle ORM for type-safe database operations
+- **Schema**: 25 tables including users, posts, subscriptions, payments, categories, etc.
+- **Seeding**: Automatic seeding with 12 default content categories
+- **Admin User**: Pre-configured admin account
+  - Username: `admin`
+  - Email: `admin@example.com`
+  - Password: `admin123`
+
+### Database Management Commands
+- `npm run db:push` - Push schema changes to Supabase
+- `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-10-01: Migrated to Supabase PostgreSQL database**
+  - Replaced node-postgres (pg Pool) with postgres-js client for Supabase compatibility
+  - Configured `prepare: false` for Supabase transaction pooling mode
+  - Updated raw SQL queries to use postgres-js `.unsafe()` method
+  - Fixed database initialization to handle postgres-js result format (direct arrays)
+  - All 25 tables successfully migrated and verified in Supabase
+  - Fixed duplicate key error in category seeding logic
+  - Admin user and 12 default categories seeded successfully
+  - Application tested and confirmed working with Supabase
 - 2025-09-25: Successfully imported from GitHub and configured for Replit environment
 - Database tables created and seeded with essential data (25 tables total)
 - All services (monitoring, cron jobs, WebSocket) properly initialized
