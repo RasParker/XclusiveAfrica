@@ -354,9 +354,9 @@ export class DatabaseStorage implements IStorage {
       await db.delete(creator_favorites).where(eq(creator_favorites.creator_id, id));
 
       // Finally delete the user
-      const result = await db.delete(users).where(eq(users.id, id));
+      const result = await db.delete(users).where(eq(users.id, id)).returning();
 
-      return (result.rowCount || 0) > 0;
+      return result.length > 0;
     } catch (error) {
       console.error('Delete user error:', error);
       return false;
@@ -455,8 +455,8 @@ export class DatabaseStorage implements IStorage {
     const [comment] = await db.select().from(comments).where(eq(comments.id, id));
     if (!comment) return false;
 
-    const result = await db.delete(comments).where(eq(comments.id, id));
-    const success = (result.rowCount || 0) > 0;
+    const result = await db.delete(comments).where(eq(comments.id, id)).returning();
+    const success = result.length > 0;
 
     // Update the comments_count in the posts table if deletion was successful
     if (success) {
@@ -478,8 +478,8 @@ export class DatabaseStorage implements IStorage {
 
   async unlikePost(postId: number, userId: number): Promise<boolean> {
     try {
-      const result = await db.delete(post_likes).where(and(eq(post_likes.post_id, postId), eq(post_likes.user_id, userId)));
-      if ((result.rowCount || 0) > 0) {
+      const result = await db.delete(post_likes).where(and(eq(post_likes.post_id, postId), eq(post_likes.user_id, userId))).returning();
+      if (result.length > 0) {
         await db.update(posts).set({ likes_count: sql`${posts.likes_count} - 1` }).where(eq(posts.id, postId));
         return true;
       }
@@ -506,8 +506,8 @@ export class DatabaseStorage implements IStorage {
 
   async unlikeComment(commentId: number, userId: number): Promise<boolean> {
     try {
-      const result = await db.delete(comment_likes).where(and(eq(comment_likes.comment_id, commentId), eq(comment_likes.user_id, userId)));
-      if ((result.rowCount || 0) > 0) {
+      const result = await db.delete(comment_likes).where(and(eq(comment_likes.comment_id, commentId), eq(comment_likes.user_id, userId))).returning();
+      if (result.length > 0) {
         await db.update(comments).set({ likes_count: sql`${comments.likes_count} - 1` }).where(eq(comments.id, commentId));
         return true;
       }
@@ -562,8 +562,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteSubscriptionTier(id: number): Promise<boolean> {
-    const result = await db.delete(subscription_tiers).where(eq(subscription_tiers.id, id));
-    return (result.rowCount || 0) > 0;
+    const result = await db.delete(subscription_tiers).where(eq(subscription_tiers.id, id)).returning();
+    return result.length > 0;
   }
 
   async getSubscriptions(userId: number): Promise<any[]> {
@@ -911,9 +911,10 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .update(pending_subscription_changes)
         .set({ status: 'cancelled' })
-        .where(eq(pending_subscription_changes.id, changeId));
+        .where(eq(pending_subscription_changes.id, changeId))
+        .returning();
 
-      return (result.rowCount || 0) > 0;
+      return result.length > 0;
     } catch (error) {
       console.error('Error cancelling pending subscription change:', error);
       return false;
@@ -945,9 +946,10 @@ export class DatabaseStorage implements IStorage {
           status: 'applied',
           applied_at: new Date()
         })
-        .where(eq(proration_credits.id, creditId));
+        .where(eq(proration_credits.id, creditId))
+        .returning();
 
-      return (result.rowCount || 0) > 0;
+      return result.length > 0;
     } catch (error) {
       console.error('Error applying proration credit:', error);
       return false;
@@ -1276,7 +1278,7 @@ export class DatabaseStorage implements IStorage {
         SELECT value FROM platform_settings WHERE key = 'commission_rate'
       `);
 
-      const commissionRate = result.rows[0]?.value as string || '0.05'; // Default 5%
+      const commissionRate = result[0]?.value as string || '0.05'; // Default 5%
 
       return {
         commission_rate: parseFloat(commissionRate),
@@ -1490,8 +1492,9 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .update(notifications)
         .set({ read: true })
-        .where(eq(notifications.id, notificationId));
-      return (result.rowCount || 0) > 0;
+        .where(eq(notifications.id, notificationId))
+        .returning();
+      return result.length > 0;
     } catch (error) {
       console.error('Error marking notification as read:', error);
       return false;
@@ -1503,8 +1506,9 @@ export class DatabaseStorage implements IStorage {
       const result = await db
         .update(notifications)
         .set({ read: true })
-        .where(and(eq(notifications.user_id, userId), eq(notifications.read, false)));
-      return (result.rowCount || 0) > 0;
+        .where(and(eq(notifications.user_id, userId), eq(notifications.read, false)))
+        .returning();
+      return result.length > 0;
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
       return false;
@@ -1861,6 +1865,7 @@ export class DatabaseStorage implements IStorage {
         verified: users.verified,
         total_subscribers: users.total_subscribers,
         total_earnings: users.total_earnings,
+        total_followers: users.total_followers,
         commission_rate: users.commission_rate,
         comments_enabled: users.comments_enabled,
         auto_post_enabled: users.auto_post_enabled,
@@ -1964,8 +1969,8 @@ export class DatabaseStorage implements IStorage {
 
   async unfavoriteCreator(fanId: number, creatorId: number): Promise<boolean> {
     try {
-      const result = await db.delete(creator_favorites).where(and(eq(creator_favorites.fan_id, fanId), eq(creator_favorites.creator_id, creatorId)));
-      if ((result.rowCount || 0) > 0) {
+      const result = await db.delete(creator_favorites).where(and(eq(creator_favorites.fan_id, fanId), eq(creator_favorites.creator_id, creatorId))).returning();
+      if (result.length > 0) {
         // Optionally, update creator's favorite count if you have such a field
         // await db.update(users).set({ favorite_count: sql`${users.favorite_count} - 1` }).where(eq(users.id, creatorId));
         return true;
@@ -2066,8 +2071,8 @@ export class DatabaseStorage implements IStorage {
 
   async unfollowCreator(followerId: number, creatorId: number): Promise<boolean> {
     try {
-      const result = await db.delete(follows).where(and(eq(follows.follower_id, followerId), eq(follows.creator_id, creatorId)));
-      if ((result.rowCount || 0) > 0) {
+      const result = await db.delete(follows).where(and(eq(follows.follower_id, followerId), eq(follows.creator_id, creatorId))).returning();
+      if (result.length > 0) {
         // Update creator's follower count
         await db.update(users).set({ total_followers: sql`${users.total_followers} - 1` }).where(eq(users.id, creatorId));
         return true;
@@ -2163,8 +2168,6 @@ export class DatabaseStorage implements IStorage {
 
   async getAuditLogs(limit = 100, userId?: number, action?: string, resourceType?: string): Promise<AuditLog[]> {
     try {
-      let baseQuery = db.select().from(audit_logs);
-      
       // Apply filters if provided
       const conditions = [];
       if (userId) conditions.push(eq(audit_logs.user_id, userId));
@@ -2172,10 +2175,17 @@ export class DatabaseStorage implements IStorage {
       if (resourceType) conditions.push(eq(audit_logs.resource_type, resourceType));
       
       if (conditions.length > 0) {
-        baseQuery = baseQuery.where(and(...conditions));
+        return await db
+          .select()
+          .from(audit_logs)
+          .where(and(...conditions))
+          .orderBy(desc(audit_logs.created_at))
+          .limit(limit);
       }
       
-      return await baseQuery
+      return await db
+        .select()
+        .from(audit_logs)
         .orderBy(desc(audit_logs.created_at))
         .limit(limit);
     } catch (error) {
@@ -2231,17 +2241,22 @@ export class DatabaseStorage implements IStorage {
 
   async getSystemAlerts(status?: string, severity?: string, limit = 100): Promise<SystemAlert[]> {
     try {
-      let baseQuery = db.select().from(system_alerts);
-      
       const conditions = [];
       if (status) conditions.push(eq(system_alerts.status, status));
       if (severity) conditions.push(eq(system_alerts.severity, severity));
       
       if (conditions.length > 0) {
-        baseQuery = baseQuery.where(and(...conditions));
+        return await db
+          .select()
+          .from(system_alerts)
+          .where(and(...conditions))
+          .orderBy(desc(system_alerts.created_at))
+          .limit(limit);
       }
       
-      return await baseQuery
+      return await db
+        .select()
+        .from(system_alerts)
         .orderBy(desc(system_alerts.created_at))
         .limit(limit);
     } catch (error) {

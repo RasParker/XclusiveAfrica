@@ -22,7 +22,9 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
-    hmr: { server },
+    // Disable HMR WebSocket in Replit environment to prevent connection errors
+    // The proxy makes WebSocket connections unreliable, but the app still works fine
+    hmr: false,
     allowedHosts: true as const,
     host: "0.0.0.0", // Ensure Vite listens on all interfaces
   };
