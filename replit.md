@@ -46,7 +46,7 @@ The project is configured to run on Replit with:
 - **Host Configuration**: Properly configured for Replit proxy with `allowedHosts: true`
 - **Database**: Supabase PostgreSQL with auto-initialization and seeding
 - **Environment**: DATABASE_URL secret managed via Replit Secrets
-- **Hot Module Replacement**: Vite HMR properly configured for development
+- **Hot Module Replacement**: Vite HMR disabled (set to `hmr: false`) to prevent WebSocket connection errors in Replit's proxy environment
 
 ## Database
 - **Provider**: Supabase PostgreSQL (managed cloud database)
