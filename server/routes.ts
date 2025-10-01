@@ -433,11 +433,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       query += ` ORDER BY posts.created_at DESC`;
 
-      const result = await pool.query(query, params);
+      // postgres-js requires .unsafe() for dynamic queries with parameters
+      const rows = await pool.unsafe(query, params);
 
-      console.log(`Found ${result.rows.length} posts`);
+      console.log(`Found ${rows.length} posts`);
 
-      res.json(result.rows);
+      res.json(rows);
     } catch (error) {
       console.error('Error fetching posts:', error);
       res.status(500).json({ error: "Failed to fetch posts" });
@@ -537,11 +538,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         LIMIT 50
       `;
 
-      const result = await pool.query(query, [userId]);
+      // postgres-js requires .unsafe() for dynamic queries with parameters
+      const rows = await pool.unsafe(query, [userId]);
 
-      console.log(`Found ${result.rows.length} posts for user's personalized feed`);
+      console.log(`Found ${rows.length} posts for user's personalized feed`);
 
-      res.json(result.rows);
+      res.json(rows);
     } catch (error) {
       console.error('Error fetching personalized feed:', error);
       res.status(500).json({ error: "Failed to fetch feed" });
@@ -3301,9 +3303,10 @@ app.post('/api/conversations', async (req, res) => {
         .where(and(
           eq(follows.follower_id, followerId),
           eq(follows.creator_id, creatorId)
-        ));
+        ))
+        .returning();
 
-      if (result.rowCount && result.rowCount > 0) {
+      if (result.length > 0) {
         // Update creator's follower count
         await db.update(users).set({ 
           total_followers: sql`${users.total_followers} - 1` 

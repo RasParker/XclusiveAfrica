@@ -1,5 +1,5 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from "@shared/schema";
 
 if (!process.env.DATABASE_URL) {
@@ -8,34 +8,32 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-console.log('Using PostgreSQL database');
+console.log('Using Supabase PostgreSQL database');
 
-export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  max: 5, // Reduced pool size for Replit environment stability
-  min: 1, // Minimum connections
-  idleTimeoutMillis: 30000, // 30 seconds
-  connectionTimeoutMillis: 10000, // 10 seconds
-  statement_timeout: 30000, // 30 seconds
-  query_timeout: 30000, // 30 seconds
-  allowExitOnIdle: false, // Keep pool alive
-  keepAlive: true, // Enable TCP keep-alive
-  keepAliveInitialDelayMillis: 5000, // 5 seconds
+// Important: Disable prepare for Supabase Transaction pooling mode
+export const client = postgres(process.env.DATABASE_URL, { 
+  prepare: false,
+  max: 5, // Connection pool size
+  idle_timeout: 30, // 30 seconds
+  connect_timeout: 10, // 10 seconds
 });
 
-export const db = drizzle({ client: pool, schema });
+// Export as pool for backward compatibility with existing code
+export const pool = client;
 
-// Add graceful shutdown handler for database pool
+export const db = drizzle(client, { schema });
+
+// Add graceful shutdown handler for database client
 process.on('SIGINT', async () => {
-  console.log('Closing database pool...');
-  await pool.end();
-  console.log('Database pool closed');
+  console.log('Closing database connection...');
+  await client.end();
+  console.log('Database connection closed');
 });
 
 process.on('SIGTERM', async () => {
-  console.log('Closing database pool...');
-  await pool.end();
-  console.log('Database pool closed');
+  console.log('Closing database connection...');
+  await client.end();
+  console.log('Database connection closed');
 });
 
 console.log('Database setup completed successfully');
