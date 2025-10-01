@@ -17,7 +17,8 @@ async function seedCategories() {
 
     // Check if categories table has any data
     const categoryCount = await db.execute(sql`SELECT COUNT(*) as count FROM categories`);
-    const count = (categoryCount as any).rows?.[0]?.count || 0;
+    // postgres-js returns array directly, not wrapped in result.rows
+    const count = Number((categoryCount as any)[0]?.count) || 0;
 
     if (count > 0) {
       console.log(`Categories table already has ${count} categories, skipping seed`);
@@ -146,7 +147,8 @@ export async function initializeDatabase() {
       ORDER BY table_name
     `);
 
-    const existingTables = (tablesCheck as any).rows?.map((row: any) => row.table_name) || [];
+    // postgres-js returns array directly, not wrapped in result.rows
+    const existingTables = (tablesCheck as any).map((row: any) => row.table_name) || [];
     console.log('Existing tables:', existingTables);
 
     // Required tables for the application
