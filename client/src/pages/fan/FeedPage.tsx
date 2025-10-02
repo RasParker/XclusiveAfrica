@@ -307,7 +307,10 @@ export const FeedPage: React.FC = () => {
               const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
               if (mediaUrls.length > 0 && mediaUrls[0]) {
                 const mediaUrl = mediaUrls[0];
-                thumbnail = mediaUrl.startsWith('/uploads/') ? mediaUrl : `/uploads/${mediaUrl}`;
+                // Use URL directly if it's already a full URL (http/https) or starts with /uploads/
+                thumbnail = mediaUrl.startsWith('http') || mediaUrl.startsWith('/uploads/') 
+                  ? mediaUrl 
+                  : `/uploads/${mediaUrl}`;
               }
             }
 
