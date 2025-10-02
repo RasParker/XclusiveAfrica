@@ -540,38 +540,11 @@ export const FeedPage: React.FC = () => {
       return;
     }
 
-    // For video content, check aspect ratio to determine navigation behavior
-    if (post.type === 'video' && post.thumbnail) {
-      // Create a temporary image/video element to detect aspect ratio
-      // Using a more robust method to get metadata if possible
-      const mediaElement = document.createElement(post.type);
-      mediaElement.src = post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`;
-      mediaElement.preload = 'metadata';
-
-      mediaElement.onloadedmetadata = () => {
-        const aspectRatio = mediaElement.videoWidth / mediaElement.videoHeight;
-
-        if (aspectRatio > 1.2) { // Threshold for landscape (e.g., 16:9, 4:3)
-          // Landscape video - navigate to YouTube-style watch page
-          navigate(`/video/${post.id}`);
-        } else {
-          // Portrait video or close to square - open Instagram-style modal
-          const index = feed.findIndex(p => p.id === post.id);
-          setSelectedContent(post);
-          setSelectedIndex(index);
-          setIsModalOpen(true);
-        }
-      };
-
-      // Fallback for when metadata can't be loaded or if it's not a video
-      mediaElement.onerror = () => {
-        const index = feed.findIndex(p => p.id === post.id);
-        setSelectedContent(post);
-        setSelectedIndex(index);
-        setIsModalOpen(true);
-      };
+    // All videos navigate to the dedicated video player page
+    if (post.type === 'video') {
+      navigate(`/video/${post.id}`);
     } else {
-      // Non-video content always opens in modal
+      // Non-video content opens in modal
       const index = feed.findIndex(p => p.id === post.id);
       setSelectedContent(post);
       setSelectedIndex(index);
@@ -748,23 +721,21 @@ export const FeedPage: React.FC = () => {
                     {post.hasAccess ? (
                       post.thumbnail ? (
                         post.type === 'video' ? (
-                          <video
-                            src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
-                            className="w-full h-full object-cover"
-                            muted
-                            preload="metadata"
-                            loading={index > 3 ? "lazy" : "eager"}
-                            onError={(e) => {
-                              const target = e.target as HTMLVideoElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
-                                  <div class="text-white text-sm">Video unavailable</div>
-                                </div>`;
-                              }
-                            }}
-                          />
+                          <div className="w-full h-full relative bg-black">
+                            <video
+                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              className="w-full h-full object-cover"
+                              muted
+                              preload="metadata"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z"/>
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
                         ) : (
                           <img 
                             src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
@@ -968,23 +939,21 @@ export const FeedPage: React.FC = () => {
                     {post.hasAccess ? (
                       post.thumbnail ? (
                         post.type === 'video' ? (
-                          <video
-                            src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
-                            className="w-full h-full object-cover"
-                            muted
-                            preload="metadata"
-                            loading={index > 8 ? "lazy" : "eager"}
-                            onError={(e) => {
-                              const target = e.target as HTMLVideoElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
-                                  <div class="text-white text-xs">Video unavailable</div>
-                                </div>`;
-                              }
-                            }}
-                          />
+                          <div className="w-full h-full relative bg-black">
+                            <video
+                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              className="w-full h-full object-cover"
+                              muted
+                              preload="metadata"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z"/>
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
                         ) : (
                           <img 
                             src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
@@ -1112,23 +1081,21 @@ export const FeedPage: React.FC = () => {
                     {post.hasAccess ? (
                       post.thumbnail ? (
                         post.type === 'video' ? (
-                          <video
-                            src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
-                            className="w-full h-full object-cover"
-                            muted
-                            preload="metadata"
-                            loading={index > 2 ? "lazy" : "eager"}
-                            onError={(e) => {
-                              const target = e.target as HTMLVideoElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
-                                  <div class="text-white text-sm">Video unavailable</div>
-                                </div>`;
-                              }
-                            }}
-                          />
+                          <div className="w-full h-full relative bg-black">
+                            <video
+                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              className="w-full h-full object-cover"
+                              muted
+                              preload="metadata"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M8 5v14l11-7z"/>
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
                         ) : (
                           <img 
                             src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
