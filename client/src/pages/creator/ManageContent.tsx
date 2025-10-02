@@ -75,7 +75,10 @@ export const ManageContent: React.FC = () => {
                 const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
                 if (mediaUrls.length > 0 && mediaUrls[0]) {
                   const mediaUrl = mediaUrls[0];
-                  mediaPreview = mediaUrl.startsWith('/uploads/') ? mediaUrl : `/uploads/${mediaUrl}`;
+                  // Use URL directly if it's already a full URL (http/https) or starts with /uploads/
+                  mediaPreview = mediaUrl.startsWith('http') || mediaUrl.startsWith('/uploads/') 
+                    ? mediaUrl 
+                    : `/uploads/${mediaUrl}`;
                 }
               }
 
@@ -238,7 +241,7 @@ export const ManageContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         <div className="mb-8 text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 flex items-center gap-2 justify-center sm:justify-start">
             Manage Content
@@ -247,9 +250,9 @@ export const ManageContent: React.FC = () => {
             View and edit all your published posts
           </p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          
+
           <Button asChild className="w-full sm:w-auto">
             <Link to="/creator/upload">
               <Plus className="w-4 h-4 mr-2" />
