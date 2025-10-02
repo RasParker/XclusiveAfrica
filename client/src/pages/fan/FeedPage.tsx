@@ -732,7 +732,7 @@ export const FeedPage: React.FC = () => {
                         post.type === 'video' ? (
                           <div className="w-full h-full relative bg-black">
                             <video
-                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              src={post.thumbnail}
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
@@ -774,7 +774,7 @@ export const FeedPage: React.FC = () => {
 
                         {/* Minimal locked content preview matching desktop */}
                         <div className="text-center z-10 p-6 space-y-4">
-                          <div className="w-16 h-16 mx-auto bg-background/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                          <div className="w-16 h-16 bg-background/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                             <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                             </svg>
@@ -803,7 +803,7 @@ export const FeedPage: React.FC = () => {
                       </div>
                     )}
 
-                    
+
                   </div>
 
                   {/* Enhanced bottom section with better spacing */}
@@ -950,7 +950,7 @@ export const FeedPage: React.FC = () => {
                         post.type === 'video' ? (
                           <div className="w-full h-full relative bg-black">
                             <video
-                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              src={post.thumbnail}
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
@@ -1092,7 +1092,7 @@ export const FeedPage: React.FC = () => {
                         post.type === 'video' ? (
                           <div className="w-full h-full relative bg-black">
                             <video
-                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              src={post.thumbnail}
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
@@ -1167,27 +1167,27 @@ export const FeedPage: React.FC = () => {
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent">
                         <AvatarImage 
-                          src={post.creator.avatar ? (post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
-                          alt={post.creator.username} 
+                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
+                          alt={selectedContent.creator.username} 
                         />
                         <AvatarFallback className="text-sm bg-muted text-muted-foreground">
-                          {(post.creator.display_name || post.creator.username || 'U').charAt(0).toUpperCase()}
+                          {(selectedContent.creator.display_name || selectedContent.creator.username || 'U').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0 space-y-2">
                         <h4 className="text-lg font-semibold text-foreground line-clamp-2 leading-tight">
-                          {post.content || 'Untitled Post'}
+                          {selectedContent.content || 'Untitled Post'}
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching grid view */}
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-sm text-muted-foreground font-medium truncate">
-                            {post.creator.display_name || post.creator.username}
+                            {selectedContent.creator.display_name || selectedContent.creator.username}
                           </p>
                           {/* Updated stats display format for desktop single view */}
                           <div className="flex items-center gap-2 text-sm text-muted-foreground flex-shrink-0">
-                            <span>{(post.likes_count || post.views || 0).toLocaleString()} views</span>
+                            <span>{(selectedContent.likes_count || selectedContent.views || 0).toLocaleString()} views</span>
                             <span>•</span>
-                            <span>{getTimeAgo(post.posted)}</span>
+                            <span>{getTimeAgo(selectedContent.posted)}</span>
                           </div>
                         </div>
                       </div>
@@ -1200,13 +1200,13 @@ export const FeedPage: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className={`h-10 w-10 p-0 rounded-full ${post.liked ? 'text-red-500 bg-red-50' : 'text-muted-foreground'}`}
-                            onClick={() => handleLike(post.id)}
+                            className={`h-10 w-10 p-0 rounded-full ${selectedContent.liked ? 'text-red-500 bg-red-50' : 'text-muted-foreground'}`}
+                            onClick={() => handleLike(selectedContent.id)}
                           >
-                            <Heart className={`w-5 h-5 ${post.liked ? 'fill-current' : ''}`} />
+                            <Heart className={`w-5 h-5 ${selectedContent.liked ? 'fill-current' : ''}`} />
                           </Button>
                           <span className="text-sm font-semibold text-foreground">
-                            {(post.likes_count || 0).toLocaleString()}
+                            {(selectedContent.likes_count || 0).toLocaleString()}
                           </span>
                         </div>
 
@@ -1215,12 +1215,12 @@ export const FeedPage: React.FC = () => {
                             variant="ghost" 
                             size="sm" 
                             className="h-10 w-10 p-0 rounded-full text-muted-foreground"
-                            onClick={() => handleCommentClick(post.id)}
+                            onClick={() => handleCommentClick(selectedContent.id)}
                           >
                             <MessageSquare className="w-5 h-5" />
                           </Button>
                           <span className="text-sm font-semibold text-foreground">
-                            {(post.comments_count || 0).toLocaleString()}
+                            {(selectedContent.comments_count || 0).toLocaleString()}
                           </span>
                         </div>
 
@@ -1228,7 +1228,7 @@ export const FeedPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           className="h-10 w-10 p-0 rounded-full text-muted-foreground"
-                          onClick={() => handleShare(post.id)}
+                          onClick={() => handleShare(selectedContent.id)}
                         >
                           <Share2 className="w-5 h-5" />
                         </Button>
@@ -1265,7 +1265,7 @@ export const FeedPage: React.FC = () => {
 
       {/* Instagram-style Content Modal with responsive design */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-full max-h-full w-full h-full p-0 m-0 overflow-hidden border-0 [&>button]:hidden sm:max-w-5xl sm:max-h-[95vh] sm:w-auto sm:h-auto sm:rounded-lg">
+        <DialogContent className="max-w-full max-h-full p-0 m-0 overflow-hidden border-0 [&>button]:hidden sm:max-w-5xl sm:max-h-[95vh] sm:w-auto sm:h-auto sm:rounded-lg">
           <DialogHeader className="sr-only">
             <DialogTitle>{selectedContent?.type} Content</DialogTitle>
             <DialogDescription>View content from {selectedContent?.creator?.display_name}</DialogDescription>
@@ -1318,7 +1318,7 @@ export const FeedPage: React.FC = () => {
                     <div className="w-full h-full bg-black flex items-center justify-center">
                     <video 
                       key={selectedContent.id}
-                      src={selectedContent.thumbnail.startsWith('/uploads/') ? selectedContent.thumbnail : `/uploads/${selectedContent.thumbnail}`} 
+                      src={selectedContent.thumbnail} 
                       className="max-w-full max-h-full"
                       controls
                       autoPlay
@@ -1342,7 +1342,7 @@ export const FeedPage: React.FC = () => {
                     </div>
                   ) : (
                     <img 
-                      src={selectedContent.thumbnail.startsWith('/uploads/') ? selectedContent.thumbnail : `/uploads/${selectedContent.thumbnail}`} 
+                      src={selectedContent.thumbnail} 
                       alt={`${selectedContent.creator.display_name}'s post`}
                       className="w-full h-full object-cover"
                     />
@@ -1491,7 +1491,7 @@ export const FeedPage: React.FC = () => {
                         <div className="w-full h-full bg-black flex items-center justify-center">
                         <video 
                           key={selectedContent.id}
-                          src={selectedContent.thumbnail.startsWith('/uploads/') ? selectedContent.thumbnail : `/uploads/${selectedContent.thumbnail}`} 
+                          src={selectedContent.thumbnail}
                           className="max-w-full max-h-full"
                           controls
                           autoPlay
@@ -1515,7 +1515,7 @@ export const FeedPage: React.FC = () => {
                         </div>
                       ) : (
                         <img 
-                          src={selectedContent.thumbnail.startsWith('/uploads/') ? selectedContent.thumbnail : `/uploads/${selectedContent.thumbnail}`} 
+                          src={selectedContent.thumbnail} 
                           alt={`${selectedContent.creator.display_name}'s post`}
                           className="w-full h-full object-contain"
                         />
