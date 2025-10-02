@@ -61,9 +61,15 @@ export const VideoWatch: React.FC = () => {
           // Map the creator data to the expected format
           const mappedPost = {
             ...postData,
-            creator_display_name: postData.creator?.username || 'Unknown Creator',
-            creator_username: postData.creator?.username || 'unknown',
-            creator_avatar: postData.creator?.avatar || null
+            creator_display_name: postData.creator?.display_name || postData.creator?.username || postData.display_name || postData.username || 'Unknown Creator',
+            creator_username: postData.creator?.username || postData.username || 'unknown',
+            creator_avatar: postData.creator?.avatar || postData.avatar || null,
+            creator: postData.creator || {
+              id: postData.creator_id,
+              username: postData.username,
+              display_name: postData.display_name,
+              avatar: postData.avatar
+            }
           };
           setPost(mappedPost);
 
@@ -296,15 +302,20 @@ export const VideoWatch: React.FC = () => {
             {/* Video Caption with Avatar */}
             <div className="flex items-start gap-3 mb-3">
               <Avatar className="h-9 w-9 flex-shrink-0">
-                <AvatarImage src={post.creator_avatar ? (post.creator_avatar.startsWith('/uploads/') ? post.creator_avatar : `/uploads/${post.creator_avatar}`) : undefined} alt={post.creator_username} />
-                <AvatarFallback className="text-sm">{(post.creator_display_name || post.creator_username || 'U').charAt(0)}</AvatarFallback>
+                <AvatarImage 
+                  src={post.creator_avatar || post.creator?.avatar || undefined} 
+                  alt={post.creator_username || post.creator?.username} 
+                />
+                <AvatarFallback className="text-sm">
+                  {(post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username || 'U').charAt(0).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0 space-y-2">
                 <h1 className="text-sm font-medium text-foreground line-clamp-2">
                   {post.content || 'Untitled Post'}
                 </h1>
                 <p className="text-sm text-muted-foreground font-medium">
-                  {post.creator_display_name || post.creator_username}
+                  {post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}
                 </p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span>{post.views_count ? (post.views_count >= 1000 ? `${Math.floor(post.views_count / 1000)}K` : post.views_count) : '0'} views</span>
@@ -577,17 +588,19 @@ export const VideoWatch: React.FC = () => {
               <div className="flex items-start gap-3 mb-4">
                 <Avatar className="h-9 w-9 flex-shrink-0">
                   <AvatarImage 
-                    src={post.creator_avatar ? (post.creator_avatar.startsWith('/uploads/') ? post.creator_avatar : `/uploads/${post.creator_avatar}`) : undefined} 
-                    alt={post.creator_username} 
+                    src={post.creator_avatar || post.creator?.avatar || undefined} 
+                    alt={post.creator_username || post.creator?.username} 
                   />
-                  <AvatarFallback className="text-sm">{(post.creator_display_name || post.creator_username || 'U').charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="text-sm">
+                    {(post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username || 'U').charAt(0).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <h1 className="text-sm font-medium text-foreground line-clamp-2 mb-1">
                     {post.content}
                   </h1>
                   <div className="flex items-center justify-between text-xs text-muted-foreground w-full">
-                    <span className="truncate mr-2">{post.creator_display_name || post.creator_username}</span>
+                    <span className="truncate mr-2">{post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}</span>
                     <div className="flex items-center gap-1 flex-shrink-0 text-right">
                       <span>876K views</span>
                       <span>•</span>
