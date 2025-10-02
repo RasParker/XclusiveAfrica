@@ -301,6 +301,16 @@ export const FeedPage: React.FC = () => {
           const transformedPosts = posts.map((post: any) => {
             const postTier = post.tier || 'public';
 
+            // Handle media_urls as either string or array
+            let thumbnail = '';
+            if (post.media_urls) {
+              const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+              if (mediaUrls.length > 0 && mediaUrls[0]) {
+                const mediaUrl = mediaUrls[0];
+                thumbnail = mediaUrl.startsWith('/uploads/') ? mediaUrl : `/uploads/${mediaUrl}`;
+              }
+            }
+
             return {
               id: post.id.toString(),
               creator: {
@@ -312,11 +322,7 @@ export const FeedPage: React.FC = () => {
               content: post.content || post.title || '',
               type: post.media_type || 'post',
               tier: postTier,
-              thumbnail: post.media_urls && post.media_urls.length > 0 
-                ? post.media_urls[0].startsWith('/uploads/') 
-                  ? post.media_urls[0] 
-                  : `/uploads/${post.media_urls[0]}`
-                : '',
+              thumbnail: thumbnail,
               posted: post.created_at || new Date().toISOString(),
               likes: post.likes_count || 0,
               comments: post.comments_count || 0,

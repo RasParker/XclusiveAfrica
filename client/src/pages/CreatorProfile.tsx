@@ -1991,56 +1991,49 @@ export const CreatorProfile: React.FC = () => {
                                   </div>
                                 </div>
 
-                                {/* Stats/action icons row with edit/delete buttons */}
+                                {/* Stats/action icons row with edit/delete buttons - Match VideoWatch layout */}
                                 <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                                  <div className="flex items-center gap-8">
+                                  <div className="flex items-center gap-4 flex-1 min-w-0">
                                     {/* Like button */}
-                                    <div className="flex items-center gap-3">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className={`h-10 w-10 p-0 rounded-full transition-all duration-200 ${postLikes[post.id]?.liked ? 'text-red-500 bg-red-50 hover:bg-red-100' : 'text-muted-foreground hover:text-red-500 hover:bg-red-50'}`}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleLike(post.id);
-                                        }}
-                                      >
-                                        <Heart className={`w-5 h-5 ${postLikes[post.id]?.liked ? 'fill-current' : ''}`} />
-                                      </Button>
-                                      <span className="text-sm font-semibold text-foreground">
-                                        {postLikes[post.id]?.count || post.likes_count || 0}
-                                      </span>
-                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className={`flex items-center gap-1 h-auto py-2 px-2 ${postLikes[post.id]?.liked ? 'text-red-500' : 'text-muted-foreground'}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLike(post.id);
+                                      }}
+                                    >
+                                      <Heart className={`w-4 h-4 ${postLikes[post.id]?.liked ? 'fill-current' : ''}`} />
+                                      <span className="text-sm">{postLikes[post.id]?.count || post.likes_count || 0}</span>
+                                    </Button>
 
                                     {/* Comment button */}
-                                    <div className="flex items-center gap-8">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-10 w-10 p-0 rounded-full transition-all duration-200 text-muted-foreground hover:text-blue-500 hover:bg-blue-50"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleCommentClick(post.id);
-                                        }}
-                                      >
-                                        <MessageSquare className="w-5 h-5" />
-                                      </Button>
-                                      <span className="text-sm font-semibold text-foreground">
-                                        {post.comments_count || 0}
-                                      </span>
-                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCommentClick(post.id);
+                                      }}
+                                    >
+                                      <MessageSquare className="w-4 h-4" />
+                                      <span className="text-sm">{post.comments_count || 0}</span>
+                                    </Button>
 
                                     {/* Share button */}
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="h-10 w-10 p-0 rounded-full transition-all duration-200 text-muted-foreground hover:text-green-500 hover:bg-green-50"
+                                      className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleShare(post.id);
                                       }}
                                     >
-                                      <Share2 className="w-5 h-5" />
+                                      <Share2 className="w-4 h-4" />
+                                      <span className="text-sm">Share</span>
                                     </Button>
                                   </div>
 
@@ -2483,56 +2476,49 @@ export const CreatorProfile: React.FC = () => {
                                   </div>
                                 </div>
 
-                                {/* Stats/action icons row with edit/delete buttons */}
+                                {/* Stats/action icons row with edit/delete buttons - Match VideoWatch layout */}
                                 <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                                  <div className="flex items-center gap-8">
+                                  <div className="flex items-center gap-4 flex-1 min-w-0">
                                     {/* Like button */}
-                                    <div className="flex items-center gap-3">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className={`h-10 w-10 p-0 rounded-full transition-all duration-200 ${postLikes[post.id]?.liked ? 'text-red-500 bg-red-50 hover:bg-red-100' : 'text-muted-foreground hover:text-red-500 hover:bg-red-50'}`}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleLike(post.id);
-                                        }}
-                                      >
-                                        <Heart className={`w-5 h-5 ${postLikes[post.id]?.liked ? 'fill-current' : ''}`} />
-                                      </Button>
-                                      <span className="text-sm font-semibold text-foreground">
-                                        {postLikes[post.id]?.count || post.likes_count || 0}
-                                      </span>
-                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className={`flex items-center gap-1 h-auto py-2 px-2 ${postLikes[post.id]?.liked ? 'text-red-500' : 'text-muted-foreground'}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLike(post.id);
+                                      }}
+                                    >
+                                      <Heart className={`w-4 h-4 ${postLikes[post.id]?.liked ? 'fill-current' : ''}`} />
+                                      <span className="text-sm">{postLikes[post.id]?.count || post.likes_count || 0}</span>
+                                    </Button>
 
                                     {/* Comment button */}
-                                    <div className="flex items-center gap-8">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-10 w-10 p-0 rounded-full transition-all duration-200 text-muted-foreground hover:text-blue-500 hover:bg-blue-50"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleCommentClick(post.id);
-                                        }}
-                                      >
-                                        <MessageSquare className="w-5 h-5" />
-                                      </Button>
-                                      <span className="text-sm font-semibold text-foreground">
-                                        {post.comments_count || 0}
-                                      </span>
-                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCommentClick(post.id);
+                                      }}
+                                    >
+                                      <MessageSquare className="w-4 h-4" />
+                                      <span className="text-sm">{post.comments_count || 0}</span>
+                                    </Button>
 
                                     {/* Share button */}
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="h-10 w-10 p-0 rounded-full transition-all duration-200 text-muted-foreground hover:text-green-500 hover:bg-green-50"
+                                      className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleShare(post.id);
                                       }}
                                     >
-                                      <Share2 className="w-5 h-5" />
+                                      <Share2 className="w-4 h-4" />
+                                      <span className="text-sm">Share</span>
                                     </Button>
                                   </div>
 
@@ -2970,56 +2956,49 @@ export const CreatorProfile: React.FC = () => {
                                   </div>
                                 </div>
 
-                                {/* Stats/action icons row with edit/delete buttons */}
+                                {/* Stats/action icons row with edit/delete buttons - Match VideoWatch layout */}
                                 <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                                  <div className="flex items-center gap-8">
+                                  <div className="flex items-center gap-4 flex-1 min-w-0">
                                     {/* Like button */}
-                                    <div className="flex items-center gap-3">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className={`h-10 w-10 p-0 rounded-full transition-all duration-200 ${postLikes[post.id]?.liked ? 'text-red-500 bg-red-50 hover:bg-red-100' : 'text-muted-foreground hover:text-red-500 hover:bg-red-50'}`}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleLike(post.id);
-                                        }}
-                                      >
-                                        <Heart className={`w-5 h-5 ${postLikes[post.id]?.liked ? 'fill-current' : ''}`} />
-                                      </Button>
-                                      <span className="text-sm font-semibold text-foreground">
-                                        {postLikes[post.id]?.count || post.likes_count || 0}
-                                      </span>
-                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className={`flex items-center gap-1 h-auto py-2 px-2 ${postLikes[post.id]?.liked ? 'text-red-500' : 'text-muted-foreground'}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLike(post.id);
+                                      }}
+                                    >
+                                      <Heart className={`w-4 h-4 ${postLikes[post.id]?.liked ? 'fill-current' : ''}`} />
+                                      <span className="text-sm">{postLikes[post.id]?.count || post.likes_count || 0}</span>
+                                    </Button>
 
                                     {/* Comment button */}
-                                    <div className="flex items-center gap-8">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        className="h-10 w-10 p-0 rounded-full transition-all duration-200 text-muted-foreground hover:text-blue-500 hover:bg-blue-50"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleCommentClick(post.id);
-                                        }}
-                                      >
-                                        <MessageSquare className="w-5 h-5" />
-                                      </Button>
-                                      <span className="text-sm font-semibold text-foreground">
-                                        {post.comments_count || 0}
-                                      </span>
-                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCommentClick(post.id);
+                                      }}
+                                    >
+                                      <MessageSquare className="w-4 h-4" />
+                                      <span className="text-sm">{post.comments_count || 0}</span>
+                                    </Button>
 
                                     {/* Share button */}
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="h-10 w-10 p-0 rounded-full transition-all duration-200 text-muted-foreground hover:text-green-500 hover:bg-green-50"
+                                      className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleShare(post.id);
                                       }}
                                     >
-                                      <Share2 className="w-5 h-5" />
+                                      <Share2 className="w-4 h-4" />
+                                      <span className="text-sm">Share</span>
                                     </Button>
                                   </div>
 
