@@ -811,7 +811,7 @@ export const FeedPage: React.FC = () => {
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent">
                         <AvatarImage 
-                          src={post.creator.avatar ? (post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
+                          src={post.creator.avatar ? (post.creator.avatar.startsWith('http') || post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
                           alt={post.creator.username} 
                         />
                         <AvatarFallback className="text-sm bg-muted text-muted-foreground">
@@ -1028,7 +1028,7 @@ export const FeedPage: React.FC = () => {
                     <div className="flex gap-3 flex-1">
                       <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-transparent">
                         <AvatarImage 
-                          src={post.creator.avatar ? (post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
+                          src={post.creator.avatar ? (post.creator.avatar.startsWith('http') || post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
                           alt={post.creator.username} 
                         />
                         <AvatarFallback className="text-xs bg-muted text-muted-foreground">
@@ -1167,7 +1167,7 @@ export const FeedPage: React.FC = () => {
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent">
                         <AvatarImage 
-                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
+                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('http') || selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
                           alt={selectedContent.creator.username} 
                         />
                         <AvatarFallback className="text-sm bg-muted text-muted-foreground">
@@ -1382,7 +1382,7 @@ export const FeedPage: React.FC = () => {
                     <div className="flex items-center gap-3 mb-3">
                       <Avatar className="h-10 w-10 border-2 border-white">
                         <AvatarImage 
-                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
+                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('http') || selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
                           alt={selectedContent.creator.username} 
                         />
                         <AvatarFallback className="text-black">{(selectedContent.creator.display_name || selectedContent.creator.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
@@ -1557,7 +1557,7 @@ export const FeedPage: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
                         <AvatarImage 
-                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
+                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('http') || selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
                           alt={selectedContent.creator.username} 
                         />
                         <AvatarFallback>{(selectedContent.creator.display_name || selectedContent.creator.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
