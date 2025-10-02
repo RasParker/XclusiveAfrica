@@ -1167,27 +1167,27 @@ export const FeedPage: React.FC = () => {
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent">
                         <AvatarImage 
-                          src={selectedContent.creator.avatar ? (selectedContent.creator.avatar.startsWith('http') || selectedContent.creator.avatar.startsWith('/uploads/') ? selectedContent.creator.avatar : `/uploads/${selectedContent.creator.avatar}`) : undefined} 
-                          alt={selectedContent.creator.username} 
+                          src={post.creator.avatar ? (post.creator.avatar.startsWith('http') || post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
+                          alt={post.creator.username} 
                         />
                         <AvatarFallback className="text-sm bg-muted text-muted-foreground">
-                          {(selectedContent.creator.display_name || selectedContent.creator.username || 'U').charAt(0).toUpperCase()}
+                          {(post.creator.display_name || post.creator.username || 'U').charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0 space-y-2">
                         <h4 className="text-lg font-semibold text-foreground line-clamp-2 leading-tight">
-                          {selectedContent.content || 'Untitled Post'}
+                          {post.content || 'Untitled Post'}
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching grid view */}
                         <div className="flex items-center justify-between gap-3">
                           <p className="text-sm text-muted-foreground font-medium truncate">
-                            {selectedContent.creator.display_name || selectedContent.creator.username}
+                            {post.creator.display_name || post.creator.username}
                           </p>
                           {/* Updated stats display format for desktop single view */}
                           <div className="flex items-center gap-2 text-sm text-muted-foreground flex-shrink-0">
-                            <span>{(selectedContent.likes_count || selectedContent.views || 0).toLocaleString()} views</span>
+                            <span>{(post.likes_count || post.views || 0).toLocaleString()} views</span>
                             <span>•</span>
-                            <span>{getTimeAgo(selectedContent.posted)}</span>
+                            <span>{getTimeAgo(post.posted)}</span>
                           </div>
                         </div>
                       </div>
@@ -1200,13 +1200,13 @@ export const FeedPage: React.FC = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className={`h-10 w-10 p-0 rounded-full ${selectedContent.liked ? 'text-red-500 bg-red-50' : 'text-muted-foreground'}`}
-                            onClick={() => handleLike(selectedContent.id)}
+                            className={`h-10 w-10 p-0 rounded-full ${post.liked ? 'text-red-500 bg-red-50' : 'text-muted-foreground'}`}
+                            onClick={() => handleLike(post.id)}
                           >
-                            <Heart className={`w-5 h-5 ${selectedContent.liked ? 'fill-current' : ''}`} />
+                            <Heart className={`w-5 h-5 ${post.liked ? 'fill-current' : ''}`} />
                           </Button>
                           <span className="text-sm font-semibold text-foreground">
-                            {(selectedContent.likes_count || 0).toLocaleString()}
+                            {(post.likes_count || 0).toLocaleString()}
                           </span>
                         </div>
 
@@ -1215,12 +1215,12 @@ export const FeedPage: React.FC = () => {
                             variant="ghost" 
                             size="sm" 
                             className="h-10 w-10 p-0 rounded-full text-muted-foreground"
-                            onClick={() => handleCommentClick(selectedContent.id)}
+                            onClick={() => handleCommentClick(post.id)}
                           >
                             <MessageSquare className="w-5 h-5" />
                           </Button>
                           <span className="text-sm font-semibold text-foreground">
-                            {(selectedContent.comments_count || 0).toLocaleString()}
+                            {(post.comments_count || 0).toLocaleString()}
                           </span>
                         </div>
 
@@ -1228,7 +1228,7 @@ export const FeedPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           className="h-10 w-10 p-0 rounded-full text-muted-foreground"
-                          onClick={() => handleShare(selectedContent.id)}
+                          onClick={() => handleShare(post.id)}
                         >
                           <Share2 className="w-5 h-5" />
                         </Button>
