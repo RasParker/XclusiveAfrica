@@ -314,13 +314,13 @@ export const VideoWatch: React.FC = () => {
                 <h1 className="text-sm font-medium text-foreground line-clamp-2">
                   {post.content || 'Untitled Post'}
                 </h1>
-                <p className="text-sm text-muted-foreground font-medium">
-                  {post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}
-                </p>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>{post.views_count ? (post.views_count >= 1000 ? `${Math.floor(post.views_count / 1000)}K` : post.views_count) : '0'} views</span>
-                  <span>•</span>
-                  <span>{getTimeAgo(post.posted || post.created_at)}</span>
+                <div className="flex items-center justify-between text-xs text-muted-foreground w-full">
+                  <span className="truncate mr-2">{post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}</span>
+                  <div className="flex items-center gap-1 flex-shrink-0 text-right">
+                    <span>{post.views_count ? (post.views_count >= 1000 ? `${Math.floor(post.views_count / 1000)}K` : post.views_count) : '0'} views</span>
+                    <span>•</span>
+                    <span>{getTimeAgo(post.posted || post.created_at)}</span>
+                  </div>
                 </div>
               </div>
             </div>
