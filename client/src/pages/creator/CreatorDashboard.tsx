@@ -593,10 +593,8 @@ export const CreatorDashboard: React.FC = () => {
                               <div className="flex-shrink-0">
                                 {post.media_urls && post.media_urls.length > 0 ? (
                                   (() => {
-                                    // Construct full URL - add /uploads/ prefix if not present
-                                    const mediaUrl = post.media_urls[0].startsWith('/uploads/')
-                                      ? post.media_urls[0]
-                                      : `/uploads/${post.media_urls[0]}`;
+                                    // Use URL directly - it's already a full Cloudinary URL or local path
+                                    const mediaUrl = post.media_urls[0];
 
                                     return post.media_type === 'video' ? (
                                       <video
@@ -677,10 +675,8 @@ export const CreatorDashboard: React.FC = () => {
                             <div className="flex-shrink-0">
                               {post.media_urls && post.media_urls.length > 0 ? (
                                 (() => {
-                                  // Construct full URL - add /uploads/ prefix if not present
-                                  const mediaUrl = post.media_urls[0].startsWith('/uploads/')
-                                    ? post.media_urls[0]
-                                    : `/uploads/${post.media_urls[0]}`;
+                                  // Use URL directly - it's already a full Cloudinary URL or local path
+                                  const mediaUrl = post.media_urls[0];
 
                                   return post.media_type === 'video' ? (
                                     <video
