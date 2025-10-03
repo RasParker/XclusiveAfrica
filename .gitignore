@@ -50,3 +50,9 @@ coverage/
 
 # Misc
 .eslintcache
+
+# Test and cookie files
+cookies.txt
+cookies_new.txt
+cookies_final.txt
+test-payment.js
