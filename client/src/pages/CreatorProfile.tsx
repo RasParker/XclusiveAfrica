@@ -1782,7 +1782,9 @@ export const CreatorProfile: React.FC = () => {
                         <div className="flex items-start justify-between gap-3 mb-4">
                           <h4 className="text-sm md:text-base font-semibold uppercase tracking-wide leading-tight">{tier.name}</h4>
                           {index === 0 && creator.tiers.length > 1 && (
-                            <span className="text-xs bg-primary/15 text-primary px-2.5 py-1 rounded-full flex-shrink-0 font-medium">POPULAR</span>
+                            <Badge variant="outline" className="text-xs px-2.5 py-1 flex-shrink-0 font-medium border-primary/50 text-primary bg-card/50 backdrop-blur-sm hover:bg-[#1e1e24] hover:border-primary/50">
+                              POPULAR
+                            </Badge>
                           )}
                         </div>
                         <div className="min-h-[3rem] mb-4">
