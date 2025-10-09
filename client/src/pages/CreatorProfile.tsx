@@ -1903,7 +1903,7 @@ export const CreatorProfile: React.FC = () => {
                                     </p>
                                     <Button 
                                       size="sm" 
-                                      className="bg-accent hover:bg-accent/90 text-black text-xs px-2 py-1"
+                                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-3 py-1.5 shadow-lg hover:shadow-xl transition-all"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         if (!user) {
@@ -2119,7 +2119,7 @@ export const CreatorProfile: React.FC = () => {
                                       </p>
                                       <Button 
                                         size="sm" 
-                                        className="bg-accent hover:bg-accent/90 text-black text-sm px-4"
+                                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-sm px-4 shadow-lg hover:shadow-xl transition-all"
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           if (!user) {
@@ -2383,7 +2383,7 @@ export const CreatorProfile: React.FC = () => {
                                     </p>
                                     <Button 
                                       size="sm" 
-                                      className="bg-accent hover:bg-accent/90 text-black text-xs px-2 py-1"
+                                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-3 py-1.5 shadow-lg hover:shadow-xl transition-all"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         if (!user) {
@@ -2484,7 +2484,7 @@ export const CreatorProfile: React.FC = () => {
                                         </p>
                                         <Button 
                                           size="sm" 
-                                          className="bg-accent hover:bg-accent/90 text-black text-xs h-7 px-3"
+                                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs h-7 px-3 shadow-lg hover:shadow-xl transition-all"
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             if (!user) {
