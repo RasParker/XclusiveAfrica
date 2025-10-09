@@ -99,7 +99,7 @@ export const CreatorDashboard: React.FC = () => {
   const [scheduledContent, setScheduledContent] = useState<any[]>([]);
   const [recentSubscribers, setRecentSubscribers] = useState<any[]>([]);
   const [tierPerformance, setTierPerformance] = useState<any[]>([]);
-  
+
   // Quick post modal state
   const [isQuickPostModalOpen, setIsQuickPostModalOpen] = useState(false);
   const [analytics, setAnalytics] = useState({
@@ -330,7 +330,7 @@ export const CreatorDashboard: React.FC = () => {
                     <h3 className="font-semibold text-foreground mb-1">Share something new</h3>
                     <p className="text-sm text-muted-foreground">Quick post to your subscribers</p>
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => setIsQuickPostModalOpen(true)}
                     className="bg-primary hover:bg-primary/90"
                     data-testid="button-quick-post"
@@ -341,7 +341,7 @@ export const CreatorDashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <QuickActionsGrid />
 
             {/* Subscription Tiers Performance */}
@@ -410,10 +410,8 @@ export const CreatorDashboard: React.FC = () => {
                                 <div className="flex-shrink-0">
                                   {content.media_urls && content.media_urls.length > 0 ? (
                                     (() => {
-                                      // Construct full URL - add /uploads/ prefix if not present
-                                      const mediaUrl = content.media_urls[0].startsWith('/uploads/')
-                                        ? content.media_urls[0]
-                                        : `/uploads/${content.media_urls[0]}`;
+                                      // Use URL directly - it's already a full Cloudinary URL or local path
+                                      const mediaUrl = content.media_urls[0];
 
                                       return content.media_type === 'video' ? (
                                         <video
@@ -427,7 +425,7 @@ export const CreatorDashboard: React.FC = () => {
                                             target.style.display = 'none';
                                             const parent = target.parentElement;
                                             if (parent) {
-                                              parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 002 2v8a2 2 0 002 2z"></path></svg></div>`;
+                                              parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></div>`;
                                             }
                                           }}
                                         />
@@ -488,10 +486,8 @@ export const CreatorDashboard: React.FC = () => {
                             <div className="flex-shrink-0">
                               {content.media_urls && content.media_urls.length > 0 ? (
                                 (() => {
-                                  // Construct full URL - add /uploads/ prefix if not present
-                                  const mediaUrl = content.media_urls[0].startsWith('/uploads/')
-                                    ? content.media_urls[0]
-                                    : `/uploads/${content.media_urls[0]}`;
+                                  // Use URL directly - it's already a full Cloudinary URL or local path
+                                  const mediaUrl = content.media_urls[0];
 
                                   return content.media_type === 'video' ? (
                                     <video
@@ -505,7 +501,7 @@ export const CreatorDashboard: React.FC = () => {
                                         target.style.display = 'none';
                                         const parent = target.parentElement;
                                         if (parent) {
-                                          parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 002 2v8a2 2 0 002 2z"></path></svg></div>`;
+                                          parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></div>`;
                                         }
                                       }}
                                     />
@@ -608,7 +604,7 @@ export const CreatorDashboard: React.FC = () => {
                                           target.style.display = 'none';
                                           const parent = target.parentElement;
                                           if (parent) {
-                                            parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 002 2v8a2 2 0 002 2z"></path></svg></div>`;
+                                            parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></div>`;
                                           }
                                         }}
                                       />
@@ -690,7 +686,7 @@ export const CreatorDashboard: React.FC = () => {
                                         target.style.display = 'none';
                                         const parent = target.parentElement;
                                         if (parent) {
-                                          parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 002 2v8a2 2 0 002 2z"></path></svg></div>`;
+                                          parent.innerHTML = `<div class="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center"><svg class="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></div>`;
                                         }
                                       }}
                                     />
