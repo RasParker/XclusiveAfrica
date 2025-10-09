@@ -1,17 +1,16 @@
 import express from 'express';
 import multer from 'multer';
-import { CloudinaryService } from '../services/cloudinaryService';
+import { CloudinaryService, isCloudinaryEnabled } from '../services/cloudinaryService';
 import { db } from '../db';
 import { users } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 
 const router = express.Router();
 
-// Configure multer for memory storage (files will be processed in memory)
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit (higher for Cloudinary)
+    fileSize: 50 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|mp4|mov|webp|heic/;
@@ -26,8 +25,18 @@ const upload = multer({
   }
 });
 
-// Upload profile photo (avatar)
-router.post('/profile-photo', upload.single('profilePhoto'), async (req, res) => {
+const checkCloudinaryEnabled = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!isCloudinaryEnabled) {
+    return res.status(503).json({ 
+      success: false, 
+      error: 'Cloudinary is not configured',
+      message: 'Media upload via Cloudinary is currently unavailable. Please configure CLOUDINARY_URL environment variable or use local file uploads.'
+    });
+  }
+  next();
+};
+
+router.post('/profile-photo', checkCloudinaryEnabled, upload.single('profilePhoto'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
@@ -46,7 +55,6 @@ router.post('/profile-photo', upload.single('profilePhoto'), async (req, res) =>
       'avatar'
     );
 
-    // Update user's avatar in database
     await db.update(users)
       .set({ avatar: uploadResult.secure_url })
       .where(eq(users.id, req.session.userId));
@@ -68,8 +76,7 @@ router.post('/profile-photo', upload.single('profilePhoto'), async (req, res) =>
   }
 });
 
-// Upload cover photo
-router.post('/cover-photo', upload.single('coverPhoto'), async (req, res) => {
+router.post('/cover-photo', checkCloudinaryEnabled, upload.single('coverPhoto'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
@@ -88,7 +95,6 @@ router.post('/cover-photo', upload.single('coverPhoto'), async (req, res) => {
       'cover'
     );
 
-    // Update user's cover image in database
     await db.update(users)
       .set({ cover_image: uploadResult.secure_url })
       .where(eq(users.id, req.session.userId));
@@ -110,8 +116,7 @@ router.post('/cover-photo', upload.single('coverPhoto'), async (req, res) => {
   }
 });
 
-// Upload post media (images/videos)
-router.post('/post-media', upload.single('media'), async (req, res) => {
+router.post('/post-media', checkCloudinaryEnabled, upload.single('media'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -154,8 +159,7 @@ router.post('/post-media', upload.single('media'), async (req, res) => {
   }
 });
 
-// Upload multiple files for a post
-router.post('/post-media-multiple', upload.array('media', 10), async (req, res) => {
+router.post('/post-media-multiple', checkCloudinaryEnabled, upload.array('media', 10), async (req, res) => {
   try {
     const files = req.files as Express.Multer.File[];
     
@@ -206,8 +210,7 @@ router.post('/post-media-multiple', upload.array('media', 10), async (req, res) 
   }
 });
 
-// Delete media from Cloudinary
-router.delete('/media/:publicId', async (req, res) => {
+router.delete('/media/:publicId', checkCloudinaryEnabled, async (req, res) => {
   try {
     if (!req.session?.userId) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -241,8 +244,7 @@ router.delete('/media/:publicId', async (req, res) => {
   }
 });
 
-// Generate signed upload URL for direct frontend uploads
-router.post('/signed-url', async (req, res) => {
+router.post('/signed-url', checkCloudinaryEnabled, async (req, res) => {
   try {
     if (!req.session?.userId) {
       return res.status(401).json({ error: 'Authentication required' });

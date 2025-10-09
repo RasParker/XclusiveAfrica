@@ -1,28 +1,38 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary with environment variable
-if (!process.env.CLOUDINARY_URL) {
-  throw new Error('CLOUDINARY_URL environment variable is required');
-}
+let cloudinaryConfig: {
+  api_key: string;
+  api_secret: string;
+  cloud_name: string;
+} | null = null;
 
-// Parse API secret from CLOUDINARY_URL for signed operations
-function parseCloudinaryUrl(url: string) {
-  const regex = /cloudinary:\/\/(\d+):([^@]+)@([^\/]+)/;
-  const match = url.match(regex);
-  if (!match) {
-    throw new Error('Invalid CLOUDINARY_URL format');
+let isConfigured = false;
+
+if (process.env.CLOUDINARY_URL) {
+  try {
+    const url = process.env.CLOUDINARY_URL;
+    const regex = /cloudinary:\/\/(\d+):([^@]+)@([^\/]+)/;
+    const match = url.match(regex);
+    
+    if (!match) {
+      console.error('Invalid CLOUDINARY_URL format. Cloudinary features will be disabled.');
+    } else {
+      cloudinaryConfig = {
+        api_key: match[1],
+        api_secret: match[2],
+        cloud_name: match[3]
+      };
+      isConfigured = true;
+      console.log('Cloudinary configured successfully');
+    }
+  } catch (error) {
+    console.error('Failed to configure Cloudinary:', error);
   }
-  return {
-    api_key: match[1],
-    api_secret: match[2],
-    cloud_name: match[3]
-  };
+} else {
+  console.warn('CLOUDINARY_URL not set. Cloudinary features are disabled. Media uploads will use local storage.');
 }
 
-const cloudinaryConfig = parseCloudinaryUrl(process.env.CLOUDINARY_URL);
-
-// Cloudinary automatically configures itself from the CLOUDINARY_URL
-console.log('Cloudinary configured successfully');
+export const isCloudinaryEnabled = isConfigured;
 
 export interface UploadResult {
   public_id: string;
@@ -36,14 +46,19 @@ export interface UploadResult {
 }
 
 export class CloudinaryService {
-  /**
-   * Upload an image with optimizations
-   */
+  private static ensureEnabled(): void {
+    if (!isCloudinaryEnabled || !cloudinaryConfig) {
+      throw new Error('Cloudinary is not configured. Please set CLOUDINARY_URL environment variable.');
+    }
+  }
+
   static async uploadImage(file: Buffer, mimeType: string, options: {
     folder?: string;
     public_id?: string;
     transformation?: any;
   } = {}): Promise<UploadResult> {
+    this.ensureEnabled();
+    
     try {
       const result = await cloudinary.uploader.upload(`data:${mimeType};base64,${file.toString('base64')}`, {
         folder: options.folder || 'uploads',
@@ -70,13 +85,12 @@ export class CloudinaryService {
     }
   }
 
-  /**
-   * Upload a video with optimizations
-   */
   static async uploadVideo(file: Buffer, mimeType: string, options: {
     folder?: string;
     public_id?: string;
   } = {}): Promise<UploadResult> {
+    this.ensureEnabled();
+    
     try {
       const result = await cloudinary.uploader.upload(`data:${mimeType};base64,${file.toString('base64')}`, {
         folder: options.folder || 'uploads/videos',
@@ -104,10 +118,9 @@ export class CloudinaryService {
     }
   }
 
-  /**
-   * Upload profile image with specific transformations
-   */
   static async uploadProfileImage(file: Buffer, mimeType: string, userId: number, type: 'avatar' | 'cover'): Promise<UploadResult> {
+    this.ensureEnabled();
+    
     const transformations = type === 'avatar' 
       ? [
           { width: 400, height: 400, crop: 'fill', gravity: 'face' },
@@ -127,10 +140,9 @@ export class CloudinaryService {
     });
   }
 
-  /**
-   * Upload post media with optimizations
-   */
   static async uploadPostMedia(file: Buffer, mimeType: string, creatorId: number, mediaType: 'image' | 'video'): Promise<UploadResult> {
+    this.ensureEnabled();
+    
     const folder = `posts/${creatorId}`;
     
     if (mediaType === 'video') {
@@ -147,12 +159,10 @@ export class CloudinaryService {
     }
   }
 
-  /**
-   * Delete a media file from Cloudinary (with ownership verification)
-   */
   static async deleteMedia(publicId: string, userId: number, resourceType: 'image' | 'video' = 'image'): Promise<boolean> {
+    this.ensureEnabled();
+    
     try {
-      // Check if publicId belongs to the user (should start with users/{userId}/ or posts/{userId}/)
       const userPrefixes = [`users/${userId}/`, `posts/${userId}/`];
       const hasValidPrefix = userPrefixes.some(prefix => publicId.startsWith(prefix));
       
@@ -169,15 +179,14 @@ export class CloudinaryService {
     }
   }
 
-  /**
-   * Generate a signed URL for direct upload from frontend
-   */
   static generateSignedUploadUrl(folder: string, publicId?: string): {
     url: string;
     signature: string;
     timestamp: number;
     api_key: string;
   } {
+    this.ensureEnabled();
+    
     const timestamp = Math.round(Date.now() / 1000);
     const params = {
       timestamp,
@@ -185,13 +194,13 @@ export class CloudinaryService {
       ...(publicId && { public_id: publicId })
     };
 
-    const signature = cloudinary.utils.api_sign_request(params, cloudinaryConfig.api_secret);
+    const signature = cloudinary.utils.api_sign_request(params, cloudinaryConfig!.api_secret);
 
     return {
-      url: `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloud_name}/image/upload`,
+      url: `https://api.cloudinary.com/v1_1/${cloudinaryConfig!.cloud_name}/image/upload`,
       signature,
       timestamp,
-      api_key: cloudinaryConfig.api_key
+      api_key: cloudinaryConfig!.api_key
     };
   }
 }
