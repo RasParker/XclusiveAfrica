@@ -2498,8 +2498,8 @@ export const CreatorProfile: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Desktop: Card grid layout */}
-                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Desktop: Single view layout */}
+                <div className="hidden md:block space-y-6">
                   {getFilteredPosts().map((post) => (
                     <Card 
                       key={post.id} 
@@ -2833,8 +2833,8 @@ export const CreatorProfile: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Desktop: Card grid layout */}
-                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Desktop: Single view layout */}
+                <div className="hidden md:block space-y-6">
                   {getFilteredPosts().map((post) => (
                     <Card 
                       key={post.id} 
