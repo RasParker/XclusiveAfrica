@@ -2427,26 +2427,7 @@ export const CreatorProfile: React.FC = () => {
                             </div>;
                           })()}
 
-                          {/* Media type badge */}
-                          {(() => {
-                            const hasAccess = hasAccessToTier(post.tier);
-                            return hasAccess && (
-                              <div className="absolute top-3 right-3 flex gap-2">
-                                {post.media_type === 'video' && (
-                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
-                                    <Video className="w-3 h-3 mr-1" />
-                                    {post.duration || 'Video'}
-                                  </Badge>
-                                )}
-                                {post.media_type === 'image' && (
-                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
-                                    <Image className="w-3 h-3 mr-1" />
-                                    Image
-                                  </Badge>
-                                )}
-                              </div>
-                            );
-                          })()}
+                          
                         </div>
 
                         {/* Bottom section - VideoWatch Up Next style */}
@@ -2764,21 +2745,7 @@ export const CreatorProfile: React.FC = () => {
                             </div>;
                           })()}
 
-                          {/* Media type badge */}
-                          <div className="absolute top-3 right-3 flex gap-2">
-                            {post.media_type === 'video' && (
-                              <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
-                                <Video className="w-3 h-3 mr-1" />
-                                {post.duration || 'Video'}
-                              </Badge>
-                            )}
-                            {post.media_type === 'image' && (
-                              <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
-                                <Image className="w-3 h-3 mr-1" />
-                                Image
-                              </Badge>
-                            )}
-                          </div>
+                          
                         </div>
 
                         {/* Bottom section - VideoWatch Up Next style */}
