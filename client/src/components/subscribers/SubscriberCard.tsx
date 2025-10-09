@@ -30,7 +30,7 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12">
             <AvatarImage 
-              src={subscriber.avatar ? (subscriber.avatar.startsWith('/uploads/') ? subscriber.avatar : `/uploads/${subscriber.avatar}`) : null} 
+              src={subscriber.avatar || undefined} 
               alt={subscriber.username || 'User'} 
             />
             <AvatarFallback className="bg-gradient-primary text-primary-foreground">
@@ -77,7 +77,7 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
         <div className="flex items-center gap-4">
           <Avatar className="h-12 w-12">
             <AvatarImage 
-              src={subscriber.avatar ? (subscriber.avatar.startsWith('/uploads/') ? subscriber.avatar : `/uploads/${subscriber.avatar}`) : null} 
+              src={subscriber.avatar || undefined} 
               alt={subscriber.username || 'User'} 
             />
             <AvatarFallback className="bg-gradient-primary text-primary-foreground">
