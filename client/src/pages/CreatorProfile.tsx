@@ -2334,6 +2334,672 @@ export const CreatorProfile: React.FC = () => {
             )}
               </div>
             </TabsContent>
+
+            <TabsContent value="subscription" className="space-y-6">
+              {/* Subscription Posts Content */}
+              <div>
+            {getFilteredPosts().length > 0 ? (
+              <>
+                {/* Mobile: Edge-to-edge borderless layout like fan feed */}
+                <div className="md:hidden">
+                  <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                  }}>
+                    {getFilteredPosts().map((post) => (
+                      <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden">
+                        <div 
+                          className="relative w-full aspect-video bg-black cursor-pointer"
+                          onClick={() => handleContentClick(post)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleContentClick(post);
+                            }
+                          }}
+                        >
+                          {(() => {
+                            const hasAccess = hasAccessToTier(post.tier);
+
+                            if (!hasAccess) {
+                              return (
+                                <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center relative">
+                                  <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+                                  <div className="text-center z-10 p-4">
+                                    <div className="mb-3">
+                                      <svg className="w-8 h-8 mx-auto text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                      </svg>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mb-2">
+                                      {post.tier === 'supporter' ? 'Supporter' : 
+                                       post.tier === 'fan' ? 'Fan' : 
+                                       post.tier === 'premium' ? 'Premium' : 
+                                       post.tier === 'superfan' ? 'Superfan' : 'Premium'} Content
+                                    </p>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-accent hover:bg-accent/90 text-black text-xs px-2 py-1"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!user) {
+                                          window.location.href = `/login?redirect=/creator/${username}`;
+                                        } else {
+                                          document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
+                                        }
+                                      }}
+                                    >
+                                      {!user ? 'Login' : 'Subscribe'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                            const mediaUrl = mediaUrls[0];
+
+                            if (mediaUrl) {
+                              const fullUrl = getImageUrl(mediaUrl);
+
+                              return post.media_type === 'video' ? (
+                                <video 
+                                  src={fullUrl}
+                                  className="w-full h-full object-cover"
+                                  muted
+                                  preload="metadata"
+                                />
+                              ) : (
+                                <img 
+                                  src={fullUrl}
+                                  alt={post.title}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              );
+                            }
+
+                            return <div className="w-full h-full bg-muted flex items-center justify-center">
+                              <FileText className="w-12 h-12 text-muted-foreground" />
+                            </div>;
+                          })()}
+
+                          {/* Media type badge */}
+                          {(() => {
+                            const hasAccess = hasAccessToTier(post.tier);
+                            return hasAccess && (
+                              <div className="absolute top-3 right-3 flex gap-2">
+                                {post.media_type === 'video' && (
+                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                    <Video className="w-3 h-3 mr-1" />
+                                    {post.duration || 'Video'}
+                                  </Badge>
+                                )}
+                                {post.media_type === 'image' && (
+                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                    <Image className="w-3 h-3 mr-1" />
+                                    Image
+                                  </Badge>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Post info - clean minimal */}
+                        <div className="p-3 space-y-2">
+                          {/* Title */}
+                          <h3 className="font-medium text-sm line-clamp-2 text-foreground">
+                            {post.title}
+                          </h3>
+
+                          {/* Bottom row: Creator info left, engagement metrics right */}
+                          <div className="flex items-center justify-between gap-4">
+                            {/* Creator info - left side */}
+                            <div className="flex items-center gap-2 min-w-0 flex-shrink">
+                              <Avatar className="w-7 h-7 flex-shrink-0">
+                                <AvatarImage src={post.creator.avatar || post.avatar} alt={post.creator.username || post.username} />
+                                <AvatarFallback>{(post.creator.username || post.username)?.charAt(0).toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0 flex-shrink">
+                                <p className="text-xs text-muted-foreground truncate">
+                                  @{post.creator.username || post.username}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Engagement metrics - right side */}
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Eye className="w-4 h-4" />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {post.views_count || 0}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Heart className="w-4 h-4" />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {post.likes_count || 0}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <MessageSquare className="w-4 h-4" />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {post.comments_count || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Desktop: Card grid layout */}
+                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {getFilteredPosts().map((post) => (
+                    <Card 
+                      key={post.id} 
+                      className="overflow-hidden cursor-pointer border border-border hover:border-primary/20 transition-all duration-200"
+                      onClick={() => handleContentClick(post)}
+                    >
+                      <CardContent className="p-0">
+                        <div className="space-y-3">
+                          {/* Media Container with fixed aspect ratio (16:9 on desktop) */}
+                          <div className="relative w-full">
+                            <AspectRatio ratio={16/9} className="overflow-hidden">
+                              {(() => {
+                                const hasAccess = hasAccessToTier(post.tier);
+
+                                if (!hasAccess) {
+                                  return (
+                                    <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center relative">
+                                      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+                                      <div className="text-center z-10 p-4">
+                                        <div className="mb-2">
+                                          <svg className="w-6 h-6 mx-auto text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                          </svg>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mb-2">
+                                          {post.tier === 'supporter' ? 'Supporter' : 
+                                           post.tier === 'fan' ? 'Fan' : 
+                                           post.tier === 'premium' ? 'Premium' : 
+                                           post.tier === 'superfan' ? 'Superfan' : 'Premium'} Content
+                                        </p>
+                                        <Button 
+                                          size="sm" 
+                                          className="bg-accent hover:bg-accent/90 text-black text-xs h-7 px-3"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (!user) {
+                                              window.location.href = `/login?redirect=/creator/${username}`;
+                                            } else {
+                                              document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
+                                            }
+                                          }}
+                                        >
+                                          {!user ? 'Login' : 'Subscribe'}
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+
+                                const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                                const mediaUrl = mediaUrls[0];
+
+                                if (mediaUrl) {
+                                  const fullUrl = getImageUrl(mediaUrl);
+
+                                  return post.media_type === 'video' ? (
+                                    <video 
+                                      src={fullUrl}
+                                      className="w-full h-full object-cover"
+                                      muted
+                                      preload="metadata"
+                                    />
+                                  ) : (
+                                    <img 
+                                      src={fullUrl}
+                                      alt={post.title}
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  );
+                                }
+
+                                return <div className="w-full h-full bg-muted flex items-center justify-center">
+                                  <FileText className="w-12 h-12 text-muted-foreground" />
+                                </div>;
+                              })()}
+
+                              {/* Media type badge */}
+                              {(() => {
+                                const hasAccess = hasAccessToTier(post.tier);
+                                return hasAccess && (
+                                  <div className="absolute top-4 right-4 flex gap-2">
+                                    {post.media_type === 'video' && (
+                                      <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                        <Video className="w-3 h-3 mr-1" />
+                                        {post.duration || 'Video'}
+                                      </Badge>
+                                    )}
+                                    {post.media_type === 'image' && (
+                                      <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                        <Image className="w-3 h-3 mr-1" />
+                                        Image
+                                      </Badge>
+                                    )}
+                                  </div>
+                                );
+                              })()}
+
+                            {/* Tier badge */}
+                            <div className="absolute top-4 left-4">
+                              <Badge variant={getTierColor(post.tier)} className="text-sm">
+                                {post.tier === 'public' ? 'Free' : 
+                                 post.tier.toLowerCase() === 'starter pump' ? 'Starter Pump' :
+                                 post.tier.toLowerCase() === 'power gains' ? 'Power Gains' :
+                                 post.tier.toLowerCase() === 'elite beast mode' ? 'Elite Beast Mode' :
+                                 post.tier}
+                              </Badge>
+                            </div>
+                          </AspectRatio>
+                        </div>
+
+                          {/* Post info - compact for desktop */}
+                          <div className="px-4 pb-4 space-y-3">
+                            {/* Title and content */}
+                            <div className="space-y-1">
+                              <h3 className="font-medium text-sm line-clamp-2 text-foreground">
+                                {post.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {post.content}
+                              </p>
+                            </div>
+
+                            {/* Metrics and actions - two rows */}
+                            <div className="space-y-2">
+                              {/* Top row: Engagement metrics */}
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Eye className="w-4 h-4" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {post.views_count || 0}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Heart className="w-4 h-4" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {post.likes_count || 0}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <MessageSquare className="w-4 h-4" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {post.comments_count || 0}
+                                  </span>
+                                </div>
+
+                                {/* Share button */}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 text-muted-foreground hover:text-green-500"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShare(post.id);
+                                    }}
+                                >
+                                  <Share2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+
+                              {/* Action buttons for own posts - bottom row right side */}
+                              {isOwnProfile && (
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-blue-500"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditPost(post.id);
+                                    }}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeletePost(post.id);
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+
+                        </div>
+                      </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                </>
+              ) : (
+                <Card className="bg-gradient-card border-border/50">
+                  <CardContent className="p-6">
+                    <div className="text-center py-4">
+                      <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No subscription posts yet</h3>
+                      <p className="text-muted-foreground text-sm">
+                        {isOwnProfile ? 'Create premium content for your subscribers.' : `${creator.display_name} hasn't posted any subscription content yet.`}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+            )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="public" className="space-y-6">
+              {/* Public Posts Content */}
+              <div>
+            {getFilteredPosts().length > 0 ? (
+              <>
+                {/* Mobile: Edge-to-edge borderless layout like fan feed */}
+                <div className="md:hidden">
+                  <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                  }}>
+                    {getFilteredPosts().map((post) => (
+                      <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden">
+                        <div 
+                          className="relative w-full aspect-video bg-black cursor-pointer"
+                          onClick={() => handleContentClick(post)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleContentClick(post);
+                            }
+                          }}
+                        >
+                          {(() => {
+                            const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                            const mediaUrl = mediaUrls[0];
+
+                            if (mediaUrl) {
+                              const fullUrl = getImageUrl(mediaUrl);
+
+                              return post.media_type === 'video' ? (
+                                <video 
+                                  src={fullUrl}
+                                  className="w-full h-full object-cover"
+                                  muted
+                                  preload="metadata"
+                                />
+                              ) : (
+                                <img 
+                                  src={fullUrl}
+                                  alt={post.title}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              );
+                            }
+
+                            return <div className="w-full h-full bg-muted flex items-center justify-center">
+                              <FileText className="w-12 h-12 text-muted-foreground" />
+                            </div>;
+                          })()}
+
+                          {/* Media type badge */}
+                          <div className="absolute top-3 right-3 flex gap-2">
+                            {post.media_type === 'video' && (
+                              <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                <Video className="w-3 h-3 mr-1" />
+                                {post.duration || 'Video'}
+                              </Badge>
+                            )}
+                            {post.media_type === 'image' && (
+                              <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                <Image className="w-3 h-3 mr-1" />
+                                Image
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Post info - clean minimal */}
+                        <div className="p-3 space-y-2">
+                          {/* Title */}
+                          <h3 className="font-medium text-sm line-clamp-2 text-foreground">
+                            {post.title}
+                          </h3>
+
+                          {/* Bottom row: Creator info left, engagement metrics right */}
+                          <div className="flex items-center justify-between gap-4">
+                            {/* Creator info - left side */}
+                            <div className="flex items-center gap-2 min-w-0 flex-shrink">
+                              <Avatar className="w-7 h-7 flex-shrink-0">
+                                <AvatarImage src={post.creator.avatar || post.avatar} alt={post.creator.username || post.username} />
+                                <AvatarFallback>{(post.creator.username || post.username)?.charAt(0).toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0 flex-shrink">
+                                <p className="text-xs text-muted-foreground truncate">
+                                  @{post.creator.username || post.username}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Engagement metrics - right side */}
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Eye className="w-4 h-4" />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {post.views_count || 0}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Heart className="w-4 h-4" />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {post.likes_count || 0}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <MessageSquare className="w-4 h-4" />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {post.comments_count || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Desktop: Card grid layout */}
+                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {getFilteredPosts().map((post) => (
+                    <Card 
+                      key={post.id} 
+                      className="overflow-hidden cursor-pointer border border-border hover:border-primary/20 transition-all duration-200"
+                      onClick={() => handleContentClick(post)}
+                    >
+                      <CardContent className="p-0">
+                        <div className="space-y-3">
+                          {/* Media Container with fixed aspect ratio (16:9 on desktop) */}
+                          <div className="relative w-full">
+                            <AspectRatio ratio={16/9} className="overflow-hidden">
+                              {(() => {
+                                const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                                const mediaUrl = mediaUrls[0];
+
+                                if (mediaUrl) {
+                                  const fullUrl = getImageUrl(mediaUrl);
+
+                                  return post.media_type === 'video' ? (
+                                    <video 
+                                      src={fullUrl}
+                                      className="w-full h-full object-cover"
+                                      muted
+                                      preload="metadata"
+                                    />
+                                  ) : (
+                                    <img 
+                                      src={fullUrl}
+                                      alt={post.title}
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  );
+                                }
+
+                                return <div className="w-full h-full bg-muted flex items-center justify-center">
+                                  <FileText className="w-12 h-12 text-muted-foreground" />
+                                </div>;
+                              })()}
+
+                              {/* Media type badge */}
+                              <div className="absolute top-4 right-4 flex gap-2">
+                                {post.media_type === 'video' && (
+                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                    <Video className="w-3 h-3 mr-1" />
+                                    {post.duration || 'Video'}
+                                  </Badge>
+                                )}
+                                {post.media_type === 'image' && (
+                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                    <Image className="w-3 h-3 mr-1" />
+                                    Image
+                                  </Badge>
+                                )}
+                              </div>
+
+                            {/* Free badge for public posts */}
+                            <div className="absolute top-4 left-4">
+                              <Badge variant="secondary" className="text-sm bg-green-500/90 text-white hover:bg-green-500">
+                                Free
+                              </Badge>
+                            </div>
+                          </AspectRatio>
+                        </div>
+
+                          {/* Post info - compact for desktop */}
+                          <div className="px-4 pb-4 space-y-3">
+                            {/* Title and content */}
+                            <div className="space-y-1">
+                              <h3 className="font-medium text-sm line-clamp-2 text-foreground">
+                                {post.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground line-clamp-2">
+                                {post.content}
+                              </p>
+                            </div>
+
+                            {/* Metrics and actions - two rows */}
+                            <div className="space-y-2">
+                              {/* Top row: Engagement metrics */}
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Eye className="w-4 h-4" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {post.views_count || 0}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <Heart className="w-4 h-4" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {post.likes_count || 0}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <MessageSquare className="w-4 h-4" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {post.comments_count || 0}
+                                  </span>
+                                </div>
+
+                                {/* Share button */}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 text-muted-foreground hover:text-green-500"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShare(post.id);
+                                    }}
+                                >
+                                  <Share2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+
+                              {/* Action buttons for own posts - bottom row right side */}
+                              {isOwnProfile && (
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-blue-500"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditPost(post.id);
+                                    }}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeletePost(post.id);
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+
+                        </div>
+                      </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                </>
+              ) : (
+                <Card className="bg-gradient-card border-border/50">
+                  <CardContent className="p-6">
+                    <div className="text-center py-4">
+                      <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">No public posts yet</h3>
+                      <p className="text-muted-foreground text-sm">
+                        {isOwnProfile ? 'Create some free content to attract new fans.' : `${creator.display_name} hasn't posted any public content yet.`}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+            )}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
