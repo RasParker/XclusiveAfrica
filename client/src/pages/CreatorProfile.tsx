@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { CreatorPostActions } from '@/components/creator/CreatorPostActions';
 import { PostActions } from '@/components/creator/PostActions';
+import { PostCardLayout } from '@/components/creator/PostCardLayout';
 import { CommentSection } from '@/components/fan/CommentSection';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import { TierDetailsModal } from '@/components/subscription/TierDetailsModal';
@@ -2448,51 +2449,20 @@ export const CreatorProfile: React.FC = () => {
                           })()}
                         </div>
 
-                        {/* Post info - clean minimal */}
-                        <div className="p-3 space-y-2">
-                          {/* Title */}
-                          <h3 className="font-medium text-sm line-clamp-2 text-foreground">
-                            {post.title}
-                          </h3>
-
-                          {/* Bottom row: Creator info left, engagement metrics right */}
-                          <div className="flex items-center justify-between gap-4">
-                            {/* Creator info - left side */}
-                            <div className="flex items-center gap-2 min-w-0 flex-shrink">
-                              <Avatar className="w-7 h-7 flex-shrink-0">
-                                <AvatarImage src={post.creator.avatar || post.avatar} alt={post.creator.username || post.username} />
-                                <AvatarFallback>{(post.creator.username || post.username)?.charAt(0).toUpperCase()}</AvatarFallback>
-                              </Avatar>
-                              <div className="min-w-0 flex-shrink">
-                                <p className="text-xs text-muted-foreground truncate">
-                                  @{post.creator.username || post.username}
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Engagement metrics - right side */}
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <Eye className="w-4 h-4" />
-                                <span className="text-sm font-semibold text-foreground">
-                                  {post.views_count || 0}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <Heart className="w-4 h-4" />
-                                <span className="text-sm font-semibold text-foreground">
-                                  {post.likes_count || 0}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <MessageSquare className="w-4 h-4" />
-                                <span className="text-sm font-semibold text-foreground">
-                                  {post.comments_count || 0}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        {/* Bottom section - VideoWatch Up Next style */}
+                        <PostCardLayout
+                          post={post}
+                          creator={creator}
+                          postLikes={postLikes}
+                          isOwnProfile={isOwnProfile}
+                          getImageUrl={getImageUrl}
+                          getTimeAgo={getTimeAgo}
+                          handleLike={handleLike}
+                          handleCommentClick={handleCommentClick}
+                          handleShare={handleShare}
+                          handleEditPost={handleEditPost}
+                          handleDeletePost={handleDeletePost}
+                        />
                       </div>
                     ))}
                   </div>
