@@ -417,7 +417,7 @@ export const FeedPage: React.FC = () => {
     };
 
     const userTierLevel = userSubscription.tier?.name ? tierHierarchy[userSubscription.tier.name] || 0 : (userSubscription.tier_name ? tierHierarchy[userSubscription.tier_name] || 0 : 0);
-    const postTierLevel = tierHierarchy[postTier] || 1;
+    const postTierLevel = tierHierarchy[postTier] || 999; // Default to highest tier for unknown tiers (security)
 
     console.log('Feed access check:', {
       postTier,

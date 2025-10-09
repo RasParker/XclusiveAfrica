@@ -881,11 +881,12 @@ export const CreatorProfile: React.FC = () => {
       'premium': 2,
       'power gains': 2,
       'superfan': 3,
-      'elite beast mode': 3
+      'elite beast mode': 3,
+      'the vip elite': 3
     };
 
     const userTierLevel = tierHierarchy[userSubscription.tier_name?.toLowerCase()] || 0;
-    const postTierLevel = tierHierarchy[postTier.toLowerCase()] || 1; // Default to tier 1 for premium content
+    const postTierLevel = tierHierarchy[postTier.toLowerCase()] || 999; // Default to highest tier for unknown tiers (security)
 
     const hasAccess = userTierLevel >= postTierLevel;
     console.log('Tier access check:', { 
