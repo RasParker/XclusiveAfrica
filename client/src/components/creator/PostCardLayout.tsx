@@ -30,8 +30,8 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
   handleDeletePost,
 }) => {
   return (
-    <div className="p-3">
-      <div className="flex gap-3">
+    <div>
+      <div className="flex gap-3 p-3 pb-2">
         <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">
           <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
           <AvatarFallback className="text-sm bg-muted text-muted-foreground">
@@ -54,7 +54,7 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-2 mt-2 border-t border-border/30">
+      <div className="flex items-center justify-between pt-2 pb-3 px-3 border-t border-border/30">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <Button 
             variant="ghost" 
