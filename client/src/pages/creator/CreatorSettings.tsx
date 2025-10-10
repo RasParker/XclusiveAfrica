@@ -122,6 +122,35 @@ export const CreatorSettings: React.FC = () => {
     }
   }, [user?.email]);
 
+  // Initialize profile data from user context
+  useEffect(() => {
+    if (user) {
+      // Set avatar/profile photo
+      if (user.avatar) {
+        setProfilePhotoUrl(user.avatar);
+        setLocalStorageItem('profilePhotoUrl', user.avatar);
+      }
+      
+      // Set cover photo
+      if ((user as any).cover_image) {
+        setCoverPhotoUrl((user as any).cover_image);
+        setLocalStorageItem('coverPhotoUrl', (user as any).cover_image);
+      }
+      
+      // Set display name
+      if (user.display_name) {
+        setDisplayName(user.display_name);
+        setLocalStorageItem('displayName', user.display_name);
+      }
+      
+      // Set bio
+      if (user.bio) {
+        setBio(user.bio);
+        setLocalStorageItem('bio', user.bio);
+      }
+    }
+  }, [user]);
+
   // Load user settings, payout settings and monthly goals on component mount
   useEffect(() => {
     const loadUserSettings = async () => {
@@ -1355,7 +1384,7 @@ export const CreatorSettings: React.FC = () => {
                           </div>
 
                           <Button
-                            disabled={creatorCategories.length >= 4}
+                            disabled={creatorCategories.length >= 4 || !newCustomCategory.trim()}
                             onClick={async () => {
                               if (creatorCategories.length >= 4) {
                                 toast({
@@ -1439,7 +1468,6 @@ export const CreatorSettings: React.FC = () => {
                                 });
                               }
                             }}
-                            disabled={!newCustomCategory.trim()}
                             className="w-full"
                           >
                             <Plus className="w-4 h-4 mr-2" />
