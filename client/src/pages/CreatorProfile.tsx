@@ -167,18 +167,11 @@ export const CreatorProfile: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(
-    () => localStorage.getItem('profilePhotoUrl')
-  );
-  const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(
-    () => localStorage.getItem('coverPhotoUrl')
-  );
-  const [displayName, setDisplayName] = useState<string | null>(
-    () => localStorage.getItem('displayName')
-  );
-  const [bio, setBio] = useState<string | null>(
-    () => localStorage.getItem('bio')
-  );
+  // Don't initialize from localStorage here - we'll do it in useEffect after checking if it's own profile
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
+  const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [bio, setBio] = useState<string | null>(null);
   const [customTiers, setCustomTiers] = useState<any[]>([]);
   const [profileData, setProfileData] = useState<any>(null);
   const [userPosts, setUserPosts] = useState<any[]>([]);
@@ -611,58 +604,88 @@ export const CreatorProfile: React.FC = () => {
           const userData = await response.json();
           console.log('Creator data loaded:', userData);
 
-          // Check localStorage for profile customizations
-          const profilePhotoUrl = localStorage.getItem('profilePhotoUrl');
-          const coverPhotoUrl = localStorage.getItem('coverPhotoUrl');
-          const displayName = localStorage.getItem('displayName');
-          const bio = localStorage.getItem('bio');
+          // Only use localStorage for the logged-in user's own profile
+          const isViewingOwnProfile = user && user.username === userData.username;
+          
+          console.log('Username comparison:', {
+            loggedInUser: user?.username,
+            profileUser: userData.username,
+            isOwnProfile: isViewingOwnProfile
+          });
+          
+          // Reset state for other profiles, load from localStorage only for own profile
+          if (isViewingOwnProfile) {
+            // Check localStorage for profile customizations only for own profile
+            const storedProfilePhoto = localStorage.getItem('profilePhotoUrl');
+            const storedCoverPhoto = localStorage.getItem('coverPhotoUrl');
+            const storedDisplayName = localStorage.getItem('displayName');
+            const storedBio = localStorage.getItem('bio');
 
-          console.log('Profile photo URL from localStorage:', profilePhotoUrl);
-          console.log('Cover photo URL from localStorage:', coverPhotoUrl);
-          console.log('Database avatar:', userData.avatar);
-          console.log('Database cover:', userData.cover_image);
-          console.log('ProfilePhotoUrl truthy check:', !!(profilePhotoUrl && profilePhotoUrl.trim()));
-          console.log('Final avatar choice:', (profilePhotoUrl && profilePhotoUrl.trim()) || userData.avatar || null);
+            console.log('Profile photo URL from localStorage:', storedProfilePhoto);
+            console.log('Cover photo URL from localStorage:', storedCoverPhoto);
+            console.log('Database avatar:', userData.avatar);
+            console.log('Database cover:', userData.cover_image);
 
-          // Clear invalid localStorage values for this user if they exist
-          if (profilePhotoUrl === '' || profilePhotoUrl === 'null' || profilePhotoUrl === 'undefined') {
-            localStorage.removeItem('profilePhotoUrl');
-          }
-          if (coverPhotoUrl === '' || coverPhotoUrl === 'null' || coverPhotoUrl === 'undefined') {
-            localStorage.removeItem('coverPhotoUrl');
-          }
+            // Clear invalid localStorage values
+            if (storedProfilePhoto === '' || storedProfilePhoto === 'null' || storedProfilePhoto === 'undefined') {
+              localStorage.removeItem('profilePhotoUrl');
+              setProfilePhotoUrl(null);
+            } else {
+              setProfilePhotoUrl(storedProfilePhoto);
+            }
+            
+            if (storedCoverPhoto === '' || storedCoverPhoto === 'null' || storedCoverPhoto === 'undefined') {
+              localStorage.removeItem('coverPhotoUrl');
+              setCoverPhotoUrl(null);
+            } else {
+              setCoverPhotoUrl(storedCoverPhoto);
+            }
+            
+            setDisplayName(storedDisplayName);
+            setBio(storedBio);
 
-          // Validate localStorage URLs and clear if files don't exist
-          const validateAndClearInvalidUrls = async () => {
-            if (profilePhotoUrl && profilePhotoUrl.trim()) {
-              try {
-                const response = await fetch(profilePhotoUrl, { method: 'HEAD' });
-                if (!response.ok) {
-                  console.log('Profile photo not found, clearing localStorage:', profilePhotoUrl);
+            // Validate localStorage URLs and clear if files don't exist
+            const validateAndClearInvalidUrls = async () => {
+              if (storedProfilePhoto && storedProfilePhoto.trim()) {
+                try {
+                  const response = await fetch(storedProfilePhoto, { method: 'HEAD' });
+                  if (!response.ok) {
+                    console.log('Profile photo not found, clearing localStorage:', storedProfilePhoto);
+                    localStorage.removeItem('profilePhotoUrl');
+                    setProfilePhotoUrl(null);
+                  }
+                } catch (error) {
+                  console.log('Profile photo validation failed, clearing localStorage:', storedProfilePhoto);
                   localStorage.removeItem('profilePhotoUrl');
+                  setProfilePhotoUrl(null);
                 }
-              } catch (error) {
-                console.log('Profile photo validation failed, clearing localStorage:', profilePhotoUrl);
-                localStorage.removeItem('profilePhotoUrl');
               }
-            }
 
-            if (coverPhotoUrl && coverPhotoUrl.trim()) {
-              try {
-                const response = await fetch(coverPhotoUrl, { method: 'HEAD' });
-                if (!response.ok) {
-                  console.log('Cover photo not found, clearing localStorage:', coverPhotoUrl);
+              if (storedCoverPhoto && storedCoverPhoto.trim()) {
+                try {
+                  const response = await fetch(storedCoverPhoto, { method: 'HEAD' });
+                  if (!response.ok) {
+                    console.log('Cover photo not found, clearing localStorage:', storedCoverPhoto);
+                    localStorage.removeItem('coverPhotoUrl');
+                    setCoverPhotoUrl(null);
+                  }
+                } catch (error) {
+                  console.log('Cover photo validation failed, clearing localStorage:', storedCoverPhoto);
                   localStorage.removeItem('coverPhotoUrl');
+                  setCoverPhotoUrl(null);
                 }
-              } catch (error) {
-                console.log('Cover photo validation failed, clearing localStorage:', coverPhotoUrl);
-                localStorage.removeItem('coverPhotoUrl');
               }
-            }
-          };
+            };
 
-          // Run validation in background
-          validateAndClearInvalidUrls();
+            // Run validation in background
+            validateAndClearInvalidUrls();
+          } else {
+            // Viewing someone else's profile - clear any localStorage values
+            setProfilePhotoUrl(null);
+            setCoverPhotoUrl(null);
+            setDisplayName(null);
+            setBio(null);
+          }
 
           // Handle tiers - fetch from API
           let tiers = [];
