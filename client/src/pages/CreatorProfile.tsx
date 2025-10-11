@@ -1504,8 +1504,8 @@ export const CreatorProfile: React.FC = () => {
 
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <div className="max-w-4xl mx-auto flex items-end gap-3">
-            <div className="flex flex-col items-center md:items-start md:ml-6 gap-3">
-              <div className="relative">
+            <div className="flex items-end gap-3 md:ml-6">
+              <div className="relative flex-shrink-0">
                 <Avatar className="w-24 h-24 border-4 border-background">
                   <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
                   <AvatarFallback className="text-2xl">{(creator?.display_name || creator?.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
@@ -1529,18 +1529,18 @@ export const CreatorProfile: React.FC = () => {
                 )}
               </div>
 
-              {/* Profile name and username below avatar */}
-              <div className="text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                  <h1 className="text-xl font-semibold text-foreground">{creator?.display_name || creator?.username}</h1>
+              {/* Profile name and username next to avatar */}
+              <div className="flex-1 min-w-0 pb-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-xl font-semibold text-foreground truncate">{creator?.display_name || creator?.username}</h1>
                   {creator.verified && (
-                    <Badge variant="secondary" className="bg-accent text-accent-foreground">
+                    <Badge variant="secondary" className="bg-accent text-accent-foreground flex-shrink-0">
                       <Star className="w-3 h-3 mr-1" />
                       Verified
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm text-muted-foreground">@{creator.username}</p>
                   <OnlineStatusIndicator userId={creator.id} showLastSeen={true} size="md" />
                   <span className="text-muted-foreground">•</span>
