@@ -1503,35 +1503,36 @@ export const CreatorProfile: React.FC = () => {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <div className="max-w-4xl mx-auto flex items-end gap-3">
-            <div className="relative md:ml-6">
-              <Avatar className="w-24 h-24 border-4 border-background">
-                <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
-                <AvatarFallback className="text-2xl">{(creator?.display_name || creator?.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
+          <div className="max-w-4xl mx-auto">
+            {/* Avatar and Profile Info - Centered Column Layout */}
+            <div className="flex flex-col items-center md:items-start md:ml-6">
+              <div className="relative mb-3">
+                <Avatar className="w-24 h-24 border-4 border-background">
+                  <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
+                  <AvatarFallback className="text-2xl">{(creator?.display_name || creator?.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
 
-              {/* Profile Photo Upload Button - Only show for own profile and when no avatar */}
-              {isOwnProfile && !creator.avatar && (
-                <div className="absolute -bottom-1 -right-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 w-6 p-0 bg-primary rounded-full border-2 border-background hover:bg-primary/90 transition-colors"
-                    title="Add profile photo"
-                    asChild
-                  >
-                    <Link to="/creator/settings?tab=profile">
-                      <Plus className="w-3 h-3 text-primary-foreground" />
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </div>
+                {/* Profile Photo Upload Button - Only show for own profile and when no avatar */}
+                {isOwnProfile && !creator.avatar && (
+                  <div className="absolute -bottom-1 -right-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 w-6 p-0 bg-primary rounded-full border-2 border-background hover:bg-primary/90 transition-colors"
+                      title="Add profile photo"
+                      asChild
+                    >
+                      <Link to="/creator/settings?tab=profile">
+                        <Plus className="w-3 h-3 text-primary-foreground" />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
 
-            {/* Desktop Layout - Action buttons on the right */}
-            <div className="hidden md:flex w-full items-end justify-between">
-              <div className="flex-1 pb-2">
-                <div className="flex items-center gap-2 mb-1">
+              {/* Profile Info Below Avatar */}
+              <div className="text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
                   <h1 className="text-xl font-semibold text-foreground">{creator?.display_name || creator?.username}</h1>
                   {creator.verified && (
                     <Badge variant="secondary" className="bg-accent text-accent-foreground">
@@ -1540,46 +1541,19 @@ export const CreatorProfile: React.FC = () => {
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center md:justify-start gap-2">
                   <p className="text-sm text-muted-foreground">@{creator.username}</p>
                   <OnlineStatusIndicator userId={creator.id} showLastSeen={true} size="md" />
                 </div>
                 <div className="text-sm text-muted-foreground mt-1 space-y-1">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center md:justify-start gap-2">
                     <Users className="w-4 h-4" />
                     {(creator?.total_subscribers || 0).toLocaleString()} subscribers
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center md:justify-start gap-2">
                     <UserPlus className="w-4 h-4" />
                     {followerCount.toLocaleString()} followers
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Layout - Clean profile info only */}
-            <div className="md:hidden flex-1 pb-2">
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-xl font-semibold text-foreground">{creator?.display_name || creator?.username}</h1>
-                {creator.verified && (
-                  <Badge variant="secondary" className="bg-accent text-accent-foreground">
-                    <Star className="w-3 h-3 mr-1" />
-                    Verified
-                  </Badge>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-muted-foreground">@{creator.username}</p>
-                <OnlineStatusIndicator userId={creator.id} showLastSeen={true} size="md" />
-              </div>
-              <div className="text-sm text-muted-foreground mt-1 space-y-1">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  {(creator?.total_subscribers || 0).toLocaleString()} subscribers
-                </div>
-                <div className="flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  {followerCount.toLocaleString()} followers
                 </div>
               </div>
             </div>
