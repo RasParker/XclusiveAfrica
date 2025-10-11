@@ -262,8 +262,12 @@ export const Notifications: React.FC = () => {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => markAsReadMutation.mutate(notification.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markAsReadMutation.mutate(notification.id);
+                                  }}
                                   disabled={markAsReadMutation.isPending}
+                                  data-testid="button-mark-read"
                                 >
                                   <CheckCheck className="w-4 h-4" />
                                 </Button>
@@ -271,9 +275,13 @@ export const Notifications: React.FC = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => deleteNotificationMutation.mutate(notification.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteNotificationMutation.mutate(notification.id);
+                                }}
                                 disabled={deleteNotificationMutation.isPending}
                                 className="text-destructive hover:text-destructive"
+                                data-testid="button-delete"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -283,11 +291,17 @@ export const Notifications: React.FC = () => {
                           {/* Action Button */}
                           {notification.action_url && (
                             <div className="mt-3">
-                              <Link to={notification.action_url}>
+                              <Link 
+                                to={notification.action_url}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleNotificationClick(notification);
+                                }}
+                              >
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => handleNotificationClick(notification)}
+                                  data-testid="button-view-details"
                                 >
                                   View Details
                                 </Button>
