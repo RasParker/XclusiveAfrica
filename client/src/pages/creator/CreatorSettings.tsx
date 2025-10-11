@@ -171,9 +171,11 @@ export const CreatorSettings: React.FC = () => {
     };
 
     const loadPayoutSettings = async () => {
+      if (!user?.id) return;
+      
       try {
         setIsPayoutSettingsLoading(true);
-        const response = await fetch('/api/creators/1/payout-settings');
+        const response = await fetch(`/api/creators/${user.id}/payout-settings`);
         if (response.ok) {
           const result = await response.json();
           if (result.success && result.data) {
@@ -189,9 +191,11 @@ export const CreatorSettings: React.FC = () => {
     };
 
     const loadMonthlyGoals = async () => {
+      if (!user?.id) return;
+      
       try {
         setIsGoalsLoading(true);
-        const response = await fetch('/api/creator/1/goals');
+        const response = await fetch(`/api/creator/${user.id}/goals`);
         if (response.ok) {
           const goals = await response.json();
           if (goals) {
@@ -261,9 +265,11 @@ export const CreatorSettings: React.FC = () => {
   }, [user?.id]);
 
   const handleSavePayoutSettings = async () => {
+    if (!user?.id) return;
+    
     try {
       setIsPayoutSettingsLoading(true);
-      const response = await fetch('/api/creators/1/payout-settings', {
+      const response = await fetch(`/api/creators/${user.id}/payout-settings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -295,9 +301,11 @@ export const CreatorSettings: React.FC = () => {
   };
 
   const handleSaveMonthlyGoals = async () => {
+    if (!user?.id) return;
+    
     try {
       setIsGoalsLoading(true);
-      const response = await fetch('/api/creator/1/goals', {
+      const response = await fetch(`/api/creator/${user.id}/goals`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -307,7 +315,7 @@ export const CreatorSettings: React.FC = () => {
 
       if (response.ok) {
         // Invalidate the goals cache so the dashboard refetches
-        await queryClient.invalidateQueries({ queryKey: ['creator', 1, 'goals'] });
+        await queryClient.invalidateQueries({ queryKey: ['creator', user.id, 'goals'] });
 
         toast({
           title: "Monthly goals saved",
