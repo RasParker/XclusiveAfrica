@@ -93,6 +93,7 @@ function App() {
               <Route path="/fan/favorites" element={<ProtectedRoute allowedRoles={['fan']}><Favorites /></ProtectedRoute>} />
               <Route path="/fan/payment" element={<ProtectedRoute allowedRoles={['fan']}><PaymentMethod /></ProtectedRoute>} />
               <Route path="/fan/settings" element={<ProtectedRoute allowedRoles={['fan']}><FanSettings /></ProtectedRoute>} />
+              <Route path="/fan/notifications" element={<ProtectedRoute allowedRoles={['fan']}><Notifications /></ProtectedRoute>} />
 
               {/* Payment Routes */}
               <Route path="/payment-callback" element={<PaymentCallback />} />
