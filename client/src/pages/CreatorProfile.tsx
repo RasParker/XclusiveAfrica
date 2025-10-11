@@ -167,6 +167,8 @@ export const CreatorProfile: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  // Track previous username to detect changes
+  const prevUsernameRef = React.useRef<string | undefined>(username);
   // Don't initialize from localStorage here - we'll do it in useEffect after checking if it's own profile
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [coverPhotoUrl, setCoverPhotoUrl] = useState<string | null>(null);
@@ -591,12 +593,22 @@ export const CreatorProfile: React.FC = () => {
     checkCreatorInteractions();
   }, [user, creator, isOwnProfile]);
 
+  // Clear state when username changes (separate effect runs before fetch)
+  useEffect(() => {
+    if (prevUsernameRef.current !== username) {
+      setCreator(null);
+      setUserPosts([]);
+      prevUsernameRef.current = username;
+    }
+  }, [username]);
+
   useEffect(() => {
     const fetchCreatorData = async () => {
       if (!username) return;
 
       try {
         setLoading(true);
+        
         // Decode the username from URL encoding
         const decodedUsername = decodeURIComponent(username);
         const response = await fetch(`/api/users/username/${encodeURIComponent(decodedUsername)}`);
