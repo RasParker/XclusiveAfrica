@@ -1504,7 +1504,7 @@ export const CreatorProfile: React.FC = () => {
 
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <div className="max-w-4xl mx-auto flex items-end gap-3">
-            <div className="relative">
+            <div className="relative md:ml-6">
               <Avatar className="w-24 h-24 border-4 border-background">
                 <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
                 <AvatarFallback className="text-2xl">{(creator?.display_name || creator?.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
