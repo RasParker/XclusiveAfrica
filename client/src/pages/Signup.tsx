@@ -227,7 +227,7 @@ export const Signup: React.FC = () => {
         description: `Your ${role} account has been created successfully.`,
       });
       
-      const redirectPath = role === 'creator' ? '/creator/dashboard' : '/fan/dashboard';
+      const redirectPath = role === 'creator' ? '/creator/dashboard' : '/fan/feed';
       navigate(redirectPath);
     } catch (error) {
       console.error('Signup error:', error);

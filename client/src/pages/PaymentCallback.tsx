@@ -56,7 +56,7 @@ const PaymentCallback: React.FC = () => {
               sessionStorage.removeItem('lastCreatorProfile');
               navigate(lastProfile);
             } else {
-              navigate('/fan/dashboard');
+              navigate('/fan/feed');
             }
           }, 3000);
         } else {
@@ -157,7 +157,7 @@ const PaymentCallback: React.FC = () => {
                     sessionStorage.removeItem('lastCreatorProfile');
                     navigate(lastProfile);
                   } else {
-                    navigate('/fan/dashboard');
+                    navigate('/fan/feed');
                   }
                 }}
                 className="w-full"
@@ -166,10 +166,10 @@ const PaymentCallback: React.FC = () => {
               </Button>
               <Button 
                 variant="outline"
-                onClick={() => navigate('/fan/dashboard')}
+                onClick={() => navigate('/fan/feed')}
                 className="w-full"
               >
-                Go to Dashboard
+                Go to Feed
               </Button>
             </div>
           )}

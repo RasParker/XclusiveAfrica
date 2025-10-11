@@ -24,7 +24,7 @@ export const AdminLogin: React.FC = () => {
         navigate('/admin/dashboard');
       } else {
         // Non-admin users should be redirected to their appropriate dashboard
-        const redirectPath = user.role === 'creator' ? '/creator/dashboard' : '/fan/dashboard';
+        const redirectPath = user.role === 'creator' ? '/creator/dashboard' : '/fan/feed';
         navigate(redirectPath);
         toast({
           title: "Access Denied",
@@ -62,7 +62,7 @@ export const AdminLogin: React.FC = () => {
             description: "This account does not have admin privileges.",
             variant: "destructive",
           });
-          const redirectPath = data.user?.role === 'creator' ? '/creator/dashboard' : '/fan/dashboard';
+          const redirectPath = data.user?.role === 'creator' ? '/creator/dashboard' : '/fan/feed';
           navigate(redirectPath);
         }
       }

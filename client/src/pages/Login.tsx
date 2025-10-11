@@ -27,7 +27,7 @@ export const Login: React.FC = () => {
       const redirectPath = from || 
         (user.role === 'admin' ? '/admin/dashboard' : 
          user.role === 'creator' ? '/creator/dashboard' : 
-         '/fan/dashboard');
+         '/fan/feed');
       navigate(redirectPath, { replace: true });
     }
   }, [user, authLoading, navigate, from]);
@@ -52,7 +52,7 @@ export const Login: React.FC = () => {
           const redirectPath = from || 
             (user.role === 'admin' ? '/admin/dashboard' : 
              user.role === 'creator' ? '/creator/dashboard' : 
-             '/fan/dashboard');
+             '/fan/feed');
           navigate(redirectPath, { replace: true });
         }
       }, 100);
