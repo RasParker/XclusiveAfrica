@@ -1745,7 +1745,7 @@ export const CreatorProfile: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex-shrink-0">
-                    {isOwnProfile ? (
+                    {isOwnProfile && (
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -1756,17 +1756,6 @@ export const CreatorProfile: React.FC = () => {
                         }}
                       >
                         MANAGE
-                      </Button>
-                    ) : (
-                      <Button 
-                        size="sm" 
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 text-sm font-medium rounded-full md:px-6 md:py-3"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsSubscriptionTiersExpanded(true);
-                        }}
-                      >
-                        NOW
                       </Button>
                     )}
                   </div>
