@@ -1530,7 +1530,7 @@ export const CreatorProfile: React.FC = () => {
               </div>
 
               {/* Profile name and username next to avatar */}
-              <div className="flex-1 min-w-0 pb-2">
+              <div className="flex-1 min-w-0 flex flex-col justify-end">
                 <div className="flex items-center gap-2 mb-1">
                   <h1 className="text-xl font-semibold text-foreground truncate">{creator?.display_name || creator?.username}</h1>
                   {creator.verified && (
