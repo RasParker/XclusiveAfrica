@@ -64,6 +64,16 @@ The project is configured to run on Replit with:
 - `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-10-11: Fixed notifications page functionality**
+  - Fixed delete button not working - added stopPropagation to prevent Collapsible component from capturing click events
+  - Fixed "View Details" button navigation - corrected invalid action_url routes:
+    - Changed `/creator/posts/${postId}` to `/creator/manage-content` for likes and comments
+    - Changed `/fan/posts/${postId}` to `/fan/feed` for new posts
+    - Changed `/fan/payment-methods` to `/fan/payment` for payment failures
+    - Changed `/creator/payouts` to `/creator/earnings` for payout completions
+  - All notification action URLs now correctly route to existing pages
+  - Added proper data-testid attributes for testing
+
 - **2025-10-03: Project import successfully completed and fully operational**
   - Workflow configured with webview output type on port 5000
   - Application verified working: login page, explore page, and routing functional
