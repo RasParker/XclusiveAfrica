@@ -1540,37 +1540,23 @@ export const CreatorProfile: React.FC = () => {
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center justify-center md:justify-start gap-2">
+                <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
                   <p className="text-sm text-muted-foreground">@{creator.username}</p>
                   <OnlineStatusIndicator userId={creator.id} showLastSeen={true} size="md" />
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop Layout - Stats on the right */}
-            <div className="hidden md:flex flex-1 items-end justify-end pb-2">
-              <div className="text-sm text-muted-foreground space-y-1">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  {(creator?.total_subscribers || 0).toLocaleString()} subscribers
-                </div>
-                <div className="flex items-center gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  {followerCount.toLocaleString()} followers
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Layout - Stats below profile info */}
-            <div className="md:hidden w-full">
-              <div className="text-sm text-muted-foreground mt-3 space-y-1">
-                <div className="flex items-center justify-center gap-2">
-                  <Users className="w-4 h-4" />
-                  {(creator?.total_subscribers || 0).toLocaleString()} subscribers
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <UserPlus className="w-4 h-4" />
-                  {followerCount.toLocaleString()} followers
+                  <span className="text-muted-foreground">•</span>
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {(creator?.total_subscribers || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <span className="text-muted-foreground">•</span>
+                  <div className="flex items-center gap-1">
+                    <UserPlus className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {followerCount.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
