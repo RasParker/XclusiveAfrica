@@ -64,6 +64,17 @@ The project is configured to run on Replit with:
 - `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-10-11: Implemented smart fan redirects based on subscription status**
+  - Login flow now checks if fans have active subscriptions:
+    - Fans with active subscriptions → redirected to `/fan/feed`
+    - Fans with no subscriptions → redirected to `/explore` page
+  - New fan signups always redirect to `/explore` (no subscriptions yet)
+  - Successful payment completion redirects to `/fan/feed` (now has subscription)
+  - Failed/cancelled payments and unauthorized access redirect to `/explore`
+  - Uses `/api/subscriptions/fan/:fanId` endpoint to check subscription status
+  - Error handling defaults to `/explore` to ensure users aren't stuck
+  - Improved user experience by showing relevant content based on subscription state
+
 - **2025-10-11: Fixed notifications page functionality**
   - Fixed delete button not working - added stopPropagation to prevent Collapsible component from capturing click events
   - Fixed "View Details" button navigation - corrected invalid action_url routes:
