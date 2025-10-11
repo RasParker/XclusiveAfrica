@@ -227,7 +227,13 @@ export const Signup: React.FC = () => {
         description: `Your ${role} account has been created successfully.`,
       });
       
-      const redirectPath = role === 'creator' ? '/creator/dashboard' : '/fan/feed';
+      let redirectPath: string;
+      if (role === 'creator') {
+        redirectPath = '/creator/dashboard';
+      } else {
+        // For new fans, they won't have any subscriptions yet, so send them to explore
+        redirectPath = '/explore';
+      }
       navigate(redirectPath);
     } catch (error) {
       console.error('Signup error:', error);

@@ -49,7 +49,7 @@ const PaymentCallback: React.FC = () => {
             description: "Your subscription has been activated successfully!",
           });
 
-          // Redirect after 3 seconds
+          // Redirect after 3 seconds - after payment, fan has a subscription so go to feed
           setTimeout(() => {
             const lastProfile = sessionStorage.getItem('lastCreatorProfile');
             if (lastProfile) {
@@ -157,7 +157,7 @@ const PaymentCallback: React.FC = () => {
                     sessionStorage.removeItem('lastCreatorProfile');
                     navigate(lastProfile);
                   } else {
-                    navigate('/fan/feed');
+                    navigate('/explore');
                   }
                 }}
                 className="w-full"
@@ -166,10 +166,10 @@ const PaymentCallback: React.FC = () => {
               </Button>
               <Button 
                 variant="outline"
-                onClick={() => navigate('/fan/feed')}
+                onClick={() => navigate('/explore')}
                 className="w-full"
               >
-                Go to Feed
+                Explore Creators
               </Button>
             </div>
           )}

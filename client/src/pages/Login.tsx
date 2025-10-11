@@ -23,13 +23,40 @@ export const Login: React.FC = () => {
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (user && !authLoading) {
-      const redirectPath = from || 
-        (user.role === 'admin' ? '/admin/dashboard' : 
-         user.role === 'creator' ? '/creator/dashboard' : 
-         '/fan/feed');
-      navigate(redirectPath, { replace: true });
-    }
+    const checkAndRedirect = async () => {
+      if (user && !authLoading) {
+        let redirectPath = from;
+        
+        if (!redirectPath) {
+          if (user.role === 'admin') {
+            redirectPath = '/admin/dashboard';
+          } else if (user.role === 'creator') {
+            redirectPath = '/creator/dashboard';
+          } else if (user.role === 'fan') {
+            // Check if fan has any subscriptions
+            try {
+              const response = await fetch(`/api/subscriptions/fan/${user.id}`);
+              if (response.ok) {
+                const subscriptions = await response.json();
+                const hasActiveSubscriptions = subscriptions && subscriptions.length > 0 && 
+                  subscriptions.some((sub: any) => sub.status === 'active');
+                
+                redirectPath = hasActiveSubscriptions ? '/fan/feed' : '/explore';
+              } else {
+                redirectPath = '/explore';
+              }
+            } catch (error) {
+              console.error('Error checking subscriptions:', error);
+              redirectPath = '/explore';
+            }
+          }
+        }
+        
+        navigate(redirectPath, { replace: true });
+      }
+    };
+    
+    checkAndRedirect();
   }, [user, authLoading, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,15 +71,42 @@ export const Login: React.FC = () => {
       });
       
       // Small delay to ensure state is updated
-      setTimeout(() => {
+      setTimeout(async () => {
         // Get the user after login to determine redirect path
         const storedUser = localStorage.getItem('xclusive_user');
         if (storedUser) {
           const user = JSON.parse(storedUser);
-          const redirectPath = from || 
-            (user.role === 'admin' ? '/admin/dashboard' : 
-             user.role === 'creator' ? '/creator/dashboard' : 
-             '/fan/feed');
+          
+          let redirectPath = from;
+          
+          if (!redirectPath) {
+            if (user.role === 'admin') {
+              redirectPath = '/admin/dashboard';
+            } else if (user.role === 'creator') {
+              redirectPath = '/creator/dashboard';
+            } else if (user.role === 'fan') {
+              // Check if fan has any subscriptions
+              try {
+                const response = await fetch(`/api/subscriptions/fan/${user.id}`);
+                if (response.ok) {
+                  const subscriptions = await response.json();
+                  // Check if they have any active subscriptions
+                  const hasActiveSubscriptions = subscriptions && subscriptions.length > 0 && 
+                    subscriptions.some((sub: any) => sub.status === 'active');
+                  
+                  redirectPath = hasActiveSubscriptions ? '/fan/feed' : '/explore';
+                } else {
+                  // If API fails, default to explore
+                  redirectPath = '/explore';
+                }
+              } catch (error) {
+                console.error('Error checking subscriptions:', error);
+                // If check fails, default to explore
+                redirectPath = '/explore';
+              }
+            }
+          }
+          
           navigate(redirectPath, { replace: true });
         }
       }, 100);
