@@ -166,7 +166,7 @@ export interface IStorage {
   createNotification(notification: InsertNotification): Promise<Notification>;
   markNotificationAsRead(notificationId: number): Promise<boolean>;
   markAllNotificationsAsRead(userId: number): Promise<boolean>;
-  deleteNotification(notificationId: number): Promise<boolean>;
+  deleteNotification(notificationId: number, userId?: number): Promise<boolean>;
 
   // Notification preferences methods
   getNotificationPreferences(userId: number): Promise<NotificationPreferences | undefined>;
@@ -1515,9 +1515,25 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async deleteNotification(notificationId: number): Promise<boolean> {
+  async deleteNotification(notificationId: number, userId?: number): Promise<boolean> {
     try {
-      return false;
+      let result;
+      if (userId) {
+        result = await db
+          .delete(notifications)
+          .where(and(
+            eq(notifications.id, notificationId),
+            eq(notifications.user_id, userId)
+          ))
+          .returning();
+      } else {
+        result = await db
+          .delete(notifications)
+          .where(eq(notifications.id, notificationId))
+          .returning();
+      }
+      
+      return result.length > 0;
     } catch (error) {
       console.error('Error deleting notification:', error);
       return false;

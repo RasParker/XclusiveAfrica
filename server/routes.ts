@@ -2479,7 +2479,7 @@ app.get('/api/admin/commission-rate', async (req, res) => {
       }
 
       const notificationId = parseInt(req.params.id);
-      const success = await storage.deleteNotification(notificationId);
+      const success = await storage.deleteNotification(notificationId, userId);
 
       if (success) {
         res.json({ success: true });
