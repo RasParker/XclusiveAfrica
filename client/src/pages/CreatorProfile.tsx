@@ -608,7 +608,7 @@ export const CreatorProfile: React.FC = () => {
 
       try {
         setLoading(true);
-        
+
         // Decode the username from URL encoding
         const decodedUsername = decodeURIComponent(username);
         const response = await fetch(`/api/users/username/${encodeURIComponent(decodedUsername)}`);
@@ -618,13 +618,13 @@ export const CreatorProfile: React.FC = () => {
 
           // Only use localStorage for the logged-in user's own profile
           const isViewingOwnProfile = user && user.username === userData.username;
-          
+
           console.log('Username comparison:', {
             loggedInUser: user?.username,
             profileUser: userData.username,
             isOwnProfile: isViewingOwnProfile
           });
-          
+
           // Reset state for other profiles, load from localStorage only for own profile
           if (isViewingOwnProfile) {
             // Check localStorage for profile customizations only for own profile
@@ -645,14 +645,14 @@ export const CreatorProfile: React.FC = () => {
             } else {
               setProfilePhotoUrl(storedProfilePhoto);
             }
-            
+
             if (storedCoverPhoto === '' || storedCoverPhoto === 'null' || storedCoverPhoto === 'undefined') {
               localStorage.removeItem('coverPhotoUrl');
               setCoverPhotoUrl(null);
             } else {
               setCoverPhotoUrl(storedCoverPhoto);
             }
-            
+
             setDisplayName(storedDisplayName);
             setBio(storedBio);
 
@@ -1933,6 +1933,21 @@ export const CreatorProfile: React.FC = () => {
                                   className="w-full h-full object-cover"
                                   muted
                                   preload="metadata"
+                                  onError={(e) => {
+                                    console.error('Video load error:', {
+                                      url: fullUrl,
+                                      postId: post.id,
+                                      error: e
+                                    });
+                                    const target = e.target as HTMLVideoElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                                        <div class="text-white text-sm">Video unavailable</div>
+                                      </div>`;
+                                    }
+                                  }}
                                 />
                               ) : (
                                 <img 
@@ -2085,7 +2100,7 @@ export const CreatorProfile: React.FC = () => {
                         <CardContent className="p-0">
                           {/* Enhanced Media Content */}
                           <div 
-                            className="relative aspect-video bg-black cursor-pointer overflow-hidden group"
+                            className="relative aspect-video bg-black cursor-pointer"
                             onClick={() => handleContentClick(post)}
                             role="button"
                             tabIndex={0}
@@ -2150,6 +2165,11 @@ export const CreatorProfile: React.FC = () => {
                                     muted
                                     preload="metadata"
                                     onError={(e) => {
+                                      console.error('Video load error:', {
+                                        url: fullUrl,
+                                        postId: post.id,
+                                        error: e
+                                      });
                                       const target = e.target as HTMLVideoElement;
                                       target.style.display = 'none';
                                       const parent = target.parentElement;
@@ -2432,7 +2452,7 @@ export const CreatorProfile: React.FC = () => {
                             </div>;
                           })()}
 
-                          
+
                         </div>
 
                         {/* Bottom section - VideoWatch Up Next style */}
@@ -2537,25 +2557,20 @@ export const CreatorProfile: React.FC = () => {
                               })()}
 
                               {/* Media type badge */}
-                              {(() => {
-                                const hasAccess = hasAccessToTier(post.tier);
-                                return hasAccess && (
-                                  <div className="absolute top-4 right-4 flex gap-2">
-                                    {post.media_type === 'video' && (
-                                      <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
-                                        <Video className="w-3 h-3 mr-1" />
-                                        {post.duration || 'Video'}
-                                      </Badge>
-                                    )}
-                                    {post.media_type === 'image' && (
-                                      <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
-                                        <Image className="w-3 h-3 mr-1" />
-                                        Image
-                                      </Badge>
-                                    )}
-                                  </div>
-                                );
-                              })()}
+                              <div className="absolute top-4 right-4 flex gap-2">
+                                {post.media_type === 'video' && (
+                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                    <Video className="w-3 h-3 mr-1" />
+                                    {post.duration || 'Video'}
+                                  </Badge>
+                                )}
+                                {post.media_type === 'image' && (
+                                  <Badge variant="secondary" className="bg-black/60 text-white hover:bg-black/60">
+                                    <Image className="w-3 h-3 mr-1" />
+                                    Image
+                                  </Badge>
+                                )}
+                              </div>
 
                             {/* Tier badge */}
                             <div className="absolute top-4 left-4">
@@ -2564,6 +2579,10 @@ export const CreatorProfile: React.FC = () => {
                                  post.tier.toLowerCase() === 'starter pump' ? 'Starter Pump' :
                                  post.tier.toLowerCase() === 'power gains' ? 'Power Gains' :
                                  post.tier.toLowerCase() === 'elite beast mode' ? 'Elite Beast Mode' :
+                                 post.tier.toLowerCase().includes('starter') ? 'Starter Pump' :
+                                 post.tier.toLowerCase().includes('power') ? 'Power Gains' :
+                                 post.tier.toLowerCase().includes('elite') ? 'Elite Beast Mode' :
+                                 post.tier.toLowerCase().includes('beast') ? 'Elite Beast Mode' :
                                  post.tier}
                               </Badge>
                             </div>
@@ -2753,7 +2772,7 @@ export const CreatorProfile: React.FC = () => {
                             </div>;
                           })()}
 
-                          
+
                         </div>
 
                         {/* Bottom section - VideoWatch Up Next style */}
