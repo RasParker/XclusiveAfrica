@@ -392,7 +392,18 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Who can see this post?</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select 
+                      onValueChange={(value) => {
+                        if (value === 'create_new_tier') {
+                          // Close modal and navigate to manage tiers
+                          onClose();
+                          window.location.href = '/creator/manage-tiers';
+                        } else {
+                          field.onChange(value);
+                        }
+                      }} 
+                      value={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger data-testid="select-access-tier">
                           <SelectValue placeholder="Select access level" />
@@ -400,6 +411,11 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="free">Free for all followers</SelectItem>
+                        {tiers.length === 0 && (
+                          <SelectItem value="create_new_tier" className="text-primary font-medium">
+                            + Create new tier
+                          </SelectItem>
+                        )}
                         {tiers.map((tier) => (
                           <SelectItem key={tier.id} value={tier.name}>
                             {tier.name} (GHS {tier.price}/month)

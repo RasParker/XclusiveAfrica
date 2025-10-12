@@ -405,7 +405,16 @@ export const CreatePost: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Choose who can see this post</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select 
+                        onValueChange={(value) => {
+                          if (value === 'create_new_tier') {
+                            navigate('/creator/manage-tiers');
+                          } else {
+                            field.onChange(value);
+                          }
+                        }} 
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select access level" />
@@ -413,6 +422,11 @@ export const CreatePost: React.FC = () => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="free">Free for all followers</SelectItem>
+                          {tiers.length === 0 && (
+                            <SelectItem value="create_new_tier" className="text-primary font-medium">
+                              + Create new tier
+                            </SelectItem>
+                          )}
                           {tiers.map((tier) => (
                             <SelectItem key={tier.id} value={tier.name}>
                               {tier.name} (GHS {tier.price}/month)
