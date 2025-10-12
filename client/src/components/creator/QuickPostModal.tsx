@@ -397,7 +397,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                         if (value === 'create_new_tier') {
                           // Close modal and navigate to manage tiers
                           onClose();
-                          window.location.href = '/creator/manage-tiers';
+                          window.location.href = '/creator/tiers';
                         } else {
                           field.onChange(value);
                         }

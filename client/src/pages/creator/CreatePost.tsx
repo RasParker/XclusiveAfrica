@@ -408,7 +408,7 @@ export const CreatePost: React.FC = () => {
                       <Select 
                         onValueChange={(value) => {
                           if (value === 'create_new_tier') {
-                            navigate('/creator/manage-tiers');
+                            navigate('/creator/tiers');
                           } else {
                             field.onChange(value);
                           }
