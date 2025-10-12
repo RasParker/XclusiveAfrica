@@ -641,9 +641,6 @@ export const CreatorSettings: React.FC = () => {
         // Save to localStorage so it persists across pages
         setLocalStorageItem('coverPhotoUrl', result.url);
 
-        // Update the user context with the new cover photo
-        updateUser({ avatar: result.url } as any);
-
         // Dispatch custom event to trigger reactivity
         window.dispatchEvent(new CustomEvent('localStorageChange', {
           detail: { keys: ['coverPhotoUrl'] }
