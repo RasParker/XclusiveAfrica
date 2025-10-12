@@ -204,7 +204,6 @@ export const ManageTiers: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
             <div className="text-center sm:text-left">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 flex items-center gap-2 justify-center sm:justify-start">
-                <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                 Manage Subscription Tiers
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground">
