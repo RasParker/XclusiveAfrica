@@ -39,10 +39,10 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-foreground text-base truncate">{subscriber.username || 'Unknown User'}</p>
-            <p className="text-sm text-muted-foreground">Subscriber since {subscriber.joined || new Date(subscriber.created_at).toLocaleDateString()}</p>
+            <p className="text-xs text-muted-foreground">{subscriber.tier}</p>
           </div>
-          <span className="text-sm font-semibold text-foreground shrink-0">
-            {subscriber.tier}
+          <span className={`font-medium text-sm ${subscriber.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>
+            {subscriber.status}
           </span>
         </div>
 
@@ -52,9 +52,6 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
             <Calendar className="w-4 h-4" />
             <span>Joined {subscriber.joined}</span>
           </div>
-          <span className={`font-medium ${subscriber.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>
-            {subscriber.status}
-          </span>
         </div>
 
         {/* Action Row */}
@@ -93,13 +90,9 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
               {subscriber.tier}
             </span>
             <span className="text-sm text-muted-foreground">•</span>
-            <p className="text-sm font-medium">Joined {subscriber.joined}</p>
-          </div>
-
-          <div className="text-right">
-            <p className={`text-xs ${subscriber.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>
+            <span className={`text-sm font-medium ${subscriber.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>
               {subscriber.status}
-            </p>
+            </span>
           </div>
 
           <Button 
