@@ -357,7 +357,7 @@ export const CreatorDashboard: React.FC = () => {
                     <div key={tier.name} className="space-y-2">
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                         <div className="flex flex-wrap items-center gap-2">
-                          <Badge variant="outline" className="text-xs">{tier.name}</Badge>
+                          <span className="text-xs font-semibold text-foreground">{tier.name}</span>
                           <span className="text-sm text-muted-foreground">GHS {tier.price}/month</span>
                         </div>
                         <div className="text-left sm:text-right">
