@@ -787,7 +787,7 @@ export const CreatorDashboard: React.FC = () => {
                             {subscriber.fan?.username || subscriber.username}
                           </p>
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                            <span className="text-xs font-semibold text-foreground">
+                            <span className="text-xs text-foreground">
                               {subscriber.tier_name || subscriber.tier || 'Subscriber'}
                             </span>
                             <span className="text-xs text-muted-foreground">
