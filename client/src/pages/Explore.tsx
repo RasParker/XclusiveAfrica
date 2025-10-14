@@ -137,6 +137,7 @@ export const Explore: React.FC = () => {
 
   const [realCreators, setRealCreators] = useState<any[]>([]);
   const [allCreators, setAllCreators] = useState<any[]>([]);
+  const [creatorsLoading, setCreatorsLoading] = useState(true);
   const [creatorLikeCounts, setCreatorLikeCounts] = useState<{[key: string]: number}>({});
   const [creatorFollowerCounts, setCreatorFollowerCounts] = useState<{[key: string]: number}>({});
 
@@ -166,6 +167,7 @@ export const Explore: React.FC = () => {
       // Only fetch creators after categories are loaded
       if (loadingCategories) return;
 
+      setCreatorsLoading(true);
       try {
         const response = await fetch('/api/creators');
         if (response.ok) {
@@ -262,6 +264,8 @@ export const Explore: React.FC = () => {
         console.error('Error fetching creators:', error);
         // Fallback to mock creators only
         setAllCreators(CREATORS);
+      } finally {
+        setCreatorsLoading(false);
       }
     };
 
@@ -511,12 +515,24 @@ export const Explore: React.FC = () => {
         </div>
 
         {/* Results Count */}
-        <div className="mb-6">
-          <p className="text-muted-foreground">
-            {filteredCreators.length} creator{filteredCreators.length !== 1 ? 's' : ''} found
-          </p>
-        </div>
+        {!creatorsLoading && (
+          <div className="mb-6">
+            <p className="text-muted-foreground">
+              {filteredCreators.length} creator{filteredCreators.length !== 1 ? 's' : ''} found
+            </p>
+          </div>
+        )}
 
+        {/* Loading State */}
+        {creatorsLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading creators...</p>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Creators Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCreators.map((creator) => {
@@ -643,6 +659,8 @@ export const Explore: React.FC = () => {
               Try adjusting your search or filters to find creators
             </p>
           </div>
+        )}
+          </>
         )}
 
       </EdgeToEdgeContainer>
