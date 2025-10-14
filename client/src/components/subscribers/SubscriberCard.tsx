@@ -88,12 +88,15 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="text-sm font-semibold text-foreground">
-            {subscriber.tier}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-foreground">
+              {subscriber.tier}
+            </span>
+            <span className="text-sm text-muted-foreground">•</span>
+            <p className="text-sm font-medium">Joined {subscriber.joined}</p>
+          </div>
 
           <div className="text-right">
-            <p className="text-sm font-medium">Joined {subscriber.joined}</p>
             <p className={`text-xs ${subscriber.status === 'Active' ? 'text-green-600' : 'text-yellow-600'}`}>
               {subscriber.status}
             </p>
