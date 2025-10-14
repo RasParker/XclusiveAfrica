@@ -165,6 +165,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
             </h4>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs text-muted-foreground">{tier}</span>
+              <span className="text-xs text-muted-foreground">•</span>
               {status === 'Scheduled' && scheduledFor ? (
                 <>
                   <span className="text-xs text-muted-foreground">
