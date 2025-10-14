@@ -201,12 +201,33 @@ export const Explore: React.FC = () => {
               tiers = [];
             }
 
-            // Get creator category from their primary_category_id
-            let categoryName = 'General';
-            if (creator.primary_category_id && categories.length > 0) {
+            // Fetch all creator categories (primary + secondary)
+            let categoryNames: string[] = [];
+            let primaryCategoryName = 'General';
+            try {
+              const categoriesResponse = await fetch(`/api/creators/${creator.id}/categories`);
+              if (categoriesResponse.ok) {
+                const creatorCategories = await categoriesResponse.json();
+                categoryNames = creatorCategories.map((cc: any) => cc.category_name || '').filter(Boolean);
+                
+                // Find primary category
+                const primaryCat = creatorCategories.find((cc: any) => cc.is_primary);
+                if (primaryCat && primaryCat.category_name) {
+                  primaryCategoryName = primaryCat.category_name;
+                } else if (categoryNames.length > 0) {
+                  primaryCategoryName = categoryNames[0];
+                }
+              }
+            } catch (error) {
+              console.error(`Error fetching creator categories for ${creator.id}:`, error);
+            }
+
+            // Fallback to primary_category_id if no categories found
+            if (categoryNames.length === 0 && creator.primary_category_id && categories.length > 0) {
               const category = categories.find(cat => cat.id === creator.primary_category_id);
               if (category) {
-                categoryName = category.name;
+                primaryCategoryName = category.name;
+                categoryNames = [category.name];
               }
             }
 
@@ -217,7 +238,8 @@ export const Explore: React.FC = () => {
               avatar: creator.avatar || null,
               cover: creator.cover_image || null,
               bio: creator.bio || 'Creator profile - join for exclusive content!',
-              category: categoryName,
+              category: primaryCategoryName, // Primary category for display
+              categories: categoryNames, // All categories for filtering
               subscribers: creator.total_subscribers || 0,
               verified: creator.verified || false,
               tiers: tiers
@@ -330,7 +352,12 @@ export const Explore: React.FC = () => {
   const filteredCreators = allCreators.filter(creator => {
     const matchesSearch = creator.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          creator.bio.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || creator.category === selectedCategory;
+    
+    // Check if selected category matches any of the creator's categories (primary or secondary)
+    const matchesCategory = selectedCategory === 'All' || 
+                           creator.category === selectedCategory ||
+                           (creator.categories && creator.categories.includes(selectedCategory));
+    
     return matchesSearch && matchesCategory;
   });
 

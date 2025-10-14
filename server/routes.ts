@@ -1584,6 +1584,17 @@ app.get('/api/fan/:fanId/favorites', async (req, res) => {
     }
   });
 
+  app.get("/api/creators/:id/categories", async (req, res) => {
+    try {
+      const creatorId = parseInt(req.params.id);
+      const categories = await storage.getCreatorCategories(creatorId);
+      res.json(categories);
+    } catch (error) {
+      console.error('Get creator categories error:', error);
+      res.status(500).json({ error: "Failed to fetch creator categories" });
+    }
+  });
+
   app.post("/api/creators/:id/categories", async (req, res) => {
     try {
       const creatorId = parseInt(req.params.id);
