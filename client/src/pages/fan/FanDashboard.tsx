@@ -295,10 +295,7 @@ export const FanDashboard: React.FC = () => {
                                   {subscription.creator.display_name || subscription.creator.username}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                  {subscription.tier.name}
-                                </p>
-                                <p className="text-xs font-medium text-foreground mt-1">
-                                  GHS {subscription.tier.price}/month
+                                  <span className="font-semibold text-foreground">{subscription.tier.name}</span> • GHS {subscription.tier.price}/month
                                 </p>
                               </div>
                               <div className="flex flex-col sm:flex-row items-center gap-2">

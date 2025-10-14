@@ -288,9 +288,9 @@ export const AdminDashboard: React.FC = () => {
                         <p className="font-medium">GHS {creator.monthly_revenue.toLocaleString()}</p>
                         <div className="flex items-center gap-2">
                           <p className="text-sm text-muted-foreground">{creator.subscribers} subscribers</p>
-                          <Badge variant={creator.status === 'verified' ? 'default' : 'outline'}>
+                          <span className="text-sm font-semibold text-foreground">
                             {creator.status}
-                          </Badge>
+                          </span>
                         </div>
                       </div>
                     </div>
