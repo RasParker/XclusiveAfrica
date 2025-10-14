@@ -537,7 +537,7 @@ export const CreatorDashboard: React.FC = () => {
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium text-sm text-ellipsis overflow-hidden whitespace-nowrap">{content.title || content.content || 'Untitled Post'}</h4>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="outline" className="text-xs">{content.tier}</Badge>
+                                <span className="text-xs font-semibold text-foreground">{content.tier}</span>
                                 <CountdownTimer
                                   targetDate={content.scheduled_for}
                                   className="text-xs font-medium text-primary"
@@ -722,7 +722,7 @@ export const CreatorDashboard: React.FC = () => {
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium text-sm line-clamp-1">{post.caption || post.title || 'Untitled Post'}</h4>
                               <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="outline" className="text-xs">{post.tier}</Badge>
+                                <span className="text-xs font-semibold text-foreground">{post.tier}</span>
                                 <span className="text-xs text-muted-foreground truncate">
                                   {post.date || new Date(post.created_at || Date.now()).toLocaleDateString()}
                                 </span>
@@ -787,9 +787,9 @@ export const CreatorDashboard: React.FC = () => {
                             {subscriber.fan?.username || subscriber.username}
                           </p>
                           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-                            <Badge variant="outline" className="text-xs">
+                            <span className="text-xs font-semibold text-foreground">
                               {subscriber.tier_name || subscriber.tier || 'Subscriber'}
-                            </Badge>
+                            </span>
                             <span className="text-xs text-muted-foreground">
                               {subscriber.created_at
                                 ? new Date(subscriber.created_at).toLocaleDateString() === new Date().toLocaleDateString()
