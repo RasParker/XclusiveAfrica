@@ -640,7 +640,7 @@ export const CreatorDashboard: React.FC = () => {
                               <div className="flex-1 min-w-0">
                                 <h4 className="font-medium text-sm line-clamp-1">{post.caption || post.title || 'Untitled Post'}</h4>
                                 <div className="flex items-center gap-2 mt-1">
-                                  <Badge variant="outline" className="text-xs">{post.tier}</Badge>
+                                  <span className="text-xs font-semibold text-foreground">{post.tier}</span>
                                   <span className="text-xs text-muted-foreground truncate">
                                     {post.date || new Date(post.created_at || Date.now()).toLocaleDateString()}
                                   </span>
