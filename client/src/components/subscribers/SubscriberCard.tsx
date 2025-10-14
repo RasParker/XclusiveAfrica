@@ -41,12 +41,9 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
             <p className="font-medium text-foreground text-base truncate">{subscriber.username || 'Unknown User'}</p>
             <p className="text-sm text-muted-foreground">Subscriber since {subscriber.joined || new Date(subscriber.created_at).toLocaleDateString()}</p>
           </div>
-          <Badge 
-            variant={subscriber.tier === 'Premium Content' ? 'default' : 'outline'}
-            className="shrink-0"
-          >
+          <span className="text-sm font-semibold text-foreground shrink-0">
             {subscriber.tier}
-          </Badge>
+          </span>
         </div>
 
         {/* Details Row */}
@@ -91,11 +88,9 @@ export const SubscriberCard: React.FC<SubscriberCardProps> = ({ subscriber, onMe
         </div>
 
         <div className="flex items-center gap-4">
-          <Badge 
-            variant={subscriber.tier === 'Premium Content' ? 'default' : 'outline'}
-          >
+          <span className="text-sm font-semibold text-foreground">
             {subscriber.tier}
-          </Badge>
+          </span>
 
           <div className="text-right">
             <p className="text-sm font-medium">Joined {subscriber.joined}</p>

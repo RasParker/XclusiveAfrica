@@ -17,7 +17,7 @@ import {
   FileText,
   Edit,
   CheckCircle,
-  
+
 } from 'lucide-react';
 
 
@@ -164,7 +164,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
               {caption}
             </h4>
             <div className="flex items-center gap-2 mb-1">
-              <Badge variant={getTierColor(tier)} className="text-xs">{tier}</Badge>
+              <span className="text-sm font-semibold text-foreground">{tier}</span>
               {status === 'Scheduled' && scheduledFor ? (
                 <>
                   <span className="text-xs text-muted-foreground">
