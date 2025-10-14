@@ -733,9 +733,11 @@ export const FeedPage: React.FC = () => {
                           <div className="w-full h-full relative bg-black">
                             <video
                               src={post.thumbnail}
+                              poster={post.thumbnail}
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
+                              playsInline
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -951,9 +953,11 @@ export const FeedPage: React.FC = () => {
                           <div className="w-full h-full relative bg-black">
                             <video
                               src={post.thumbnail}
+                              poster={post.thumbnail}
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
+                              playsInline
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -1093,9 +1097,11 @@ export const FeedPage: React.FC = () => {
                           <div className="w-full h-full relative bg-black">
                             <video
                               src={post.thumbnail}
+                              poster={post.thumbnail}
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
+                              playsInline
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -1170,9 +1176,7 @@ export const FeedPage: React.FC = () => {
                           src={post.creator.avatar ? (post.creator.avatar.startsWith('http') || post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
                           alt={post.creator.username} 
                         />
-                        <AvatarFallback className="text-sm bg-muted text-muted-foreground">
-                          {(post.creator.display_name || post.creator.username || 'U').charAt(0).toUpperCase()}
-                        </AvatarFallback>
+                        <AvatarFallback>{(post.creator.display_name || post.creator.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0 space-y-2">
                         <h4 className="text-lg font-semibold text-foreground line-clamp-2 leading-tight">

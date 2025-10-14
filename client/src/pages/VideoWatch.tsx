@@ -719,8 +719,11 @@ export const VideoWatch: React.FC = () => {
                           {video.media_type === 'video' ? (
                             <video
                               src={videoFullUrl}
+                              poster={videoFullUrl}
                               className="w-full h-full object-cover"
                               muted
+                              preload="metadata"
+                              playsInline
                             />
                           ) : (
                             <img
