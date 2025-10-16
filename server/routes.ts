@@ -1098,6 +1098,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           tier_name: subscription.tier_name || 'unknown'
         };
         res.json(enrichedSubscription);
+      } else if (subscription && subscription.status === 'cancelled') {
+        console.log(`⚠ Subscription found but cancelled: ${subscription.id}`);
+        res.status(404).json(null);
       } else {
         console.log(`✗ No active subscription found`);
         res.status(404).json(null);
