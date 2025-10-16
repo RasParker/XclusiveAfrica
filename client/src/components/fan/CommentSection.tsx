@@ -486,27 +486,36 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   if (isBottomSheet) {
     return (
       <div className="w-full h-full bg-background flex flex-col">
-        {/* Comments Header */}
-        {comments.length > 0 && (
-          <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0 cursor-grab active:cursor-grabbing">
-              <div className="flex items-center justify-center">
-                <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
+        {/* Comments Header with Sort Filter */}
+        <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0 cursor-grab active:cursor-grabbing">
+          <div className="flex items-center justify-center">
+            <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
+          </div>
+          <SheetTitle className="text-lg font-semibold text-foreground text-center">
+            Comments
+          </SheetTitle>
+          
+          {/* Sort dropdown for mobile */}
+          {comments.length > 0 && (
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/20">
+              <span className="text-sm font-medium text-foreground">
+                {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'popular')}
+                  className="text-xs bg-background border border-border/30 rounded px-2 py-1 text-muted-foreground"
+                >
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                  <option value="popular">Most liked</option>
+                </select>
               </div>
-              <SheetTitle className="text-lg font-semibold text-foreground text-center">
-                Comments
-              </SheetTitle>
-            </SheetHeader>
-        )}
-        {comments.length === 0 && (
-          <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0 cursor-grab active:cursor-grabbing">
-              <div className="flex items-center justify-center">
-                <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
-              </div>
-              <SheetTitle className="text-lg font-semibold text-foreground text-center">
-                Comments
-              </SheetTitle>
-            </SheetHeader>
-        )}
+            </div>
+          )}
+        </SheetHeader>
 
         {/* Comments List - Instagram style */}
         <div className="flex-1 overflow-y-auto px-4 bg-background">
