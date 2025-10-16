@@ -2429,6 +2429,7 @@ export const CreatorProfile: React.FC = () => {
         onClose={() => setTierDetailsModalOpen(false)} 
         tier={selectedTier} 
       />
+      </div>
     </>
   );
 };
