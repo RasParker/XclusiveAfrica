@@ -160,10 +160,10 @@ export const SidebarNavigation: React.FC = () => {
       <div className="flex items-center px-6 py-4 border-b border-border">
         <Link to="/" className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">X</span>
+            <span className="text-white font-bold text-xl">P</span>
           </div>
           <span className="text-xl font-bold text-gradient-primary">
-            Xclusive
+            Pénc
           </span>
         </Link>
       </div>
