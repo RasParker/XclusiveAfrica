@@ -2412,23 +2412,33 @@ export const CreatorProfile: React.FC = () => {
       )}
 
       {/* Payment Modal */}
-      <PaymentModal 
-        isOpen={paymentModalOpen} 
-        onClose={() => setPaymentModalOpen(false)} 
-        tier={selectedTier} 
-        creator={creator}
-        onSubscribe={() => {
-          if (selectedTier) handleSubscribe(selectedTier.id);
-          setPaymentModalOpen(false);
-        }}
-      />
+      {selectedTier && (
+        <PaymentModal 
+          isOpen={paymentModalOpen} 
+          onClose={() => {
+            setPaymentModalOpen(false);
+            setSelectedTier(null);
+          }} 
+          tier={selectedTier} 
+          creator={creator}
+          onSubscribe={() => {
+            if (selectedTier) handleSubscribe(selectedTier.id);
+            setPaymentModalOpen(false);
+          }}
+        />
+      )}
 
       {/* Tier Details Modal */}
-      <TierDetailsModal 
-        isOpen={tierDetailsModalOpen} 
-        onClose={() => setTierDetailsModalOpen(false)} 
-        tier={selectedTier} 
-      />
+      {selectedTier && (
+        <TierDetailsModal 
+          isOpen={tierDetailsModalOpen} 
+          onClose={() => {
+            setTierDetailsModalOpen(false);
+            setSelectedTier(null);
+          }} 
+          tier={selectedTier} 
+        />
+      )}
       </div>
     </>
   );
