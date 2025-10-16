@@ -943,9 +943,9 @@ export const CreatorProfile: React.FC = () => {
 
     switch (activeTab) {
       case 'public':
-        return userPosts.filter(post => post.tier === 'public');
+        return userPosts.filter(post => post.tier?.toLowerCase() === 'public');
       case 'subscription':
-        return userPosts.filter(post => post.tier !== 'public');
+        return userPosts.filter(post => post.tier?.toLowerCase() !== 'public');
       case 'all':
       default:
         return userPosts;
@@ -958,8 +958,8 @@ export const CreatorProfile: React.FC = () => {
 
     return {
       all: userPosts.length,
-      subscription: userPosts.filter(post => post.tier !== 'public').length,
-      public: userPosts.filter(post => post.tier === 'public').length
+      subscription: userPosts.filter(post => post.tier?.toLowerCase() !== 'public').length,
+      public: userPosts.filter(post => post.tier?.toLowerCase() === 'public').length
     };
   };
 
