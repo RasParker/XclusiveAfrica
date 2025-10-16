@@ -734,7 +734,7 @@ export const FeedPage: React.FC = () => {
                             <img 
                               src={
                                 post.thumbnail.includes('cloudinary.com/') 
-                                  ? post.thumbnail.replace('/video/upload/', '/video/upload/so_0,w_800,h_800,c_fill/')
+                                  ? post.thumbnail.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
                                   : post.thumbnail.startsWith('/uploads/') 
                                     ? post.thumbnail 
                                     : `/uploads/${post.thumbnail}`
@@ -962,7 +962,7 @@ export const FeedPage: React.FC = () => {
                             <img 
                               src={
                                 post.thumbnail.includes('cloudinary.com/') 
-                                  ? post.thumbnail.replace('/video/upload/', '/video/upload/so_0,w_640,h_360,c_fill/')
+                                  ? post.thumbnail.replace('/upload/', '/upload/so_0,w_640,h_360,c_fill,f_jpg/').replace('.mp4', '.jpg')
                                   : post.thumbnail.startsWith('/uploads/') 
                                     ? post.thumbnail 
                                     : `/uploads/${post.thumbnail}`
@@ -1114,7 +1114,7 @@ export const FeedPage: React.FC = () => {
                             <img 
                               src={
                                 post.thumbnail.includes('cloudinary.com/') 
-                                  ? post.thumbnail.replace('/video/upload/', '/video/upload/so_0,w_1280,h_720,c_fill/')
+                                  ? post.thumbnail.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')
                                   : post.thumbnail.startsWith('/uploads/') 
                                     ? post.thumbnail 
                                     : `/uploads/${post.thumbnail}`
