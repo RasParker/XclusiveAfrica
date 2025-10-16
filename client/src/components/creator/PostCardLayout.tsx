@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageSquare, Share2, Edit, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface PostCardLayoutProps {
   post: any;
@@ -29,10 +30,18 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
   handleEditPost,
   handleDeletePost,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div>
       <div className="flex gap-3 p-3 pb-2">
-        <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">
+        <Avatar 
+          className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200 cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/creator/${encodeURIComponent(creator.username)}`);
+          }}
+        >
           <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
           <AvatarFallback className="text-sm bg-muted text-muted-foreground">
             {(creator?.display_name || creator?.username || 'U').charAt(0).toUpperCase()}
@@ -44,7 +53,15 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
           </h4>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="truncate">{creator.display_name}</span>
+            <span 
+              className="truncate cursor-pointer hover:text-foreground transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/creator/${encodeURIComponent(creator.username)}`);
+              }}
+            >
+              {creator.display_name}
+            </span>
             <div className="flex items-center gap-1 flex-shrink-0">
               <span>{(post.likes_count || post.views || 0).toLocaleString()} views</span>
               <span>•</span>

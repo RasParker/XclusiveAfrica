@@ -824,7 +824,13 @@ export const FeedPage: React.FC = () => {
                   {/* Enhanced bottom section with better spacing */}
                   <div className="p-4 space-y-3">
                     <div className="flex gap-4">
-                      <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent">
+                      <Avatar 
+                        className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent cursor-pointer hover:ring-primary/20 transition-all"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/creator/${encodeURIComponent(post.creator.username)}`);
+                        }}
+                      >
                         <AvatarImage 
                           src={post.creator.avatar ? (post.creator.avatar.startsWith('http') || post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
                           alt={post.creator.username} 
@@ -839,7 +845,13 @@ export const FeedPage: React.FC = () => {
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching desktop view */}
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-sm text-muted-foreground font-medium truncate">
+                          <p 
+                            className="text-sm text-muted-foreground font-medium truncate cursor-pointer hover:text-foreground transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/creator/${encodeURIComponent(post.creator.username)}`);
+                            }}
+                          >
                             {post.creator.display_name || post.creator.username}
                           </p>
                           {/* Updated stats display format for mobile */}
@@ -1051,7 +1063,13 @@ export const FeedPage: React.FC = () => {
                   {/* Enhanced content section with uniform height */}
                   <div className="flex-1 flex flex-col p-3 space-y-3">
                     <div className="flex gap-3 flex-1">
-                      <Avatar className="h-8 w-8 flex-shrink-0 ring-2 ring-transparent">
+                      <Avatar 
+                        className="h-8 w-8 flex-shrink-0 ring-2 ring-transparent cursor-pointer hover:ring-primary/20 transition-all"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/creator/${encodeURIComponent(post.creator.username)}`);
+                        }}
+                      >
                         <AvatarImage 
                           src={post.creator.avatar ? (post.creator.avatar.startsWith('http') || post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
                           alt={post.creator.username} 
@@ -1069,7 +1087,13 @@ export const FeedPage: React.FC = () => {
 
                         {/* Creator name with view count and timestamp on same row */}
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs text-muted-foreground font-medium truncate">
+                          <p 
+                            className="text-xs text-muted-foreground font-medium truncate cursor-pointer hover:text-foreground transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/creator/${encodeURIComponent(post.creator.username)}`);
+                            }}
+                          >
                             {post.creator.display_name || post.creator.username}
                           </p>
                           {/* Updated stats display format for desktop grid view */}
@@ -1200,7 +1224,13 @@ export const FeedPage: React.FC = () => {
                   <div className="p-6 space-y-4">
                     {/* Creator Info with enhanced typography */}
                     <div className="flex gap-4">
-                      <Avatar className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent">
+                      <Avatar 
+                        className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent cursor-pointer hover:ring-primary/20 transition-all"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/creator/${encodeURIComponent(post.creator.username)}`);
+                        }}
+                      >
                         <AvatarImage 
                           src={post.creator.avatar ? (post.creator.avatar.startsWith('http') || post.creator.avatar.startsWith('/uploads/') ? post.creator.avatar : `/uploads/${post.creator.avatar}`) : undefined} 
                           alt={post.creator.username} 
@@ -1213,7 +1243,13 @@ export const FeedPage: React.FC = () => {
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching grid view */}
                         <div className="flex items-center justify-between gap-3">
-                          <p className="text-sm text-muted-foreground font-medium truncate">
+                          <p 
+                            className="text-sm text-muted-foreground font-medium truncate cursor-pointer hover:text-foreground transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/creator/${encodeURIComponent(post.creator.username)}`);
+                            }}
+                          >
                             {post.creator.display_name || post.creator.username}
                           </p>
                           {/* Updated stats display format for desktop single view */}
