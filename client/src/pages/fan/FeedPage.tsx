@@ -337,9 +337,14 @@ export const FeedPage: React.FC = () => {
             };
           });
 
+          // Remove duplicates based on post ID
+          const uniquePosts = transformedPosts.filter((post, index, self) =>
+            index === self.findIndex((p) => p.id === post.id)
+          );
+
           // Show all posts but mark access level for display logic
-          console.log('Total posts after filtering:', transformedPosts.length);
-          setFeed(transformedPosts);
+          console.log('Total posts after filtering:', uniquePosts.length);
+          setFeed(uniquePosts);
         } else {
           const errorText = await response.text();
           console.error('API request failed:', response.status, errorText);
