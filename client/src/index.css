@@ -646,7 +646,7 @@
 
   @media (max-width: 768px) {
     .content-wrapper {
-      height: calc(100vh - 40vh);
+      min-height: 100vh;
       padding-bottom: 2rem;
     }
   }

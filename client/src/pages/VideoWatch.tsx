@@ -227,8 +227,8 @@ export const VideoWatch: React.FC = () => {
     <div className={`min-h-screen bg-background ${isImmersive ? 'is-immersive' : ''}`}>
       {/* Mobile Layout */}
       <div className="md:hidden">
-        {/* Video Player Wrapper - YouTube style for mobile */}
-        <div className="video-player-wrapper relative bg-black w-full">
+        {/* Video Player Wrapper - YouTube style for mobile - Sticky */}
+        <div className="video-player-wrapper sticky top-0 z-20 relative bg-black w-full">
           {/* Back Button */}
           {!isImmersive && (
             <Button
