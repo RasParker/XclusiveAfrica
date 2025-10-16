@@ -439,6 +439,9 @@ export const VideoWatch: React.FC = () => {
                 {nextVideos.map((video) => {
                   const videoMediaUrl = Array.isArray(video.media_urls) ? video.media_urls[0] : video.media_urls;
                   const videoFullUrl = videoMediaUrl?.startsWith('http') ? videoMediaUrl : `/uploads/${videoMediaUrl}`;
+                  const thumbnailUrl = videoMediaUrl?.includes('cloudinary.com/') 
+                    ? videoMediaUrl.replace('/upload/', '/upload/so_0,w_640,h_360,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                    : videoFullUrl;
 
                   return (
                     <div 
@@ -448,19 +451,15 @@ export const VideoWatch: React.FC = () => {
                     >
                       <div className="py-3">
                         <div className="relative w-full aspect-video bg-black overflow-hidden mb-3 rounded-lg">
-                          {video.media_type === 'video' ? (
-                            <video
-                              src={videoFullUrl}
-                              className="w-full h-full object-cover"
-                              muted
-                            />
-                          ) : (
-                            <img
-                              src={videoFullUrl}
-                              alt={video.title}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
+                          <img
+                            src={thumbnailUrl}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
+                            }}
+                          />
                           <div className="absolute inset-0 flex items-center justify-center">
                             <Play className="w-6 h-6 text-white" fill="white" />
                           </div>
@@ -707,6 +706,9 @@ export const VideoWatch: React.FC = () => {
                 {nextVideos.map((video, index) => {
                   const videoMediaUrl = Array.isArray(video.media_urls) ? video.media_urls[0] : video.media_urls;
                   const videoFullUrl = videoMediaUrl?.startsWith('http') ? videoMediaUrl : `/uploads/${videoMediaUrl}`;
+                  const thumbnailUrl = videoMediaUrl?.includes('cloudinary.com/') 
+                    ? videoMediaUrl.replace('/upload/', '/upload/so_0,w_640,h_360,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                    : videoFullUrl;
 
                   return (
                     <div 
@@ -716,22 +718,15 @@ export const VideoWatch: React.FC = () => {
                     >
                       <div className="p-3">
                         <div className="relative w-full aspect-video bg-black overflow-hidden mb-2 md:rounded-lg">
-                          {video.media_type === 'video' ? (
-                            <video
-                              src={videoFullUrl}
-                              poster={videoFullUrl}
-                              className="w-full h-full object-cover"
-                              muted
-                              preload="metadata"
-                              playsInline
-                            />
-                          ) : (
-                            <img
-                              src={videoFullUrl}
-                              alt={video.title}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
+                          <img
+                            src={thumbnailUrl}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
+                            }}
+                          />
                           <div className="absolute inset-0 flex items-center justify-center">
                             <Play className="w-4 h-4 text-white" fill="white" />
                           </div>
