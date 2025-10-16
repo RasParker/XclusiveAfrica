@@ -301,7 +301,10 @@ export const VideoWatch: React.FC = () => {
           <div className="px-4 py-4">
             {/* Video Caption with Avatar */}
             <div className="flex items-start gap-3 mb-3">
-              <Avatar className="h-9 w-9 flex-shrink-0">
+              <Avatar 
+                className="h-9 w-9 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate(`/creator/${post.creator_username || post.creator?.username}`)}
+              >
                 <AvatarImage 
                   src={post.creator_avatar || post.creator?.avatar || undefined} 
                   alt={post.creator_username || post.creator?.username} 
@@ -315,7 +318,12 @@ export const VideoWatch: React.FC = () => {
                   {post.content || 'Untitled Post'}
                 </h1>
                 <div className="flex items-center justify-between text-xs text-muted-foreground w-full">
-                  <span className="truncate mr-2">{post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}</span>
+                  <span 
+                    className="truncate mr-2 cursor-pointer hover:text-foreground transition-colors"
+                    onClick={() => navigate(`/creator/${post.creator_username || post.creator?.username}`)}
+                  >
+                    {post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}
+                  </span>
                   <div className="flex items-center gap-1 flex-shrink-0 text-right">
                     <span>{post.views_count ? (post.views_count >= 1000 ? `${Math.floor(post.views_count / 1000)}K` : post.views_count) : '0'} views</span>
                     <span>•</span>
@@ -585,7 +593,10 @@ export const VideoWatch: React.FC = () => {
 
               {/* Video Caption with Avatar */}
               <div className="flex items-start gap-3 mb-4">
-                <Avatar className="h-9 w-9 flex-shrink-0">
+                <Avatar 
+                  className="h-9 w-9 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate(`/creator/${post.creator_username || post.creator?.username}`)}
+                >
                   <AvatarImage 
                     src={post.creator_avatar || post.creator?.avatar || undefined} 
                     alt={post.creator_username || post.creator?.username} 
@@ -599,7 +610,12 @@ export const VideoWatch: React.FC = () => {
                     {post.content}
                   </h1>
                   <div className="flex items-center justify-between text-xs text-muted-foreground w-full">
-                    <span className="truncate mr-2">{post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}</span>
+                    <span 
+                      className="truncate mr-2 cursor-pointer hover:text-foreground transition-colors"
+                      onClick={() => navigate(`/creator/${post.creator_username || post.creator?.username}`)}
+                    >
+                      {post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}
+                    </span>
                     <div className="flex items-center gap-1 flex-shrink-0 text-right">
                       <span>876K views</span>
                       <span>•</span>
