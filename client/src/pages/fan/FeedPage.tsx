@@ -730,14 +730,16 @@ export const FeedPage: React.FC = () => {
                     {post.hasAccess ? (
                       post.thumbnail ? (
                         post.type === 'video' ? (
-                          <div className="w-full h-full relative bg-black">
-                            <video
-                              src={post.thumbnail}
-                              poster={post.thumbnail}
+                          <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
+                            <img 
+                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              alt={`${post.creator.display_name}'s video`}
                               className="w-full h-full object-cover"
-                              muted
-                              preload="metadata"
-                              playsInline
+                              loading={index > 3 ? "lazy" : "eager"}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`;
+                              }}
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -950,14 +952,16 @@ export const FeedPage: React.FC = () => {
                     {post.hasAccess ? (
                       post.thumbnail ? (
                         post.type === 'video' ? (
-                          <div className="w-full h-full relative bg-black">
-                            <video
-                              src={post.thumbnail}
-                              poster={post.thumbnail}
+                          <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
+                            <img 
+                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              alt={`${post.creator.display_name}'s video`}
                               className="w-full h-full object-cover"
-                              muted
-                              preload="metadata"
-                              playsInline
+                              loading={index > 8 ? "lazy" : "eager"}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${post.id}`;
+                              }}
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
@@ -1094,14 +1098,16 @@ export const FeedPage: React.FC = () => {
                     {post.hasAccess ? (
                       post.thumbnail ? (
                         post.type === 'video' ? (
-                          <div className="w-full h-full relative bg-black">
-                            <video
-                              src={post.thumbnail}
-                              poster={post.thumbnail}
+                          <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
+                            <img 
+                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              alt={`${post.creator.display_name}'s video`}
                               className="w-full h-full object-cover"
-                              muted
-                              preload="metadata"
-                              playsInline
+                              loading={index > 2 ? "lazy" : "eager"}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `https://placehold.co/1280x720/1f2937/FFFFFF?text=Video+${post.id}`;
+                              }}
                             />
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                               <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
