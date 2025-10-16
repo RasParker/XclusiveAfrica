@@ -195,6 +195,15 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
 
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to comment.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const response = await fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
@@ -236,12 +245,15 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
           description: "Your comment has been posted successfully.",
         });
       } else {
-        throw new Error('Failed to post comment');
+        const errorData = await response.json().catch(() => ({ error: 'Failed to post comment' }));
+        throw new Error(errorData.error || 'Failed to post comment');
       }
     } catch (error) {
+      console.error('Comment error:', error);
       toast({
         title: "Error",
-        description: "Failed to post comment. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to post comment. Please try again.",
+        variant: "destructive"
       });
     }
   };
@@ -566,8 +578,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
         <div className="px-4 py-3 border-t border-border/30 bg-background shrink-0">
           <div className="flex gap-2">
             <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={user?.avatar} alt={user?.username} />
-              <AvatarFallback className="text-xs">{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={user?.avatar || undefined} alt={user?.username || 'User'} />
+              <AvatarFallback className="text-xs">{(user?.username || user?.display_name || 'U').charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex-1 flex gap-3">
               <Textarea
@@ -610,8 +622,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       <div className="px-2 py-3 border-b border-border/30">
         <div className="flex gap-2">
           <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarImage src={user?.avatar} alt={user?.username} />
-            <AvatarFallback className="text-xs">{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
+            <AvatarImage src={user?.avatar || undefined} alt={user?.username || 'User'} />
+            <AvatarFallback className="text-xs">{(user?.username || user?.display_name || 'U').charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex-1 flex gap-3">
             <Textarea
