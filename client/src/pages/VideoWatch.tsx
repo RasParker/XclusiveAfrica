@@ -278,6 +278,11 @@ export const VideoWatch: React.FC = () => {
           {post.media_type === 'video' ? (
             <video
               src={fullMediaUrl}
+              poster={
+                mediaUrl?.includes('cloudinary.com/') 
+                  ? mediaUrl.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                  : undefined
+              }
               className="w-full h-full video-element"
               controls
               playsInline
@@ -574,6 +579,11 @@ export const VideoWatch: React.FC = () => {
                 {post.media_type === 'video' ? (
                   <video
                     src={fullMediaUrl}
+                    poster={
+                      mediaUrl?.includes('cloudinary.com/') 
+                        ? mediaUrl.replace('/upload/', '/upload/so_0,w_1920,h_1080,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                        : undefined
+                    }
                     className="w-full aspect-video"
                     controls
                     onLoadedMetadata={handleVideoLoad}
