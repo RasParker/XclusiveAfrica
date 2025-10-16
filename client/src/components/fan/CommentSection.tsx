@@ -6,6 +6,10 @@ import { Heart, MessageSquare, Send, MoreHorizontal, ChevronDown, ChevronUp } fr
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ReportDialog } from '@/components/shared/ReportDialog';
+import {
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 
 interface Comment {
   id: string;
@@ -484,25 +488,24 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
       <div className="w-full h-full bg-background flex flex-col">
         {/* Comments Header */}
         {comments.length > 0 && (
-          <div className="px-4 py-3 border-b border-border/20 bg-background shrink-0">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">
-                {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground hidden sm:inline">Sort by:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'popular')}
-                  className="text-xs bg-background border border-border/30 rounded px-2 py-1 text-muted-foreground"
-                >
-                  <option value="newest">Newest</option>
-                  <option value="oldest">Oldest</option>
-                  <option value="popular">Most liked</option>
-                </select>
+          <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0 cursor-grab active:cursor-grabbing">
+              <div className="flex items-center justify-center">
+                <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
               </div>
-            </div>
-          </div>
+              <SheetTitle className="text-lg font-semibold text-foreground text-center">
+                Comments
+              </SheetTitle>
+            </SheetHeader>
+        )}
+        {comments.length === 0 && (
+          <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0 cursor-grab active:cursor-grabbing">
+              <div className="flex items-center justify-center">
+                <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
+              </div>
+              <SheetTitle className="text-lg font-semibold text-foreground text-center">
+                Comments
+              </SheetTitle>
+            </SheetHeader>
         )}
 
         {/* Comments List - Instagram style */}
