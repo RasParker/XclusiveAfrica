@@ -2005,11 +2005,17 @@ export const CreatorProfile: React.FC = () => {
                     ))}
                   </div>
                 </div>
-</old_str>
-with
-<new_str>
-<TabsContent value="all" className="space-y-6">
-              {/* All Posts Content */}
+              </>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground">No posts found for this creator yet.</p>
+              </div>
+            )}
+          </div>
+            </TabsContent>
+
+            <TabsContent value="subscription" className="space-y-6">
+              {/* Subscription Posts Content */}
               <div>
             {getFilteredPosts().length > 0 ? (
               <>
@@ -2155,5 +2161,274 @@ with
                     ))}
                   </div>
                 </div>
-</new_str>
-</changes>
+              </>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground">No subscription content available from this creator.</p>
+              </div>
+            )}
+          </div>
+            </TabsContent>
+
+            <TabsContent value="public" className="space-y-6">
+              {/* Public Posts Content */}
+              <div>
+            {getFilteredPosts().length > 0 ? (
+              <>
+                {/* Mobile: Edge-to-edge borderless layout like fan feed */}
+                <div className="md:hidden">
+                  <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
+                  }}>
+                    {getFilteredPosts().map((post) => (
+                      <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden">
+                        <div 
+                          className="relative w-full aspect-video bg-black cursor-pointer"
+                          onClick={() => handleContentClick(post)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleContentClick(post);
+                            }
+                          }}
+                        >
+                          {(() => {
+                            const hasAccess = hasAccessToTier(post.tier);
+
+                            if (!hasAccess) {
+                              return (
+                                <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center relative">
+                                  <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+                                  <div className="text-center z-10 p-4">
+                                    <div className="mb-3">
+                                      <svg className="w-8 h-8 mx-auto text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                      </svg>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mb-2">
+                                      {post.tier === 'supporter' ? 'Supporter' : 
+                                       post.tier === 'fan' ? 'Fan' : 
+                                       post.tier === 'premium' ? 'Premium' : 
+                                       post.tier === 'superfan' ? 'Superfan' : 'Premium'} Content
+                                    </p>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-3 py-1.5 shadow-lg hover:shadow-xl transition-all"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!user) {
+                                          window.location.href = `/login?redirect=/creator/${username}`;
+                                        } else {
+                                          document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
+                                        }
+                                      }}
+                                    >
+                                      {!user ? 'Login' : 'Subscribe'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                            const mediaUrl = mediaUrls[0];
+
+                            if (mediaUrl) {
+                              const fullUrl = getImageUrl(mediaUrl);
+
+                              return post.media_type === 'video' ? (
+                                <video 
+                                  src={fullUrl}
+                                  className="w-full h-full object-cover"
+                                  muted
+                                  preload="metadata"
+                                  onError={(e) => {
+                                    console.error('Video load error:', {
+                                      url: fullUrl,
+                                      postId: post.id,
+                                      error: e
+                                    });
+                                    const target = e.target as HTMLVideoElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                                        <div class="text-white text-sm">Video unavailable</div>
+                                      </div>`;
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <img 
+                                  src={fullUrl}
+                                  alt={post.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
+                                    target.className = "w-full h-full object-cover opacity-50";
+                                  }}
+                                />
+                              );
+                            } else {
+                              return (
+                                <img 
+                                  src={post.id === '1' ? 'https://placehold.co/640x360/E63946/FFFFFF?text=Creator+Post+1' :
+                                       post.id === '2' ? 'https://placehold.co/640x360/457B9D/FFFFFF?text=Creator+Post+2' :
+                                       post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Creator+Post+3' :
+                                       `https://placehold.co/640x360/6366F1/FFFFFF?text=Creator+Post+${post.id}`}
+                                  alt={`${creator.display_name}'s post`}
+                                  className="w-full h-full object-cover"
+                                />
+                              );
+                            }
+                          })()}
+
+                          {/* Content type overlay - only show for non-video media */}
+                          {post.media_type !== 'video' && (
+                            <div className="absolute top-2 left-2">
+                              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-black/60 backdrop-blur-sm">
+                                {getMediaOverlayIcon(post.media_type)}
+                              </div>
+                            </div>
+                          )}
+
+
+                        </div>
+
+                        {/* Bottom section - Use PostCardLayout for consistency */}
+                        <PostCardLayout
+                          post={post}
+                          creator={creator}
+                          postLikes={postLikes}
+                          isOwnProfile={isOwnProfile}
+                          getImageUrl={getImageUrl}
+                          getTimeAgo={getTimeAgo}
+                          handleLike={handleLike}
+                          handleCommentClick={handleCommentClick}
+                          handleShare={handleShare}
+                          handleEditPost={handleEditPost}
+                          handleDeletePost={handleDeletePost}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground">This creator has no public posts.</p>
+              </div>
+            )}
+          </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Post Editing Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Post</DialogTitle>
+            <DialogDescription>
+              Edit the content of your post below. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid py-4">
+            <Textarea
+              id="caption"
+              value={editCaption}
+              onChange={(e) => setEditCaption(e.target.value)}
+              placeholder="Write your post content here..."
+              className="min-h-[100px] resize-none"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Post Detail Modal (for images/videos) */}
+      {selectedContent && (
+        <Dialog open={isModalOpen} onOpenChange={closeModal}>
+          <DialogContent className="max-w-3xl w-full h-[80vh] p-0 bg-transparent border-none flex flex-col items-center justify-center">
+            <div className="relative w-full h-full flex items-center justify-center">
+              <button 
+                onClick={closeModal}
+                className="absolute top-2 right-2 z-30 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+              
+              {selectedContent.type === 'Video' ? (
+                <video 
+                  src={selectedContent.mediaPreview} 
+                  className="max-w-full max-h-full object-contain" 
+                  controls 
+                  autoPlay
+                />
+              ) : (
+                <img 
+                  src={selectedContent.mediaPreview} 
+                  alt={selectedContent.title} 
+                  className="max-w-full max-h-full object-contain" 
+                />
+              )}
+            </div>
+            <div className="w-full max-w-3xl px-4 py-3 bg-background border-t border-border/50">
+              <div className="flex items-start gap-3">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
+                  <AvatarFallback>{(creator?.display_name || creator?.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="font-semibold text-foreground text-sm truncate">{creator.display_name || creator.username}</span>
+                    <span className="text-muted-foreground text-xs">•</span>
+                    <span className="text-muted-foreground text-xs">{getTimeAgo(selectedContent.createdAt)}</span>
+                  </div>
+                  <p className={`text-sm text-muted-foreground leading-relaxed ${expandedModalCaption ? '' : 'line-clamp-2'}`}>
+                    {selectedContent.caption}
+                  </p>
+                  {selectedContent.caption && selectedContent.caption.length > 100 && (
+                    <button 
+                      onClick={() => setExpandedModalCaption(!expandedModalCaption)}
+                      className="text-xs text-accent hover:underline"
+                    >
+                      {expandedModalCaption ? 'Read less' : 'Read more'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Payment Modal */}
+      <PaymentModal 
+        isOpen={paymentModalOpen} 
+        onClose={() => setPaymentModalOpen(false)} 
+        tier={selectedTier} 
+        creator={creator}
+        onSubscribe={() => {
+          if (selectedTier) handleSubscribe(selectedTier.id);
+          setPaymentModalOpen(false);
+        }}
+      />
+
+      {/* Tier Details Modal */}
+      <TierDetailsModal 
+        isOpen={tierDetailsModalOpen} 
+        onClose={() => setTierDetailsModalOpen(false)} 
+        tier={selectedTier} 
+      />
+    </>
+  );
+};
