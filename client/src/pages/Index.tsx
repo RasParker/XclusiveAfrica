@@ -21,10 +21,10 @@ const Index = () => {
         <div className="container flex h-16 items-center justify-between px-4">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">X</span>
+              <span className="text-primary-foreground font-bold text-lg">P</span>
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              Xclusive
+              Pénc
             </span>
           </Link>
           <div className="flex items-center space-x-2">
@@ -71,7 +71,7 @@ const Index = () => {
       <section className="py-12 px-4 bg-muted/50">
         <div className="container max-w-6xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
-            Why Choose Xclusive?
+            Why Choose Pénc?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center">
@@ -137,9 +137,9 @@ const Index = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <div className="w-6 h-6 bg-gradient-to-r from-primary to-primary/80 rounded-md flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">X</span>
+                <span className="text-primary-foreground font-bold text-sm">P</span>
               </div>
-              <span className="font-semibold">Xclusive</span>
+              <span className="font-semibold">Pénc</span>
             </div>
             <div className="flex items-center space-x-6 text-sm text-muted-foreground">
               <Link to="/about" className="hover:text-primary">About</Link>
@@ -148,7 +148,7 @@ const Index = () => {
             </div>
           </div>
           <div className="mt-6 pt-6 border-t text-center text-sm text-muted-foreground">
-            © 2024 Xclusive. All rights reserved.
+            © 2024 Pénc. All rights reserved.
           </div>
         </div>
       </footer>

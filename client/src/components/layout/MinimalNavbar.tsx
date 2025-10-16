@@ -181,10 +181,10 @@ export const MinimalNavbar: React.FC = React.memo(() => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 shrink-0">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">X</span>
+              <span className="text-white font-bold text-lg">P</span>
             </div>
             <span className="text-xl font-bold text-gradient-primary hidden sm:block">
-              Xclusive
+              Pénc
             </span>
           </Link>
 
@@ -267,9 +267,9 @@ export const MinimalNavbar: React.FC = React.memo(() => {
                   <div className="flex items-center justify-start p-6 border-b">
                     <Link to="/" className="flex items-center space-x-2" onClick={closeMobileMenu}>
                       <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">X</span>
+                        <span className="text-white font-bold text-lg">P</span>
                       </div>
-                      <span className="text-xl font-bold text-gradient-primary">Xclusive</span>
+                      <span className="text-xl font-bold text-gradient-primary">Pénc</span>
                     </Link>
                   </div>
 
