@@ -522,24 +522,6 @@ export const VideoWatch: React.FC = () => {
               minHeight: '40vh'
             }}
           >
-            <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0 cursor-grab active:cursor-grabbing">
-              <div className="flex items-center justify-center">
-                <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
-              </div>
-              <SheetTitle className="text-lg font-semibold text-foreground text-center">
-                Comments
-              </SheetTitle>
-
-              {/* Sort Options */}
-              <div className="flex items-center gap-3 mt-3">
-                <Button variant="default" size="sm" className="rounded-full">
-                  Top
-                </Button>
-                <Button variant="ghost" size="sm" className="rounded-full">
-                  Newest
-                </Button>
-              </div>
-            </SheetHeader>
 
             <div className="flex-1 overflow-hidden">
               <CommentSection
