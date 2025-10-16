@@ -14,7 +14,7 @@ import { CommentSection } from '@/components/fan/CommentSection';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import { TierDetailsModal } from '@/components/subscription/TierDetailsModal';
 import { useAuth } from '@/contexts/AuthContext';
-import { Star, Users, UserPlus, UserCheck, DollarSign, Settings, Eye, MessageSquare, Heart, Share2, Share, Image, Video, FileText, Edit, Trash2, ArrowLeft, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, Users, UserPlus, UserCheck, DollarSign, Settings, Eye, MessageSquare, Heart, Share2, Share, Image, Video, FileText, Edit, Trash2, ArrowLeft, Plus, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -878,7 +878,7 @@ export const CreatorProfile: React.FC = () => {
     }
 
     // Public content - everyone can see
-    if (postTier === 'public') {
+    if (postTier.toLowerCase() === 'public') {
       console.log('Access granted: Public content');
       return true;
     }
@@ -2365,7 +2365,7 @@ export const CreatorProfile: React.FC = () => {
               >
                 <X className="w-6 h-6" />
               </button>
-              
+
               {selectedContent.type === 'Video' ? (
                 <video 
                   src={selectedContent.mediaPreview} 
