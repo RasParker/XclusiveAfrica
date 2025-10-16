@@ -732,7 +732,13 @@ export const FeedPage: React.FC = () => {
                         post.type === 'video' ? (
                           <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
                             <img 
-                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              src={
+                                post.thumbnail.includes('cloudinary.com/') 
+                                  ? post.thumbnail.replace('/video/upload/', '/video/upload/so_0,w_800,h_800,c_fill/')
+                                  : post.thumbnail.startsWith('/uploads/') 
+                                    ? post.thumbnail 
+                                    : `/uploads/${post.thumbnail}`
+                              }
                               alt={`${post.creator.display_name}'s video`}
                               className="w-full h-full object-cover"
                               loading={index > 3 ? "lazy" : "eager"}
@@ -954,7 +960,13 @@ export const FeedPage: React.FC = () => {
                         post.type === 'video' ? (
                           <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
                             <img 
-                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              src={
+                                post.thumbnail.includes('cloudinary.com/') 
+                                  ? post.thumbnail.replace('/video/upload/', '/video/upload/so_0,w_640,h_360,c_fill/')
+                                  : post.thumbnail.startsWith('/uploads/') 
+                                    ? post.thumbnail 
+                                    : `/uploads/${post.thumbnail}`
+                              }
                               alt={`${post.creator.display_name}'s video`}
                               className="w-full h-full object-cover"
                               loading={index > 8 ? "lazy" : "eager"}
@@ -1100,7 +1112,13 @@ export const FeedPage: React.FC = () => {
                         post.type === 'video' ? (
                           <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
                             <img 
-                              src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                              src={
+                                post.thumbnail.includes('cloudinary.com/') 
+                                  ? post.thumbnail.replace('/video/upload/', '/video/upload/so_0,w_1280,h_720,c_fill/')
+                                  : post.thumbnail.startsWith('/uploads/') 
+                                    ? post.thumbnail 
+                                    : `/uploads/${post.thumbnail}`
+                              }
                               alt={`${post.creator.display_name}'s video`}
                               className="w-full h-full object-cover"
                               loading={index > 2 ? "lazy" : "eager"}
