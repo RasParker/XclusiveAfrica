@@ -515,9 +515,14 @@ export const VideoWatch: React.FC = () => {
         <Sheet open={showCommentsSheet} onOpenChange={setShowCommentsSheet}>
           <SheetContent 
             side="bottom" 
-            className="h-[85vh] p-0 border-t-4 border-border/30 rounded-t-xl bg-background flex flex-col"
+            className="p-0 border-t-4 border-border/30 rounded-t-xl bg-background flex flex-col touch-pan-y"
+            style={{
+              height: '85vh',
+              maxHeight: '85vh',
+              minHeight: '40vh'
+            }}
           >
-            <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0">
+            <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0 cursor-grab active:cursor-grabbing">
               <div className="flex items-center justify-center">
                 <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
               </div>

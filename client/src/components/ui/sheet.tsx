@@ -54,22 +54,62 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
-  <SheetPortal>
-    <SheetOverlay />
-    <SheetPrimitive.Content
-      ref={ref}
-      className={cn(sheetVariants({ side }), className)}
-      {...props}
-    >
-      {children}
-      <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
-    </SheetPrimitive.Content>
-  </SheetPortal>
-))
+>(({ side = "right", className, children, ...props }, ref) => {
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [startY, setStartY] = React.useState(0);
+  const [currentHeight, setCurrentHeight] = React.useState(85);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (side === "bottom") {
+      setIsDragging(true);
+      setStartY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || side !== "bottom") return;
+
+    const deltaY = startY - e.touches[0].clientY;
+    const newHeight = Math.min(Math.max((deltaY / window.innerHeight * 100) + currentHeight, 40), 90);
+    
+    if (contentRef.current) {
+      contentRef.current.style.height = `${newHeight}vh`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (isDragging && side === "bottom" && contentRef.current) {
+      const finalHeight = parseFloat(contentRef.current.style.height);
+      setCurrentHeight(finalHeight);
+      setIsDragging(false);
+    }
+  };
+
+  return (
+    <SheetPortal>
+      <SheetOverlay />
+      <SheetPrimitive.Content
+        ref={(node) => {
+          if (typeof ref === 'function') ref(node);
+          else if (ref) ref.current = node;
+          if (node) (contentRef as any).current = node;
+        }}
+        className={cn(sheetVariants({ side }), className)}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        {...props}
+      >
+        {children}
+        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </SheetPrimitive.Close>
+      </SheetPrimitive.Content>
+    </SheetPortal>
+  );
+})
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
 const SheetHeader = ({

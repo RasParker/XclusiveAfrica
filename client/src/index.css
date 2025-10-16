@@ -433,6 +433,15 @@
     transition: box-shadow 0.15s ease-out;
   }
 
+  /* Draggable sheet styles */
+  .touch-pan-y {
+    touch-action: pan-y;
+  }
+
+  [data-state="open"][data-side="bottom"] {
+    transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   .smooth-corners {
     border-radius: clamp(0.5rem, 1.5vw, 1rem);
   }
