@@ -48,7 +48,7 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0 space-y-2">
-          <h4 className="text-lg font-semibold text-foreground line-clamp-2 leading-tight">
+          <h4 className="text-sm font-medium text-foreground line-clamp-2 leading-tight">
             {post.content || post.title || 'Untitled Post'}
           </h4>
 
