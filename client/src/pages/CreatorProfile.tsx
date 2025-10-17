@@ -1862,12 +1862,12 @@ export const CreatorProfile: React.FC = () => {
               {/* All Posts Content */}
               <div>
             {getFilteredPosts().length > 0 ? (
-              <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
+              <div className="w-full bg-background space-y-0 md:space-y-6 scrollbar-hide mobile-feed-container" style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none'
               }}>
                 {getFilteredPosts().map((post) => (
-                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50">
+                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50 md:shadow-sm">
                     <div 
                       className="relative w-full aspect-video bg-black cursor-pointer md:rounded-t-lg overflow-hidden"
                       onClick={() => handleContentClick(post)}
@@ -1925,30 +1925,28 @@ export const CreatorProfile: React.FC = () => {
                           const fullUrl = getImageUrl(mediaUrl);
 
                           return post.media_type === 'video' ? (
-                            <video 
-                              src={fullUrl}
-                              className="w-full h-full object-cover"
-                              muted
-                              preload="metadata"
-                              poster={fullUrl?.includes('cloudinary.com/') 
-                                ? fullUrl.replace('/upload/', '/upload/so_0,f_jpg,q_auto/')
-                                : undefined}
-                              onError={(e) => {
-                                console.error('Video load error:', {
-                                  url: fullUrl,
-                                  postId: post.id,
-                                  error: e
-                                });
-                                const target = e.target as HTMLVideoElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
-                                    <div class="text-white text-sm">Video unavailable</div>
-                                  </div>`;
+                            <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
+                              <img 
+                                src={
+                                  fullUrl?.includes('cloudinary.com/') 
+                                    ? fullUrl.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                                    : fullUrl
                                 }
-                              }}
-                            />
+                                alt={post.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`;
+                                }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                  <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
                           ) : (
                             <img 
                               src={fullUrl}
@@ -2014,12 +2012,12 @@ export const CreatorProfile: React.FC = () => {
               {/* Subscription Posts Content */}
               <div>
             {getFilteredPosts().length > 0 ? (
-              <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
+              <div className="w-full bg-background space-y-0 md:space-y-6 scrollbar-hide mobile-feed-container" style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none'
               }}>
                 {getFilteredPosts().map((post) => (
-                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50">
+                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50 md:shadow-sm">
                     <div 
                       className="relative w-full aspect-video bg-black cursor-pointer md:rounded-t-lg overflow-hidden"
                       onClick={() => handleContentClick(post)}
@@ -2077,30 +2075,28 @@ export const CreatorProfile: React.FC = () => {
                           const fullUrl = getImageUrl(mediaUrl);
 
                           return post.media_type === 'video' ? (
-                            <video 
-                              src={fullUrl}
-                              className="w-full h-full object-cover"
-                              muted
-                              preload="metadata"
-                              poster={fullUrl?.includes('cloudinary.com/') 
-                                ? fullUrl.replace('/upload/', '/upload/so_0,f_jpg,q_auto/')
-                                : undefined}
-                              onError={(e) => {
-                                console.error('Video load error:', {
-                                  url: fullUrl,
-                                  postId: post.id,
-                                  error: e
-                                });
-                                const target = e.target as HTMLVideoElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
-                                    <div class="text-white text-sm">Video unavailable</div>
-                                  </div>`;
+                            <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
+                              <img 
+                                src={
+                                  fullUrl?.includes('cloudinary.com/') 
+                                    ? fullUrl.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                                    : fullUrl
                                 }
-                              }}
-                            />
+                                alt={post.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`;
+                                }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                  <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
                           ) : (
                             <img 
                               src={fullUrl}
@@ -2166,12 +2162,12 @@ export const CreatorProfile: React.FC = () => {
               {/* Public Posts Content */}
               <div>
             {getFilteredPosts().length > 0 ? (
-              <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
+              <div className="w-full bg-background space-y-0 md:space-y-6 scrollbar-hide mobile-feed-container" style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none'
               }}>
                 {getFilteredPosts().map((post) => (
-                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50">
+                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50 md:shadow-sm">
                     <div 
                       className="relative w-full aspect-video bg-black cursor-pointer md:rounded-t-lg overflow-hidden"
                       onClick={() => handleContentClick(post)}
@@ -2229,30 +2225,28 @@ export const CreatorProfile: React.FC = () => {
                           const fullUrl = getImageUrl(mediaUrl);
 
                           return post.media_type === 'video' ? (
-                            <video 
-                              src={fullUrl}
-                              className="w-full h-full object-cover"
-                              muted
-                              preload="metadata"
-                              poster={fullUrl?.includes('cloudinary.com/') 
-                                ? fullUrl.replace('/upload/', '/upload/so_0,f_jpg,q_auto/')
-                                : undefined}
-                              onError={(e) => {
-                                console.error('Video load error:', {
-                                  url: fullUrl,
-                                  postId: post.id,
-                                  error: e
-                                });
-                                const target = e.target as HTMLVideoElement;
-                                target.style.display = 'none';
-                                const parent = target.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
-                                    <div class="text-white text-sm">Video unavailable</div>
-                                  </div>`;
+                            <div className="w-full h-full relative bg-gradient-to-br from-gray-900 to-gray-800">
+                              <img 
+                                src={
+                                  fullUrl?.includes('cloudinary.com/') 
+                                    ? fullUrl.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                                    : fullUrl
                                 }
-                              }}
-                            />
+                                alt={post.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`;
+                                }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                  <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
                           ) : (
                             <img 
                               src={fullUrl}
