@@ -1867,9 +1867,9 @@ export const CreatorProfile: React.FC = () => {
                 msOverflowStyle: 'none'
               }}>
                 {getFilteredPosts().map((post) => (
-                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden">
+                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50">
                     <div 
-                      className="relative w-full aspect-video bg-black cursor-pointer"
+                      className="relative w-full aspect-video bg-black cursor-pointer md:rounded-t-lg overflow-hidden"
                       onClick={() => handleContentClick(post)}
                       role="button"
                       tabIndex={0}
@@ -1930,6 +1930,9 @@ export const CreatorProfile: React.FC = () => {
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
+                              poster={fullUrl?.includes('cloudinary.com/') 
+                                ? fullUrl.replace('/upload/', '/upload/so_0,f_jpg,q_auto/')
+                                : undefined}
                               onError={(e) => {
                                 console.error('Video load error:', {
                                   url: fullUrl,
@@ -2016,9 +2019,9 @@ export const CreatorProfile: React.FC = () => {
                 msOverflowStyle: 'none'
               }}>
                 {getFilteredPosts().map((post) => (
-                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden">
+                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50">
                     <div 
-                      className="relative w-full aspect-video bg-black cursor-pointer"
+                      className="relative w-full aspect-video bg-black cursor-pointer md:rounded-t-lg overflow-hidden"
                       onClick={() => handleContentClick(post)}
                       role="button"
                       tabIndex={0}
@@ -2079,6 +2082,9 @@ export const CreatorProfile: React.FC = () => {
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
+                              poster={fullUrl?.includes('cloudinary.com/') 
+                                ? fullUrl.replace('/upload/', '/upload/so_0,f_jpg,q_auto/')
+                                : undefined}
                               onError={(e) => {
                                 console.error('Video load error:', {
                                   url: fullUrl,
@@ -2165,9 +2171,9 @@ export const CreatorProfile: React.FC = () => {
                 msOverflowStyle: 'none'
               }}>
                 {getFilteredPosts().map((post) => (
-                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden">
+                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50">
                     <div 
-                      className="relative w-full aspect-video bg-black cursor-pointer"
+                      className="relative w-full aspect-video bg-black cursor-pointer md:rounded-t-lg overflow-hidden"
                       onClick={() => handleContentClick(post)}
                       role="button"
                       tabIndex={0}
@@ -2228,6 +2234,9 @@ export const CreatorProfile: React.FC = () => {
                               className="w-full h-full object-cover"
                               muted
                               preload="metadata"
+                              poster={fullUrl?.includes('cloudinary.com/') 
+                                ? fullUrl.replace('/upload/', '/upload/so_0,f_jpg,q_auto/')
+                                : undefined}
                               onError={(e) => {
                                 console.error('Video load error:', {
                                   url: fullUrl,
