@@ -1863,6 +1863,90 @@ export const CreatorProfile: React.FC = () => {
               <div>
             {getFilteredPosts().length > 0 ? (
               <>
+                {/* Desktop: Grid layout */}
+                <div className="hidden md:grid md:grid-cols-3 gap-4">
+                  {getFilteredPosts().map((post) => (
+                    <div 
+                      key={post.id} 
+                      className="cursor-pointer group"
+                      onClick={() => handleContentClick(post)}
+                    >
+                      <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
+                        {(() => {
+                          const hasAccess = hasAccessToTier(post.tier);
+                          const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                          const mediaUrl = mediaUrls[0];
+                          const fullUrl = getImageUrl(mediaUrl);
+
+                          if (!hasAccess) {
+                            return (
+                              <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center">
+                                <div className="text-center p-4">
+                                  <div className="mb-2">
+                                    <svg className="w-8 h-8 mx-auto text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">{post.tier} Content</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (fullUrl) {
+                            return post.media_type === 'video' ? (
+                              <video 
+                                src={fullUrl}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                muted
+                                preload="metadata"
+                                onError={(e) => {
+                                  console.error('Video load error in grid:', {
+                                    url: fullUrl,
+                                    postId: post.id,
+                                    error: e
+                                  });
+                                  const target = e.target as HTMLVideoElement;
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                                      <div class="text-white text-sm">Video unavailable</div>
+                                    </div>`;
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <img 
+                                src={fullUrl}
+                                alt={post.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
+                                  target.className = "w-full h-full object-cover opacity-50";
+                                }}
+                              />
+                            );
+                          }
+                          return null;
+                        })()}
+
+                        {/* Stats overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
+                          <div className="flex items-center gap-1 text-white">
+                            <Heart className="w-5 h-5" />
+                            <span className="font-semibold">{post.likes_count || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-white">
+                            <MessageSquare className="w-5 h-5" />
+                            <span className="font-semibold">{post.comments_count || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Mobile: Edge-to-edge borderless layout like fan feed */}
                 <div className="md:hidden">
                   <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
@@ -2019,6 +2103,90 @@ export const CreatorProfile: React.FC = () => {
               <div>
             {getFilteredPosts().length > 0 ? (
               <>
+                {/* Desktop: Grid layout */}
+                <div className="hidden md:grid md:grid-cols-3 gap-4">
+                  {getFilteredPosts().map((post) => (
+                    <div 
+                      key={post.id} 
+                      className="cursor-pointer group"
+                      onClick={() => handleContentClick(post)}
+                    >
+                      <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
+                        {(() => {
+                          const hasAccess = hasAccessToTier(post.tier);
+                          const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                          const mediaUrl = mediaUrls[0];
+                          const fullUrl = getImageUrl(mediaUrl);
+
+                          if (!hasAccess) {
+                            return (
+                              <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center">
+                                <div className="text-center p-4">
+                                  <div className="mb-2">
+                                    <svg className="w-8 h-8 mx-auto text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">{post.tier} Content</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (fullUrl) {
+                            return post.media_type === 'video' ? (
+                              <video 
+                                src={fullUrl}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                muted
+                                preload="metadata"
+                                onError={(e) => {
+                                  console.error('Video load error in grid:', {
+                                    url: fullUrl,
+                                    postId: post.id,
+                                    error: e
+                                  });
+                                  const target = e.target as HTMLVideoElement;
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                                      <div class="text-white text-sm">Video unavailable</div>
+                                    </div>`;
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <img 
+                                src={fullUrl}
+                                alt={post.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
+                                  target.className = "w-full h-full object-cover opacity-50";
+                                }}
+                              />
+                            );
+                          }
+                          return null;
+                        })()}
+
+                        {/* Stats overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
+                          <div className="flex items-center gap-1 text-white">
+                            <Heart className="w-5 h-5" />
+                            <span className="font-semibold">{post.likes_count || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-white">
+                            <MessageSquare className="w-5 h-5" />
+                            <span className="font-semibold">{post.comments_count || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Mobile: Edge-to-edge borderless layout like fan feed */}
                 <div className="md:hidden">
                   <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
@@ -2175,6 +2343,90 @@ export const CreatorProfile: React.FC = () => {
               <div>
             {getFilteredPosts().length > 0 ? (
               <>
+                {/* Desktop: Grid layout */}
+                <div className="hidden md:grid md:grid-cols-3 gap-4">
+                  {getFilteredPosts().map((post) => (
+                    <div 
+                      key={post.id} 
+                      className="cursor-pointer group"
+                      onClick={() => handleContentClick(post)}
+                    >
+                      <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
+                        {(() => {
+                          const hasAccess = hasAccessToTier(post.tier);
+                          const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                          const mediaUrl = mediaUrls[0];
+                          const fullUrl = getImageUrl(mediaUrl);
+
+                          if (!hasAccess) {
+                            return (
+                              <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center">
+                                <div className="text-center p-4">
+                                  <div className="mb-2">
+                                    <svg className="w-8 h-8 mx-auto text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">{post.tier} Content</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (fullUrl) {
+                            return post.media_type === 'video' ? (
+                              <video 
+                                src={fullUrl}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                muted
+                                preload="metadata"
+                                onError={(e) => {
+                                  console.error('Video load error in grid:', {
+                                    url: fullUrl,
+                                    postId: post.id,
+                                    error: e
+                                  });
+                                  const target = e.target as HTMLVideoElement;
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="w-full h-full bg-gray-800 flex items-center justify-center">
+                                      <div class="text-white text-sm">Video unavailable</div>
+                                    </div>`;
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <img 
+                                src={fullUrl}
+                                alt={post.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
+                                  target.className = "w-full h-full object-cover opacity-50";
+                                }}
+                              />
+                            );
+                          }
+                          return null;
+                        })()}
+
+                        {/* Stats overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
+                          <div className="flex items-center gap-1 text-white">
+                            <Heart className="w-5 h-5" />
+                            <span className="font-semibold">{post.likes_count || 0}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-white">
+                            <MessageSquare className="w-5 h-5" />
+                            <span className="font-semibold">{post.comments_count || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 {/* Mobile: Edge-to-edge borderless layout like fan feed */}
                 <div className="md:hidden">
                   <div className="w-full bg-background space-y-0 scrollbar-hide mobile-feed-container" style={{
