@@ -1269,7 +1269,7 @@ export const FeedPage: React.FC = () => {
                           variant="ghost"
                           size="sm"
                           className={`flex items-center gap-1.5 h-auto py-2 px-2 transition-colors duration-200 ${
-                            post.liked ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'
+                            post.liked ? 'text-red-500 hover:text-foreground' : 'text-muted-foreground hover:text-foreground'
                           }`}
                           onClick={() => handleLike(post.id)}
                         >
@@ -1280,7 +1280,7 @@ export const FeedPage: React.FC = () => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="flex items-center gap-1.5 h-auto py-2 px-2 text-muted-foreground hover:text-blue-500 transition-colors duration-200"
+                          className="flex items-center gap-1.5 h-auto py-2 px-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
                           onClick={() => handleCommentClick(post.id)}
                         >
                           <MessageSquare className="w-5 h-5" />
@@ -1290,7 +1290,7 @@ export const FeedPage: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="flex items-center gap-1.5 h-auto py-2 px-2 text-muted-foreground hover:text-green-500 transition-colors duration-200"
+                          className="flex items-center gap-1.5 h-auto py-2 px-2 text-muted-foreground hover:text-foreground transition-colors duration-200"
                           onClick={() => handleShare(post.id)}
                         >
                           <Share2 className="w-5 h-5" />
