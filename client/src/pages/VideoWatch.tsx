@@ -7,11 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CommentSection } from '@/components/fan/CommentSection';
-import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play, Loader2, Send } from 'lucide-react';
+import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { Input } from '@/components/ui/input';
-import { useMutation } from '@tanstack/react-query';
 
 export const VideoWatch: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,50 +23,6 @@ export const VideoWatch: React.FC = () => {
   const [liked, setLiked] = useState(false);
   const [showCommentsSheet, setShowCommentsSheet] = useState(false);
   const [nextVideos, setNextVideos] = useState<any[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-
-  const sendMessageMutation = useMutation({
-    mutationFn: async (message: string) => {
-      if (!post?.id) return;
-      const response = await fetch(`/api/posts/${post.id}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user?.id, content: message }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      setNewMessage('');
-      toast({
-        title: 'Message sent',
-        description: 'Your comment has been posted.',
-      });
-      // Potentially refetch comments or update UI locally
-    },
-    onError: (error: any) => {
-      console.error('Error sending message:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to send message. Please try again.',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      sendMessageMutation.mutate(newMessage);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
-  };
 
 
   const getTimeAgo = (dateString: string) => {
@@ -751,37 +705,12 @@ export const VideoWatch: React.FC = () => {
               </div>
 
               {/* Comments Section - Desktop */}
-              <div className="space-y-4">
-                <div className="flex gap-2 items-center">
-                  <Input
-                    type="text"
-                    placeholder="Add a comment..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    className="flex-1"
-                    disabled={sendMessageMutation.isPending}
-                  />
-                  <Button
-                    onClick={handleSendMessage}
-                    disabled={!newMessage.trim() || sendMessageMutation.isPending}
-                    size="icon"
-                    className="h-10 w-12 flex-shrink-0"
-                  >
-                    {sendMessageMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-                <CommentSection
-                  postId={post.id.toString()}
-                  initialComments={[]}
-                  onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
-                  isBottomSheet={false}
-                />
-              </div>
+              <CommentSection
+                postId={post.id.toString()}
+                initialComments={[]}
+                onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
+                isBottomSheet={false}
+              />
             </div>
 
             {/* Sidebar - Next Videos */}
