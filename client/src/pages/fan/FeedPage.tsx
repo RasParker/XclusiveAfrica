@@ -1262,44 +1262,39 @@ export const FeedPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Enhanced Action Buttons */}
+                    {/* Enhanced Action Buttons - Desktop matching profile feed design */}
                     <div className="flex items-center justify-between pt-2 border-t border-border/30">
-                      <div className="flex items-center gap-8">
-                        <div className="flex items-center gap-3">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className={`h-10 w-10 p-0 rounded-full ${post.liked ? 'text-red-500 bg-red-50' : 'text-muted-foreground'}`}
-                            onClick={() => handleLike(post.id)}
-                          >
-                            <Heart className={`w-5 h-5 ${post.liked ? 'fill-current' : ''}`} />
-                          </Button>
-                          <span className="text-sm font-semibold text-foreground">
-                            {(post.likes_count || 0).toLocaleString()}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className={`flex items-center gap-1.5 h-auto py-2 px-2 transition-colors duration-200 ${
+                            post.liked ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'
+                          }`}
+                          onClick={() => handleLike(post.id)}
+                        >
+                          <Heart className={`w-5 h-5 ${post.liked ? 'fill-current' : ''}`} />
+                          <span className="text-sm font-medium">{(post.likes_count || 0).toLocaleString()}</span>
+                        </Button>
 
-                        <div className="flex items-center gap-3">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-10 w-10 p-0 rounded-full text-muted-foreground"
-                            onClick={() => handleCommentClick(post.id)}
-                          >
-                            <MessageSquare className="w-5 h-5" />
-                          </Button>
-                          <span className="text-sm font-semibold text-foreground">
-                            {(post.comments_count || 0).toLocaleString()}
-                          </span>
-                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="flex items-center gap-1.5 h-auto py-2 px-2 text-muted-foreground hover:text-blue-500 transition-colors duration-200"
+                          onClick={() => handleCommentClick(post.id)}
+                        >
+                          <MessageSquare className="w-5 h-5" />
+                          <span className="text-sm font-medium">{(post.comments_count || 0).toLocaleString()}</span>
+                        </Button>
 
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-10 w-10 p-0 rounded-full text-muted-foreground"
+                          className="flex items-center gap-1.5 h-auto py-2 px-2 text-muted-foreground hover:text-green-500 transition-colors duration-200"
                           onClick={() => handleShare(post.id)}
                         >
                           <Share2 className="w-5 h-5" />
+                          <span className="text-sm font-medium">Share</span>
                         </Button>
                       </div>
                     </div>
