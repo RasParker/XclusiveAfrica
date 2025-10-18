@@ -35,7 +35,7 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
   return (
     <div>
       <div className="flex gap-3 p-3 pb-2">
-        <Avatar 
+        <Avatar
           className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
@@ -53,7 +53,7 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
           </h4>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span 
+            <span
               className="truncate cursor-pointer hover:text-foreground transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
@@ -73,9 +73,9 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
 
       <div className="flex items-center justify-between pt-2 pb-3 px-3 border-t border-border/30">
         <div className="flex items-center gap-4 flex-1 min-w-0">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             className={`flex items-center gap-1 h-auto py-2 px-2 ${postLikes[post.id]?.liked ? 'text-red-500' : 'text-muted-foreground'}`}
             onClick={(e) => {
               e.stopPropagation();
@@ -87,9 +87,9 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
             <span className="text-sm">{postLikes[post.id]?.count || post.likes_count || 0}</span>
           </Button>
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
             onClick={(e) => {
               e.stopPropagation();
