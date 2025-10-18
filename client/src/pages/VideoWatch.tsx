@@ -751,12 +751,37 @@ export const VideoWatch: React.FC = () => {
               </div>
 
               {/* Comments Section - Desktop */}
-              <CommentSection
-                postId={post.id.toString()}
-                initialComments={[]}
-                onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
-                isBottomSheet={false}
-              />
+              <div className="space-y-4">
+                <div className="flex gap-2 items-center">
+                  <Input
+                    type="text"
+                    placeholder="Add a comment..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="flex-1"
+                    disabled={sendMessageMutation.isPending}
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim() || sendMessageMutation.isPending}
+                    size="icon"
+                    className="h-10 w-12 flex-shrink-0"
+                  >
+                    {sendMessageMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <CommentSection
+                  postId={post.id.toString()}
+                  initialComments={[]}
+                  onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
+                  isBottomSheet={false}
+                />
+              </div>
             </div>
 
             {/* Sidebar - Next Videos */}
