@@ -647,8 +647,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({
             <Button
               onClick={handleAddComment}
               disabled={!newComment.trim()}
-              size="sm"
-              className="h-[60px] px-3"
+              size="icon"
+              className="h-[60px] w-16 flex-shrink-0"
             >
               <Send className="w-4 h-4" />
             </Button>
