@@ -1079,9 +1079,16 @@ export const FeedPage: React.FC = () => {
 
                         {/* Lock icon and CTA */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center p-4 space-y-4">
-                            {/* Animated lock icon with top padding */}
-                            <div className="pt-2">
+                          <div className="text-center p-4 space-y-3">
+                            {/* Show actual post title */}
+                            <div className="px-4">
+                              <p className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
+                                {post.title || post.content || 'Exclusive Content'}
+                              </p>
+                            </div>
+
+                            {/* Animated lock icon */}
+                            <div className="pt-1">
                               <div className="w-12 h-12 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
                                 <svg className="w-6 h-6 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -1095,12 +1102,12 @@ export const FeedPage: React.FC = () => {
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
-                                Exclusive {post.tier} Content
+                                {post.tier} Tier Only
                               </div>
                             </div>
 
                             {/* Enhanced CTA button with shimmer effect and bottom padding */}
-                            <div className="pb-2">
+                            <div className="pb-1">
                               <Button 
                                 size="sm" 
                                 onClick={(e) => {
