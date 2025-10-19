@@ -297,7 +297,7 @@ export const FeedPage: React.FC = () => {
             throw new Error('Invalid response format from API');
           }
 
-          // Transform and filter posts based on access
+          // Transform posts and calculate access for each
           const transformedPosts = posts.map((post: any) => {
             const postTier = post.tier || 'public';
 
@@ -313,6 +313,10 @@ export const FeedPage: React.FC = () => {
                   : `/uploads/${mediaUrl}`;
               }
             }
+
+            // Use backend's has_access flag for security
+            // Backend handles access logic and redacts locked content
+            const hasAccess = post.has_access !== undefined ? post.has_access : (postTier.toLowerCase() === 'public');
 
             return {
               id: post.id.toString(),
@@ -332,7 +336,7 @@ export const FeedPage: React.FC = () => {
               views: post.views_count || 0, // Corrected to use views_count from API
               liked: false,
               initialComments: [],
-              hasAccess: true, // Personalized feed already filters accessible content
+              hasAccess: hasAccess, // Check access based on tier and subscription
               access_type: post.access_type || 'unknown' // Track how user has access (follow or subscription)
             };
           });
@@ -1038,7 +1042,7 @@ export const FeedPage: React.FC = () => {
                                       : `/uploads/${post.thumbnail}`
                                 }
                                 alt="Locked content preview"
-                                className="w-full h-full object-cover blur-xl scale-110"
+                                className="w-full h-full object-cover blur-md scale-110"
                                 loading={index > 8 ? "lazy" : "eager"}
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -1049,7 +1053,7 @@ export const FeedPage: React.FC = () => {
                               <img 
                                 src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
                                 alt="Locked content preview"
-                                className="w-full h-full object-cover blur-xl scale-110"
+                                className="w-full h-full object-cover blur-md scale-110"
                                 loading={index > 8 ? "lazy" : "eager"}
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -1100,7 +1104,7 @@ export const FeedPage: React.FC = () => {
                                 e.stopPropagation();
                                 navigate(`/creator/${post.creator.username}`);
                               }}
-                              className="bg-accent hover:bg-accent/90 text-black text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
+                              className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
                               data-testid="button-unlock-content"
                             >
                               <span className="relative z-10 flex items-center gap-2">

@@ -1903,7 +1903,7 @@ export const CreatorProfile: React.FC = () => {
                                             : fullUrl
                                         }
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                         onError={(e) => {
                                           const target = e.target as HTMLImageElement;
                                           target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Premium+Content`;
@@ -1913,7 +1913,7 @@ export const CreatorProfile: React.FC = () => {
                                       <img 
                                         src={fullUrl}
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                         onError={(e) => {
                                           const target = e.target as HTMLImageElement;
                                           target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
@@ -1929,7 +1929,7 @@ export const CreatorProfile: React.FC = () => {
                                              post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
                                              `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                       />
                                     );
                                   }
@@ -1965,7 +1965,7 @@ export const CreatorProfile: React.FC = () => {
                                   {/* Enhanced CTA button with shimmer effect */}
                                   <Button 
                                     size="sm" 
-                                    className="bg-accent hover:bg-accent/90 text-black text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
+                                    className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (!user) {
@@ -2126,7 +2126,7 @@ export const CreatorProfile: React.FC = () => {
                                             : fullUrl
                                         }
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                         onError={(e) => {
                                           const target = e.target as HTMLImageElement;
                                           target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Premium+Content`;
@@ -2136,7 +2136,7 @@ export const CreatorProfile: React.FC = () => {
                                       <img 
                                         src={fullUrl}
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                         onError={(e) => {
                                           const target = e.target as HTMLImageElement;
                                           target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
@@ -2152,7 +2152,7 @@ export const CreatorProfile: React.FC = () => {
                                              post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
                                              `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                       />
                                     );
                                   }
@@ -2188,7 +2188,7 @@ export const CreatorProfile: React.FC = () => {
                                   {/* Enhanced CTA button with shimmer effect */}
                                   <Button 
                                     size="sm" 
-                                    className="bg-accent hover:bg-accent/90 text-black text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
+                                    className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (!user) {
@@ -2349,7 +2349,7 @@ export const CreatorProfile: React.FC = () => {
                                             : fullUrl
                                         }
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                         onError={(e) => {
                                           const target = e.target as HTMLImageElement;
                                           target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Premium+Content`;
@@ -2359,7 +2359,7 @@ export const CreatorProfile: React.FC = () => {
                                       <img 
                                         src={fullUrl}
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                         onError={(e) => {
                                           const target = e.target as HTMLImageElement;
                                           target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
@@ -2375,7 +2375,7 @@ export const CreatorProfile: React.FC = () => {
                                              post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
                                              `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
                                         alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-xl scale-110"
+                                        className="w-full h-full object-cover blur-md scale-110"
                                       />
                                     );
                                   }
@@ -2411,7 +2411,7 @@ export const CreatorProfile: React.FC = () => {
                                   {/* Enhanced CTA button with shimmer effect */}
                                   <Button 
                                     size="sm" 
-                                    className="bg-accent hover:bg-accent/90 text-black text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
+                                    className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (!user) {

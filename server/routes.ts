@@ -453,6 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Fetching personalized feed for user:', userId);
 
       // Get posts from followed creators (public tier) and subscribed creators (all accessible tiers)
+      // For locked content from followed creators, we redact sensitive fields but still show metadata
       let query = `
         WITH user_follows AS (
           SELECT follows.creator_id FROM follows WHERE follows.follower_id = $1
@@ -463,13 +464,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           WHERE subscriptions.fan_id = $1 AND subscriptions.status = 'active'
         ),
         accessible_posts AS (
-          -- Posts from followed creators (public tier only)
+          -- Posts from followed creators (all tiers for conversion - locked content fully redacted)
           SELECT 
             posts.id,
             posts.creator_id,
             posts.title,
-            posts.content,
-            posts.media_urls,
+            CASE 
+              WHEN posts.tier = 'public' THEN posts.content
+              ELSE 'Exclusive content for subscribers'  -- Placeholder for locked posts
+            END as content,
+            CASE 
+              WHEN posts.tier = 'public' THEN posts.media_urls
+              ELSE NULL  -- Fully redact media URLs for locked content (UI uses placeholder)
+            END as media_urls,
             posts.tier,
             posts.status,
             posts.scheduled_for,
@@ -489,23 +496,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
               'display_name', users.display_name,
               'avatar', users.avatar
             ) as creator,
-            'follow' as access_type
+            'follow' as access_type,
+            CASE 
+              WHEN posts.tier = 'public' THEN true
+              ELSE false
+            END as has_access
           FROM posts 
           LEFT JOIN users ON posts.creator_id = users.id
           LEFT JOIN user_follows ON posts.creator_id = user_follows.creator_id
           WHERE user_follows.creator_id IS NOT NULL 
-            AND posts.tier = 'public'
             AND (posts.status = 'published' OR (posts.status = 'scheduled' AND posts.scheduled_for <= NOW()))
 
           UNION ALL
 
-          -- Posts from subscribed creators (all accessible tiers)
+          -- Posts from subscribed creators (conditionally redacted based on tier access)
           SELECT 
             posts.id,
             posts.creator_id,
             posts.title,
-            posts.content,
-            posts.media_urls,
+            CASE 
+              WHEN posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name THEN posts.content
+              ELSE 'Exclusive content for higher-tier subscribers'  -- Redact if tier mismatch
+            END as content,
+            CASE 
+              WHEN posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name THEN posts.media_urls
+              ELSE NULL  -- Redact media if tier mismatch
+            END as media_urls,
             posts.tier,
             posts.status,
             posts.scheduled_for,
@@ -525,12 +541,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
               'display_name', users.display_name,
               'avatar', users.avatar
             ) as creator,
-            'subscription' as access_type
+            'subscription' as access_type,
+            CASE 
+              WHEN posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name THEN true
+              ELSE false
+            END as has_access
           FROM posts 
           LEFT JOIN users ON posts.creator_id = users.id
           LEFT JOIN user_subscriptions ON posts.creator_id = user_subscriptions.creator_id
           WHERE user_subscriptions.creator_id IS NOT NULL 
-            AND (posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name)
             AND (posts.status = 'published' OR (posts.status = 'scheduled' AND posts.scheduled_for <= NOW()))
         )
         SELECT * FROM accessible_posts 
