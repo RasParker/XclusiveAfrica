@@ -1080,13 +1080,6 @@ export const FeedPage: React.FC = () => {
                         {/* Lock icon and CTA */}
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center p-4 space-y-3">
-                            {/* Show actual post title */}
-                            <div className="px-4">
-                              <p className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
-                                {post.title || post.content || 'Exclusive Content'}
-                              </p>
-                            </div>
-
                             {/* Animated lock icon */}
                             <div className="pt-1">
                               <div className="w-12 h-12 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
@@ -1157,7 +1150,7 @@ export const FeedPage: React.FC = () => {
                       <div className="flex-1 min-w-0 space-y-1">
                         {/* Enhanced typography hierarchy */}
                         <h3 className="text-sm font-medium text-foreground line-clamp-1 leading-snug">
-                          {post.title || post.content || 'Untitled Post'}
+                          {post.title || 'Untitled Post'}
                         </h3>
 
                         {/* Creator name with view count and timestamp on same row */}
@@ -1320,7 +1313,7 @@ export const FeedPage: React.FC = () => {
                       </Avatar>
                       <div className="flex-1 min-w-0 space-y-2">
                         <h4 className="text-lg font-medium text-foreground line-clamp-2 leading-tight">
-                          {post.content || 'Untitled Post'}
+                          {post.title || 'Untitled Post'}
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching grid view */}
                         <div className="flex items-center justify-between gap-3">
