@@ -791,8 +791,15 @@ export const FeedPage: React.FC = () => {
                       <div className="w-full h-full bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center relative">
                         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
 
-                        {/* Minimal locked content preview matching desktop */}
+                        {/* Minimal locked content preview with actual post title */}
                         <div className="text-center z-10 p-6 space-y-4">
+                          {/* Show actual post title */}
+                          <div className="px-4">
+                            <p className="text-white font-semibold text-sm line-clamp-2 drop-shadow-lg">
+                              {post.content || post.title || 'Exclusive Content'}
+                            </p>
+                          </div>
+
                           <div className="w-16 h-16 bg-background/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                             <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -802,7 +809,7 @@ export const FeedPage: React.FC = () => {
                           {/* Better tier indicator */}
                           <div className="space-y-2">
                             <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-background/20 text-white border border-white/20 backdrop-blur-sm">
-                              {post.tier === 'public' ? 'Free' : `${post.tier} Content`}
+                              {post.tier === 'public' ? 'Free' : `${post.tier} Tier Only`}
                             </div>
                           </div>
 
