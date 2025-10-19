@@ -8,11 +8,11 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-console.log('Using PostgreSQL database');
+console.log('Using Supabase PostgreSQL database');
 
-// Configure postgres-js connection
+// Important: Disable prepare for Supabase Transaction pooling mode
 export const client = postgres(process.env.DATABASE_URL, { 
-  prepare: false, // Disable prepare for compatibility with connection pooling
+  prepare: false,
   max: 5, // Connection pool size
   idle_timeout: 30, // 30 seconds
   connect_timeout: 10, // 10 seconds
