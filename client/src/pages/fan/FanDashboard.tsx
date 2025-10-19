@@ -478,7 +478,7 @@ export const FanDashboard: React.FC = () => {
                       )}
                     </div>
                     <div className="px-6 py-3 bg-muted/20">
-                      <Button variant="ghost" size="sm" className="w-full text-muted-foreground" asChild>
+                      <Button variant="outline" size="sm" className="w-full" asChild>
                         <Link to="/fan/feed">View all activity</Link>
                       </Button>
                     </div>
