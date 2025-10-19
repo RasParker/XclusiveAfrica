@@ -287,42 +287,43 @@ export const FanDashboard: React.FC = () => {
                           </Badge>
                         </div>
 
-                        <div className="flex items-start gap-3 sm:items-center">
-                          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
-                            <AvatarImage 
-                              src={subscription.creator.avatar} 
-                              alt={subscription.creator.username}
-                              className="object-cover" 
-                            />
-                            <AvatarFallback className="text-xs sm:text-sm">
-                              {subscription.creator.display_name?.charAt(0) || subscription.creator.username.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                              <div className="min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">
-                                  {subscription.creator.display_name || subscription.creator.username}
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                  <span className="font-semibold text-foreground">{subscription.tier.name}</span> • GHS {subscription.tier.price}/month
-                                </p>
-                              </div>
-                              <div className="flex flex-col sm:flex-row items-center gap-2">
-                                {/* Desktop Status Badge */}
-                                <Badge variant={
-                                  subscription.status === 'active' ? 'success' : 
-                                  subscription.status === 'paused' ? 'secondary' : 'destructive'
-                                } className="text-xs hidden sm:inline-flex">
-                                  {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
-                                </Badge>
-                                <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
-                                  <Link to={`/creator/${subscription.creator.username}`}>
-                                    View Profile
-                                  </Link>
-                                </Button>
-                              </div>
+                        <div className="space-y-3">
+                          {/* Avatar and Text Row */}
+                          <div className="flex items-start gap-3">
+                            <Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
+                              <AvatarImage 
+                                src={subscription.creator.avatar} 
+                                alt={subscription.creator.username}
+                                className="object-cover" 
+                              />
+                              <AvatarFallback className="text-xs sm:text-sm">
+                                {subscription.creator.display_name?.charAt(0) || subscription.creator.username.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {subscription.creator.display_name || subscription.creator.username}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                <span className="font-semibold text-foreground">{subscription.tier.name}</span> • GHS {subscription.tier.price}/month
+                              </p>
                             </div>
+                          </div>
+
+                          {/* Button Row - Centered on Mobile, Right-aligned on Desktop */}
+                          <div className="flex justify-center sm:justify-end gap-2">
+                            {/* Desktop Status Badge */}
+                            <Badge variant={
+                              subscription.status === 'active' ? 'success' : 
+                              subscription.status === 'paused' ? 'secondary' : 'destructive'
+                            } className="text-xs hidden sm:inline-flex">
+                              {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                            </Badge>
+                            <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
+                              <Link to={`/creator/${subscription.creator.username}`}>
+                                View Profile
+                              </Link>
+                            </Button>
                           </div>
                         </div>
                       </div>
