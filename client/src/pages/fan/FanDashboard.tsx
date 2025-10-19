@@ -288,13 +288,13 @@ export const FanDashboard: React.FC = () => {
                         </div>
 
                         <div className="flex items-start gap-3 sm:items-center">
-                          <Avatar className="w-12 h-12 flex-shrink-0">
+                          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
                             <AvatarImage 
                               src={subscription.creator.avatar} 
                               alt={subscription.creator.username}
                               className="object-cover" 
                             />
-                            <AvatarFallback className="text-sm">
+                            <AvatarFallback className="text-xs sm:text-sm">
                               {subscription.creator.display_name?.charAt(0) || subscription.creator.username.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
