@@ -1150,7 +1150,7 @@ export const FeedPage: React.FC = () => {
                       <div className="flex-1 min-w-0 space-y-1">
                         {/* Enhanced typography hierarchy */}
                         <h3 className="text-sm font-medium text-foreground line-clamp-1 leading-snug">
-                          {post.title || 'Untitled Post'}
+                          {post.content || 'Untitled Post'}
                         </h3>
 
                         {/* Creator name with view count and timestamp on same row */}
@@ -1313,7 +1313,7 @@ export const FeedPage: React.FC = () => {
                       </Avatar>
                       <div className="flex-1 min-w-0 space-y-2">
                         <h4 className="text-lg font-medium text-foreground line-clamp-2 leading-tight">
-                          {post.title || 'Untitled Post'}
+                          {post.content || 'Untitled Post'}
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching grid view */}
                         <div className="flex items-center justify-between gap-3">
