@@ -277,8 +277,8 @@ export const FanDashboard: React.FC = () => {
                         key={subscription.id}
                         className="p-4 rounded-lg bg-muted/10 border border-border/50 relative"
                       >
-                        {/* Status Badge - Top Right */}
-                        <div className="absolute top-3 right-3 sm:static sm:inline-block">
+                        {/* Status Badge - Top Right on Mobile Only */}
+                        <div className="absolute top-3 right-3 sm:hidden">
                           <Badge variant={
                             subscription.status === 'active' ? 'success' : 
                             subscription.status === 'paused' ? 'secondary' : 'destructive'
@@ -287,7 +287,7 @@ export const FanDashboard: React.FC = () => {
                           </Badge>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        <div className="flex items-start gap-3 sm:items-center">
                           <Avatar className="w-12 h-12 flex-shrink-0">
                             <AvatarImage 
                               src={subscription.creator.avatar} 
@@ -298,8 +298,8 @@ export const FanDashboard: React.FC = () => {
                               {subscription.creator.display_name?.charAt(0) || subscription.creator.username.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <div className="flex-1 min-w-0 w-full">
-                            <div className="flex flex-col gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                               <div className="min-w-0">
                                 <p className="text-sm font-medium text-foreground truncate">
                                   {subscription.creator.display_name || subscription.creator.username}
@@ -308,7 +308,14 @@ export const FanDashboard: React.FC = () => {
                                   <span className="font-semibold text-foreground">{subscription.tier.name}</span> • GHS {subscription.tier.price}/month
                                 </p>
                               </div>
-                              <div className="flex justify-center sm:justify-start">
+                              <div className="flex flex-col sm:flex-row items-center gap-2">
+                                {/* Desktop Status Badge */}
+                                <Badge variant={
+                                  subscription.status === 'active' ? 'success' : 
+                                  subscription.status === 'paused' ? 'secondary' : 'destructive'
+                                } className="text-xs hidden sm:inline-flex">
+                                  {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                                </Badge>
                                 <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
                                   <Link to={`/creator/${subscription.creator.username}`}>
                                     View Profile
