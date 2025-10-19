@@ -64,6 +64,19 @@ The project is configured to run on Replit with:
 - `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-10-19: Fixed critical security vulnerability in feed endpoint with complete content redaction**
+  - **Security Issue**: Feed endpoint was exposing premium content (text and media URLs) to unauthorized users
+  - **Root Cause**: Backend returned full content/media_urls regardless of access level, relying only on frontend to hide it
+  - **Complete Fix Implemented**:
+    - **Followed Creators**: Public posts return full content; locked posts return placeholder text ("Exclusive content for subscribers") and NULL media_urls
+    - **Subscribed Creators**: Tier-matched posts return full content; tier-mismatched posts return placeholder text ("Exclusive content for higher-tier subscribers") and NULL media_urls
+    - Backend adds `has_access` boolean flag to every post indicating true access level
+    - Frontend uses `has_access` flag and falls back to placeholder images when media_urls is NULL
+  - **Conversion Strategy**: Feed now shows ALL posts from followed/subscribed creators (including locked) to drive FOMO and subscription conversions
+  - **Visual Improvements**: Reduced blur from blur-xl to blur-md for better content teasing; changed CTA button text from black to white for readability
+  - **Security Status**: Architect-reviewed and approved - no data leakage, premium content fully protected
+  - **Next Steps**: Consider implementing tier hierarchy (Premium access includes Starter content) and automated API-level regression tests
+
 - **2025-10-11: Implemented smart fan redirects based on subscription status**
   - Login flow now checks if fans have active subscriptions:
     - Fans with active subscriptions → redirected to `/fan/feed`

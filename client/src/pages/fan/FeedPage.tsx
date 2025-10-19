@@ -1253,7 +1253,13 @@ export const FeedPage: React.FC = () => {
                       )
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center relative">
-                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+                        {/* Placeholder image for locked content */}
+                        <img 
+                          src={`https://placehold.co/1280x720/374151/9CA3AF?text=${encodeURIComponent(post.tier + ' Content')}`}
+                          alt="Locked content"
+                          className="w-full h-full object-cover absolute inset-0"
+                        />
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-md" />
                         <div className="text-center z-10 p-8 space-y-6">
                           <div className="w-20 h-20 mx-auto bg-background/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                             <svg className="w-12 h-12 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
