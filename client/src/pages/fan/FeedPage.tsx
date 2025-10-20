@@ -789,36 +789,74 @@ export const FeedPage: React.FC = () => {
                         />
                       )
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center relative">
-                        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+                      <div className="w-full h-full relative overflow-hidden">
+                        {/* Blurred content preview underneath */}
+                        <div className="absolute inset-0">
+                          {post.thumbnail ? (
+                            post.type === 'video' ? (
+                              <img 
+                                src={
+                                  post.thumbnail.includes('cloudinary.com/') 
+                                    ? post.thumbnail.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                                    : post.thumbnail.startsWith('/uploads/') 
+                                      ? post.thumbnail 
+                                      : `/uploads/${post.thumbnail}`
+                                }
+                                alt="Locked content preview"
+                                className="w-full h-full object-cover blur-md scale-110"
+                                loading={index > 3 ? "lazy" : "eager"}
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Premium+Content`;
+                                }}
+                              />
+                            ) : (
+                              <img 
+                                src={post.thumbnail.startsWith('/uploads/') ? post.thumbnail : `/uploads/${post.thumbnail}`}
+                                alt="Locked content preview"
+                                className="w-full h-full object-cover blur-md scale-110"
+                                loading={index > 3 ? "lazy" : "eager"}
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/800x800/6366F1/FFFFFF?text=Premium+Content`;
+                                }}
+                              />
+                            )
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-muted/30 to-muted/10" />
+                          )}
+                        </div>
 
-                        {/* Minimal locked content preview */}
-                        <div className="text-center z-10 p-6 space-y-4">
-                          <div className="w-16 h-16 bg-background/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                            <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                          </div>
+                        {/* Frosted glass overlay with gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 backdrop-blur-xl" />
 
-                          {/* Better tier indicator */}
-                          <div className="space-y-2">
-                            <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-background/20 text-white border border-white/20 backdrop-blur-sm">
-                              {post.tier === 'public' ? 'Free' : `${post.tier} Tier Only`}
+                        {/* Lock icon and CTA */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-center p-6 space-y-4">
+                            <div className="w-16 h-16 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
+                              <svg className="w-8 h-8 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                              </svg>
                             </div>
-                          </div>
 
-                          {/* Simplified CTA matching desktop styling */}
-                          <Button 
-                            size="lg" 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/creator/${post.creator.username}`);
-                            }}
-                            className="bg-accent hover:bg-accent/90 text-black text-sm h-12 px-8 rounded-lg font-semibold shadow-lg min-w-[120px]"
-                            style={{ minHeight: '48px', minWidth: '120px' }} // Ensure proper touch target
-                          >
-                            Subscribe to View
-                          </Button>
+                            <div className="space-y-2">
+                              <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold bg-background/20 text-white border border-white/20 backdrop-blur-sm">
+                                {post.tier === 'public' ? 'Free' : `${post.tier} Tier Only`}
+                              </div>
+                            </div>
+
+                            <Button 
+                              size="lg" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/creator/${post.creator.username}`);
+                              }}
+                              className="bg-accent hover:bg-accent/90 text-black text-sm h-12 px-8 rounded-lg font-semibold shadow-lg min-w-[120px]"
+                              style={{ minHeight: '48px', minWidth: '120px' }}
+                            >
+                              Subscribe to View
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1063,15 +1101,7 @@ export const FeedPage: React.FC = () => {
                               />
                             )
                           ) : (
-                            <img 
-                              src={post.id === '1' ? 'https://placehold.co/640x360/E63946/FFFFFF?text=Exclusive+Content' :
-                                   post.id === '2' ? 'https://placehold.co/640x360/457B9D/FFFFFF?text=Exclusive+Content' :
-                                   post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
-                                   `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
-                              alt="Locked content preview"
-                              className="w-full h-full object-cover blur-xl scale-110"
-                              loading={index > 8 ? "lazy" : "eager"}
-                            />
+                            <div className="w-full h-full bg-gradient-to-br from-muted/30 to-muted/10" />
                           )}
                         </div>
 
@@ -1265,14 +1295,7 @@ export const FeedPage: React.FC = () => {
                               />
                             )
                           ) : (
-                            <img 
-                              src={post.id === '1' ? 'https://placehold.co/1280x720/E63946/FFFFFF?text=Exclusive+Content' :
-                                   post.id === '2' ? 'https://placehold.co/1280x720/457B9D/FFFFFF?text=Exclusive+Content' :
-                                   post.id === '3' ? 'https://placehold.co/1280x720/1D3557/FFFFFF?text=Exclusive+Content' :
-                                   `https://placehold.co/1280x720/6366F1/FFFFFF?text=Premium+Content`}
-                              alt="Locked content preview"
-                              className="w-full h-full object-cover blur-md scale-110"
-                            />
+                            <div className="w-full h-full bg-gradient-to-br from-muted/30 to-muted/10" />
                           )}
                         </div>
 
