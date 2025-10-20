@@ -24,7 +24,7 @@ const MOCK_FEED = [
     content: 'Just finished my latest series of fantasy warrior illustrations! This collection took me 3 weeks to complete and features 12 unique characters.',
     type: 'image',
     tier: 'Fan',
-    thumbnail: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop',
+    thumbnail: 'https://images.unsplash.com/photo-1541961017774-22349b25662?w=400&h=300&fit=crop',
     posted: '2024-02-19T10:30:00',
     likes: 142,
     comments: 28,
@@ -1813,7 +1813,7 @@ export const FeedPage: React.FC = () => {
           side="bottom" 
           className="h-[75vh] p-0 border-t-4 border-border/30 rounded-t-xl bg-background flex flex-col"
         >
-          <SheetHeader className="px-4 py-3 border-b border-border/20 bg-background shrink-0">
+          <SheetHeader className="px-4 py-3 border-b border-border bg-background shrink-0">
             <div className="flex items-center justify-center">
               <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mb-2"></div>
             </div>
