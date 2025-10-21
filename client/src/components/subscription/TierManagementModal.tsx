@@ -522,35 +522,41 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
               ) : (
                 upgradeOptions.map((tier) => (
                   <Card key={tier.id} className="border-green-200 hover:border-green-300 transition-colors">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
-                            <ArrowUp className="h-5 w-5 text-green-600" />
-                            <h3 className="text-lg font-semibold">{tier.name}</h3>
-                            <Badge className="bg-green-100 text-green-800 border-green-200">
-                              GHS {tier.price}/month
-                            </Badge>
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="space-y-3">
+                        {/* Tier name and price row */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
+                            <h3 className="text-sm sm:text-base font-semibold truncate">{tier.name}</h3>
                           </div>
-                          <p className="text-sm text-muted-foreground">{tier.description}</p>
-                          <div className="flex items-center gap-4 text-sm">
-                            <div className="flex items-center gap-1">
-                              <CreditCard className="h-4 w-4" />
-                              <span>
-                                Pay now: GHS {tier.proration_amount.toFixed(2)} 
-                                ({tier.days_remaining} days remaining)
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              <span>Immediate access</span>
-                            </div>
+                          <span className="text-sm sm:text-base font-bold text-green-700 whitespace-nowrap flex-shrink-0">
+                            GHS {tier.price}/mo
+                          </span>
+                        </div>
+                        
+                        {/* Description */}
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{tier.description}</p>
+                        
+                        {/* Payment info row */}
+                        <div className="flex items-center justify-between gap-2 text-xs sm:text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1 min-w-0 flex-1">
+                            <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">
+                              Pay: GHS {tier.proration_amount.toFixed(2)} ({tier.days_remaining}d)
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>Immediate</span>
                           </div>
                         </div>
+                        
+                        {/* Upgrade button */}
                         <Button
                           onClick={() => handleUpgrade(tier.id)}
                           disabled={loading || processingTierId === tier.id}
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base"
                           data-testid={`button-upgrade-tier-${tier.id}`}
                         >
                           {processingTierId === tier.id ? "Processing..." : "Upgrade Now"}
