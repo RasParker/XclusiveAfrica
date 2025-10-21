@@ -433,7 +433,7 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                     Current Tier: {subscription?.tier?.name || 'Unknown Tier'}
                   </span>
                   <span className="text-sm sm:text-base font-bold whitespace-nowrap flex-shrink-0">
-                    GHS {subscription?.tier?.price || '0'}/month
+                    GHS {subscription?.tier?.price || '0'}/mo
                   </span>
                 </div>
                 <div className="text-left text-xs sm:text-sm text-muted-foreground">
@@ -543,7 +543,7 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                           <div className="flex items-center gap-1 min-w-0 flex-1">
                             <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                             <span className="truncate">
-                              Pay: GHS {tier.proration_amount.toFixed(2)} ({tier.days_remaining}d)
+                              Pay: GHS {tier.proration_amount.toFixed(2)} ({tier.days_remaining} days remaining)
                             </span>
                           </div>
                           <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
