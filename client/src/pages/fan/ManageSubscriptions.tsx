@@ -321,139 +321,16 @@ export const ManageSubscriptions: React.FC = () => {
                   </Button>
                 </div>
               ) : (
-                activeSubscriptions.map((subscription) => {
-                  const [isExpanded, setIsExpanded] = useState(false);
-                  return (
-                    <SubscriptionCard
-                      key={subscription.id}
-                      subscription={subscription}
-                      onPauseResume={handlePauseResume}
-                      onCancel={handleCancel}
-                      onToggleAutoRenew={handleToggleAutoRenew}
-                      onSubscriptionUpdate={fetchSubscriptions}
-                    >
-                      {/* Desktop View */}
-                      <div className="hidden sm:block">
-                        <Card className="bg-gradient-card border-border/50">
-                          <CardContent className="p-6">
-                            <div className="flex items-center gap-6">
-                              <Avatar className="w-16 h-16 flex-shrink-0">
-                                <AvatarImage src={subscription.creator.avatar} alt={subscription.creator.username} />
-                                <AvatarFallback>{subscription.creator.display_name.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <h3 className="text-lg font-semibold text-foreground truncate">
-                                  {subscription.creator.display_name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground truncate">
-                                  @{subscription.creator.username}
-                                </p>
-                                <div className="flex flex-wrap items-center gap-2 mt-2">
-                                  <Badge variant="outline" className="text-xs">{subscription.tier.name}</Badge>
-                                  <Badge variant={subscription.status === 'active' ? 'success' : subscription.status === 'paused' ? 'destructive' : 'secondary'} className="text-xs">
-                                    {subscription.status}
-                                  </Badge>
-                                  {subscription.pending_changes && subscription.pending_changes.length > 0 && (
-                                    <Badge variant="outline" className="text-xs border-orange-300 text-orange-700 bg-orange-50">
-                                      <Clock className="w-3 h-3 mr-1" />
-                                      Pending
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="text-right flex-shrink-0">
-                                <p className="text-base font-bold text-foreground">
-                                  GHS {subscription.tier.price}/month
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Next billing: {new Date(subscription.next_billing_date).toLocaleDateString()}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2 ml-auto">
-                                <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handlePauseResume(subscription.id); }}>
-                                  {subscription.status === 'active' ? 'Pause' : 'Resume'}
-                                </Button>
-                                <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleCancel(subscription.id); }}>
-                                  Cancel
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      {/* Mobile View - Collapsible */}
-                      <div className="sm:hidden">
-                        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-                          <CollapsibleTrigger className="w-full p-4" asChild>
-                            <div className="cursor-pointer">
-                              <div className="flex items-start gap-3">
-                                <Avatar className="w-12 h-12 flex-shrink-0">
-                                  <AvatarImage src={subscription.creator.avatar} alt={subscription.creator.username} />
-                                  <AvatarFallback>{subscription.creator.display_name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between gap-2 mb-1">
-                                    <h3 className="text-sm font-semibold text-foreground truncate">
-                                      {subscription.creator.display_name}
-                                    </h3>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground truncate mb-2">
-                                    @{subscription.creator.username}
-                                  </p>
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">{subscription.tier.name}</Badge>
-                                    <Badge variant={subscription.status === 'active' ? 'success' : subscription.status === 'paused' ? 'destructive' : 'secondary'} className="text-xs">
-                                      {subscription.status}
-                                    </Badge>
-                                    {subscription.pending_changes && subscription.pending_changes.length > 0 && (
-                                      <Badge variant="outline" className="text-xs border-orange-300 text-orange-700 bg-orange-50">
-                                        <Clock className="w-3 h-3 mr-1" />
-                                        Pending
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center justify-between mt-2">
-                                    <p className="text-sm font-bold text-foreground">
-                                      GHS {subscription.tier.price}/month
-                                    </p>
-                                    <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="p-4 pt-0">
-                            <div className="flex flex-col gap-3">
-                              <p className="text-sm text-muted-foreground">
-                                Next billing: {new Date(subscription.next_billing_date).toLocaleDateString()}
-                              </p>
-                              <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handlePauseResume(subscription.id); }} className="flex-1">
-                                  {subscription.status === 'active' ? 'Pause' : 'Resume'}
-                                </Button>
-                                <Button variant="destructive" size="sm" onClick={(e) => { e.stopPropagation(); handleCancel(subscription.id); }} className="flex-1">
-                                  Cancel
-                                </Button>
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                <label className="inline-flex items-center cursor-pointer">
-                                  <input 
-                                    type="checkbox" 
-                                    checked={subscription.auto_renew} 
-                                    onChange={(e) => { e.stopPropagation(); handleToggleAutoRenew(subscription.id, e.target.checked); }} 
-                                    className="form-checkbox h-4 w-4 text-primary rounded" 
-                                  />
-                                  <span className="ml-2">Auto-renew</span>
-                                </label>
-                              </div>
-                            </div>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </div>
-                    </SubscriptionCard>
-                  );
-                })
+                activeSubscriptions.map((subscription) => (
+                  <SubscriptionCard
+                    key={subscription.id}
+                    subscription={subscription}
+                    onPauseResume={handlePauseResume}
+                    onCancel={handleCancel}
+                    onToggleAutoRenew={handleToggleAutoRenew}
+                    onSubscriptionUpdate={fetchSubscriptions}
+                  />
+                ))
               )}
             </>
           )}
