@@ -271,6 +271,7 @@ export const FeedPage: React.FC = () => {
   const { user } = useAuth();
   const [feed, setFeed] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userSubscriptions, setUserSubscriptions] = useState<any[]>([]);
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
   const [expandedCaptions, setExpandedCaptions] = useState<Record<string, boolean>>({});
   const [expandedModalCaption, setExpandedModalCaption] = useState(false);
@@ -279,6 +280,30 @@ export const FeedPage: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'single'>('grid');
+
+  // Fetch user subscriptions first
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      if (!user) {
+        setUserSubscriptions([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/subscriptions/fan/${user.id}`);
+        if (response.ok) {
+          const subscriptions = await response.json();
+          console.log('Fetched user subscriptions:', subscriptions);
+          setUserSubscriptions(subscriptions);
+        }
+      } catch (error) {
+        console.error('Error fetching subscriptions:', error);
+        setUserSubscriptions([]);
+      }
+    };
+
+    fetchSubscriptions();
+  }, [user]);
 
   // Fetch real posts from API with subscription filtering
   useEffect(() => {
@@ -367,8 +392,11 @@ export const FeedPage: React.FC = () => {
       }
     };
 
-    fetchFeed();
-  }, [user, toast]);
+    // Only fetch feed after subscriptions are loaded (or user is not logged in)
+    if (!user || userSubscriptions !== undefined) {
+      fetchFeed();
+    }
+  }, [user, userSubscriptions, toast]);
 
   // Check if user has access to content based on subscription
   const hasAccessToContent = (postTier: string, creatorId: number, userSubscriptions: any[]) => {
