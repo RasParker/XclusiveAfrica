@@ -428,14 +428,11 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
             <CardContent className="p-3 sm:p-4">
               <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 fill-current" />
-                    <span className="text-sm sm:text-base font-semibold">
-                      Current Tier: {subscription?.tier?.name || 'Unknown Tier'}
-                    </span>
-                  </div>
-                  <span className="text-sm sm:text-base font-bold">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm sm:text-base font-semibold truncate">
+                    Current Tier: {subscription?.tier?.name || 'Unknown Tier'}
+                  </span>
+                  <span className="text-sm sm:text-base font-bold whitespace-nowrap flex-shrink-0">
                     GHS {subscription?.tier?.price || '0'}/month
                   </span>
                 </div>
