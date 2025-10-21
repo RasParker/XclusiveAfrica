@@ -427,24 +427,20 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
           {/* Current Tier Info */}
           <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800">
             <CardContent className="p-3 sm:p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 fill-current" />
-                    <span className="text-sm sm:text-base font-semibold">Current Tier:</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {subscription?.tier?.name || 'Unknown Tier'}
-                    </Badge>
-                    <span className="text-sm sm:text-lg font-bold">
-                      GHS {subscription?.tier?.price || '0'}/month
+                    <span className="text-sm sm:text-base font-semibold">
+                      Current Tier: {subscription?.tier?.name || 'Unknown Tier'}
                     </span>
                   </div>
+                  <span className="text-sm sm:text-base font-bold">
+                    GHS {subscription?.tier?.price || '0'}/month
+                  </span>
                 </div>
-                <div className="text-left sm:text-right text-xs sm:text-sm text-muted-foreground">
-                  <div>Next billing: {subscription?.next_billing_date ? new Date(subscription.next_billing_date).toLocaleDateString() : 'N/A'}</div>
-                  <div className="text-xs">Status: {subscription?.status || 'Unknown'}</div>
+                <div className="text-left text-xs sm:text-sm text-muted-foreground">
+                  Next billing: {subscription?.next_billing_date ? new Date(subscription.next_billing_date).toLocaleDateString() : 'N/A'} • Status: {subscription?.status || 'Unknown'}
                 </div>
               </div>
             </CardContent>
