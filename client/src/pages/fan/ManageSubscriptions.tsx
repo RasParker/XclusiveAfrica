@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { EdgeToEdgeContainer } from '@/components/layout/EdgeToEdgeContainer';
 import { SubscriptionCard } from '@/components/fan/SubscriptionCard';
-import { ArrowLeft, Heart, CreditCard, Calendar } from 'lucide-react';
+import { ArrowLeft, Heart, CreditCard, Calendar, ChevronDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 
 interface PendingChange {
   id: number;
@@ -68,14 +70,14 @@ export const ManageSubscriptions: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Use the enhanced subscription API with tier management data
       const response = await fetch(`/api/subscriptions/user/${user.id}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch subscriptions');
       }
-      
+
       const result = await response.json();
       if (result.success) {
         setSubscriptions(result.data);
@@ -409,7 +411,7 @@ export const ManageSubscriptions: React.FC = () => {
                                 </div>
                               )}
                             </div>
-                            
+
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-foreground text-sm sm:text-base">
                                 {subscription.creator.display_name || subscription.creator.username}
@@ -432,7 +434,7 @@ export const ManageSubscriptions: React.FC = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="text-right">
                             <div className="text-xs sm:text-sm text-muted-foreground">
                               <p>Subscribed: {new Date(subscription.created_at).toLocaleDateString()}</p>
