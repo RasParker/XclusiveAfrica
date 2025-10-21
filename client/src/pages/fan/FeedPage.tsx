@@ -812,35 +812,51 @@ export const FeedPage: React.FC = () => {
                       <div className="w-full h-full relative overflow-hidden">
                         {/* Blurred content preview underneath - ALWAYS show thumbnail */}
                         <div className="absolute inset-0">
-                          {post.type === 'video' ? (
-                            <img 
-                              src={
-                                post.thumbnail && post.thumbnail.includes('cloudinary.com/') 
-                                  ? post.thumbnail.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
-                                  : post.thumbnail && post.thumbnail.startsWith('/uploads/') 
-                                    ? post.thumbnail 
-                                    : post.thumbnail
-                                      ? `/uploads/${post.thumbnail}`
-                                      : `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`
-                              }
-                              alt="Locked content preview"
-                              className="w-full h-full object-cover blur-md scale-110"
-                              loading={index > 3 ? "lazy" : "eager"}
-                            />
-                          ) : (
-                            <img 
-                              src={
-                                post.thumbnail && post.thumbnail.startsWith('/uploads/') 
-                                  ? post.thumbnail 
-                                  : post.thumbnail
-                                    ? `/uploads/${post.thumbnail}`
-                                    : `https://placehold.co/800x800/6366F1/FFFFFF?text=Post+${post.id}`
-                              }
-                              alt="Locked content preview"
-                              className="w-full h-full object-cover blur-md scale-110"
-                              loading={index > 3 ? "lazy" : "eager"}
-                            />
-                          )}
+                          {(() => {
+                            const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                            const mediaUrl = mediaUrls[0];
+
+                            if (mediaUrl) {
+                              const fullUrl = getImageUrl(mediaUrl);
+                              
+                              return post.media_type === 'video' ? (
+                                <img 
+                                  src={
+                                    fullUrl?.includes('cloudinary.com/') 
+                                      ? fullUrl.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                                      : fullUrl
+                                  }
+                                  alt="Locked content preview"
+                                  className="w-full h-full object-cover blur-md scale-110"
+                                  loading={index > 3 ? "lazy" : "eager"}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Premium+Content`;
+                                  }}
+                                />
+                              ) : (
+                                <img 
+                                  src={fullUrl}
+                                  alt="Locked content preview"
+                                  className="w-full h-full object-cover blur-md scale-110"
+                                  loading={index > 3 ? "lazy" : "eager"}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = `https://placehold.co/800x800/6366F1/FFFFFF?text=Premium+Content`;
+                                  }}
+                                />
+                              );
+                            } else {
+                              return (
+                                <img 
+                                  src={`https://placehold.co/800x800/6366F1/FFFFFF?text=Premium+Content`}
+                                  alt="Locked content preview"
+                                  className="w-full h-full object-cover blur-md scale-110"
+                                  loading={index > 3 ? "lazy" : "eager"}
+                                />
+                              );
+                            }
+                          })()}
                         </div>
 
                         {/* Frosted glass overlay with gradient */}
