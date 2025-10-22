@@ -3,21 +3,29 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 2,
-      staleTime: 10 * 60 * 1000, // 10 minutes - aggressive caching for speed
-      gcTime: 30 * 60 * 1000, // 30 minutes - keep data in memory longer
-      refetchOnWindowFocus: false, // Prevent unnecessary refetches
-      refetchOnMount: 'always', // Always check for fresh data on mount
-      refetchOnReconnect: true, // Refetch when connection restored
-      refetchInterval: false, // Disable automatic refetching
-      networkMode: 'online', // Only fetch when online
-    },
-    mutations: {
-      retry: 2,
-      networkMode: 'online',
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
     },
   },
 });
+
+export async function adminApiRequest(url: string, options?: RequestInit) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.statusText}`);
+  }
+
+  return response.json();
+}
 
 // Enhanced API request function with better error handling
 export const apiRequest = async (url: string, options?: RequestInit) => {
@@ -35,7 +43,7 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
     if (!response.ok) {
       // Try to parse error message from response
       let errorMessage = `API request failed: ${response.statusText}`;
-      
+
       try {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
@@ -49,7 +57,7 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
         // If parsing fails, use generic message based on status
         errorMessage = getGenericErrorMessage(response.status);
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -65,17 +73,17 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error('Network error - please check your connection and try again');
     }
-    
+
     // Re-throw other errors as-is
     throw error;
   }
 };
 
 // Admin API request function with JWT token authentication
-export const adminApiRequest = async (url: string, options?: RequestInit) => {
+export const adminApiRequest_original = async (url: string, options?: RequestInit) => {
   try {
     const token = localStorage.getItem('xclusive_token');
-    
+
     if (!token) {
       throw new Error('Admin authentication required - please log in');
     }
@@ -93,7 +101,7 @@ export const adminApiRequest = async (url: string, options?: RequestInit) => {
     if (!response.ok) {
       // Try to parse error message from response
       let errorMessage = `API request failed: ${response.statusText}`;
-      
+
       try {
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
@@ -107,7 +115,7 @@ export const adminApiRequest = async (url: string, options?: RequestInit) => {
         // If parsing fails, use generic message based on status
         errorMessage = getGenericErrorMessage(response.status);
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -123,7 +131,7 @@ export const adminApiRequest = async (url: string, options?: RequestInit) => {
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error('Network error - please check your connection and try again');
     }
-    
+
     // Re-throw other errors as-is
     throw error;
   }
