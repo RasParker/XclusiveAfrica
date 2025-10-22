@@ -520,7 +520,7 @@ export const CreatorProfile: React.FC = () => {
 
       if (response.ok) {
         setIsFollowing(!isFollowing);
-        setFollowerCount(prev => isFollowing ? prev - 1 : prev + 1);
+        setFollowerCount(prev => Math.max(0, isFollowing ? prev - 1 : prev + 1));
         toast({
           title: isFollowing ? "Unfollowed!" : "Following!",
           description: isFollowing 
