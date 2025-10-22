@@ -106,8 +106,13 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator }) => {
       });
 
       if (response.ok) {
-        setIsFollowing(!isFollowing);
-        setFollowerCount(prev => Math.max(0, isFollowing ? prev - 1 : prev + 1));
+        const newFollowing = !isFollowing;
+        setIsFollowing(newFollowing);
+        // Ensure follower count never goes below 0
+        setFollowerCount(prev => {
+          const newCount = newFollowing ? prev + 1 : prev - 1;
+          return Math.max(0, newCount);
+        });
         toast({
           title: isFollowing ? "Unfollowed!" : "Following!",
           description: isFollowing 

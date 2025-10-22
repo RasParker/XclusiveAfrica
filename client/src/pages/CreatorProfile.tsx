@@ -1559,14 +1559,14 @@ export const CreatorProfile: React.FC = () => {
                   <div className="flex items-center gap-1">
                     <Users className="w-3 h-3 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      {(creator?.total_subscribers || 0).toLocaleString()}
+                      {Math.max(0, creator?.total_subscribers || 0).toLocaleString()}
                     </span>
                   </div>
                   <span className="text-muted-foreground">•</span>
                   <div className="flex items-center gap-1">
                     <UserPlus className="w-3 h-3 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
-                      {followerCount.toLocaleString()}
+                      {Math.max(0, followerCount).toLocaleString()}
                     </span>
                   </div>
                 </div>
