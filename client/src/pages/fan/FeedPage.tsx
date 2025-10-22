@@ -815,12 +815,12 @@ export const FeedPage: React.FC = () => {
                           {(() => {
                             const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
                             const mediaUrl = mediaUrls[0];
-                            
+
                             if (mediaUrl) {
                               const fullUrl = mediaUrl.startsWith('http') || mediaUrl.startsWith('/uploads/') 
                                 ? mediaUrl 
                                 : `/uploads/${mediaUrl}`;
-                              
+
                               return post.type === 'video' ? (
                                 <img 
                                   src={
@@ -852,10 +852,10 @@ export const FeedPage: React.FC = () => {
                             } else {
                               return (
                                 <img 
-                                  src={post.id === '1' ? 'https://placehold.co/640x360/E63946/FFFFFF?text=Exclusive+Content' :
-                                       post.id === '2' ? 'https://placehold.co/640x360/457B9D/FFFFFF?text=Exclusive+Content' :
-                                       post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
-                                       `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
+                                  src={post.id === '1' ? 'https://placehold.co/800x800/E63946/FFFFFF?text=Exclusive+Content' :
+                                       post.id === '2' ? 'https://placehold.co/800x800/457B9D/FFFFFF?text=Exclusive+Content' :
+                                       post.id === '3' ? 'https://placehold.co/800x800/1D3557/FFFFFF?text=Exclusive+Content' :
+                                       `https://placehold.co/800x800/6366F1/FFFFFF?text=Premium+Content`}
                                   alt="Locked content preview"
                                   className="w-full h-full object-cover blur-md scale-110"
                                   loading={index > 3 ? "lazy" : "eager"}
