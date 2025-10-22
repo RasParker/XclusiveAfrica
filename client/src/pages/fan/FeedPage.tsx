@@ -844,15 +844,7 @@ export const FeedPage: React.FC = () => {
                               />
                             )
                           ) : (
-                            <img 
-                              src={post.id === '1' ? 'https://placehold.co/640x360/E63946/FFFFFF?text=Exclusive+Content' :
-                                   post.id === '2' ? 'https://placehold.co/640x360/457B9D/FFFFFF?text=Exclusive+Content' :
-                                   post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
-                                   `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
-                              alt="Locked content preview"
-                              className="w-full h-full object-cover blur-md scale-110"
-                              loading={index > 3 ? "lazy" : "eager"}
-                            />
+                            <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800" />
                           )}
                         </div>
 
