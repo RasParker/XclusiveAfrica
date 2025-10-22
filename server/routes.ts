@@ -2338,7 +2338,6 @@ app.get('/api/fan/:fanId/favorites', async (req, res) => {
   app.use('/api/payments', paymentRoutes);
   app.use('/api/payment-test', paymentTestRoutes);
   app.use('/api/payouts', payoutRoutes);
-  app.use('/api/admin', adminRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);
 
 // Platform settings endpoints
