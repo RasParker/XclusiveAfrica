@@ -27,7 +27,8 @@ import {
   MessageSquare,
   Upload,
   Grid3X3,
-  ChevronDown
+  ChevronDown,
+  AlertTriangle
 } from 'lucide-react';
 
 export const SidebarNavigation: React.FC = () => {
@@ -144,6 +145,12 @@ export const SidebarNavigation: React.FC = () => {
             href: '/admin/content', 
             icon: Grid3X3,
             active: location.pathname === '/admin/content'
+          },
+          { 
+            label: 'System Alerts', 
+            href: '/admin/system-alerts', 
+            icon: AlertTriangle,
+            active: location.pathname === '/admin/system-alerts'
           }
         ];
 

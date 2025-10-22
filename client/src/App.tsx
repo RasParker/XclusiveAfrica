@@ -47,6 +47,7 @@ const ReviewContent = React.lazy(() => import('@/pages/admin/ReviewContent').the
 const Reports = React.lazy(() => import('@/pages/admin/Reports').then(m => ({ default: m.Reports })));
 const AdminAnalytics = React.lazy(() => import('@/pages/admin/AdminAnalytics'));
 const ManageCategories = React.lazy(() => import('@/pages/admin/ManageCategories'));
+const SystemAlerts = React.lazy(() => import('@/pages/admin/SystemAlerts').then(m => ({ default: m.SystemAlerts })));
 
 // Payment pages
 const PaymentCallback = React.lazy(() => import('@/pages/PaymentCallback'));
@@ -128,6 +129,7 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/admin/analytics" element={<ProtectedRoute allowedRoles={['admin']}><AdminAnalytics /></ProtectedRoute>} />
+              <Route path="/admin/system-alerts" element={<ProtectedRoute allowedRoles={['admin']}><SystemAlerts /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><AdminSettings /></ProtectedRoute>} />
               <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={['admin']}><Notifications /></ProtectedRoute>} />
 
