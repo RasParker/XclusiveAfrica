@@ -242,4 +242,103 @@ router.delete('/categories/:id', async (req, res) => {
   }
 });
 
+// Get system alerts with filtering
+router.get('/system-alerts', async (req: AuthenticatedRequest, res) => {
+  try {
+    const status = req.query.status as string | undefined;
+    const severity = req.query.severity as string | undefined;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+
+    const alerts = await auditService.getSystemAlerts({
+      status,
+      severity,
+      limit
+    });
+
+    // Log access to system alerts
+    await auditService.logAdminAction(
+      req.user!.id,
+      'view_system_alerts',
+      'system',
+      'alerts',
+      { filters: { status, severity, limit } },
+      req
+    );
+
+    res.json(alerts);
+  } catch (error: any) {
+    console.error('Error fetching system alerts:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to fetch system alerts'
+    });
+  }
+});
+
+// Acknowledge a system alert
+router.patch('/system-alerts/:id/acknowledge', async (req: AuthenticatedRequest, res) => {
+  try {
+    const alertId = parseInt(req.params.id);
+    const userId = req.user!.id;
+
+    const updatedAlert = await storage.acknowledgeSystemAlert(alertId, userId);
+
+    if (!updatedAlert) {
+      return res.status(404).json({
+        error: 'Alert not found'
+      });
+    }
+
+    // Log the action
+    await auditService.logAdminAction(
+      userId,
+      'acknowledge_system_alert',
+      'system_alert',
+      alertId.toString(),
+      { alertId, severity: updatedAlert.severity },
+      req
+    );
+
+    res.json(updatedAlert);
+  } catch (error: any) {
+    console.error('Error acknowledging system alert:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to acknowledge system alert'
+    });
+  }
+});
+
+// Resolve a system alert
+router.patch('/system-alerts/:id/resolve', async (req: AuthenticatedRequest, res) => {
+  try {
+    const alertId = parseInt(req.params.id);
+    const userId = req.user!.id;
+
+    const updatedAlert = await storage.resolveSystemAlert(alertId, userId);
+
+    if (!updatedAlert) {
+      return res.status(404).json({
+        error: 'Alert not found'
+      });
+    }
+
+    // Log the action
+    await auditService.logAdminAction(
+      userId,
+      'resolve_system_alert',
+      'system_alert',
+      alertId.toString(),
+      { alertId, severity: updatedAlert.severity },
+      req
+    );
+
+    res.json(updatedAlert);
+  } catch (error: any) {
+    console.error('Error resolving system alert:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to resolve system alert'
+    });
+  }
+});
+
 export default router;
