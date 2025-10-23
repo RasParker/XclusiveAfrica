@@ -334,7 +334,7 @@ export const FeedPage: React.FC = () => {
             throw new Error('Invalid response format from API');
           }
 
-          // Transform posts and calculate access for each
+          // Transform posts - backend already handles access control
           const transformedPosts = posts.map((post: any) => {
             const postTier = post.tier || 'public';
 
@@ -351,9 +351,16 @@ export const FeedPage: React.FC = () => {
               }
             }
 
-            // Use backend's has_access flag for security
-            // Backend handles access logic and redacts locked content
-            const hasAccess = post.has_access !== undefined ? post.has_access : (postTier.toLowerCase() === 'public');
+            // IMPORTANT: Trust the backend's has_access flag completely
+            // Backend already checked subscription tier access
+            const hasAccess = post.has_access === true;
+            
+            console.log(`Post ${post.id} access:`, {
+              tier: postTier,
+              has_access: post.has_access,
+              access_type: post.access_type,
+              final_access: hasAccess
+            });
 
             return {
               id: post.id.toString(),
@@ -386,8 +393,13 @@ export const FeedPage: React.FC = () => {
             index === self.findIndex((p) => p.id === post.id)
           );
 
-          // Show all posts but mark access level for display logic
-          console.log('Total posts after filtering:', uniquePosts.length);
+          console.log('Feed posts with access:', uniquePosts.map(p => ({ 
+            id: p.id, 
+            tier: p.tier, 
+            hasAccess: p.hasAccess,
+            access_type: p.access_type 
+          })));
+          
           setFeed(uniquePosts);
         } else {
           const errorText = await response.text();
@@ -409,78 +421,8 @@ export const FeedPage: React.FC = () => {
     fetchFeed();
   }, [user, toast]);
 
-  // Check if user has access to content based on subscription
-  const hasAccessToContent = (postTier: string, creatorId: number, userSubscriptions: any[]) => {
-    console.log('hasAccessToContent called:', { postTier, creatorId, userSubscriptionsCount: userSubscriptions?.length });
-
-    // Public content is always accessible
-    if (postTier === 'public' || postTier === 'free' || !postTier) {
-      console.log('Public content access granted');
-      return true;
-    }
-
-    // If user is not logged in, no access to premium content
-    if (!user) {
-      console.log('No user logged in, access denied');
-      return false;
-    }
-
-    // Find user's subscription to this creator
-    const userSubscription = userSubscriptions.find(
-      sub => (sub.creator?.id === creatorId || sub.creator_id === creatorId) && sub.status === 'active'
-    );
-
-    console.log('Subscription search:', { 
-      creatorId, 
-      userSubscriptions: userSubscriptions.map(sub => ({ 
-        id: sub.id, 
-        creator_id: sub.creator?.id || sub.creator_id, 
-        status: sub.status,
-        tier_name: sub.tier?.name || sub.tier_name
-      })),
-      foundSubscription: userSubscription ? {
-        id: userSubscription.id,
-        creator_id: userSubscription.creator?.id || userSubscription.creator_id,
-        status: userSubscription.status,
-        tier_name: userSubscription.tier?.name || userSubscription.tier_name
-      } : null
-    });
-
-    // If no subscription, no access to premium content
-    if (!userSubscription) {
-      console.log('No matching subscription found, access denied');
-      return false;
-    }
-
-    // Define tier hierarchy - higher number = higher access level
-    // Using exact tier names as they appear in the database
-    const tierHierarchy: Record<string, number> = {
-      'Supporter': 1,
-      'Starter Pump': 1,
-      'Fan': 2,
-      'Premium': 2, 
-      'Power Gains': 2,
-      'Superfan': 3,
-      'Elite Beast Mode': 3,
-      'The VIP Elite': 3
-    };
-
-    const userTierLevel = userSubscription.tier?.name ? tierHierarchy[userSubscription.tier.name] || 0 : (userSubscription.tier_name ? tierHierarchy[userSubscription.tier_name] || 0 : 0);
-    const postTierLevel = tierHierarchy[postTier] || 999; // Default to highest tier for unknown tiers (security)
-
-    console.log('Feed access check:', {
-      postTier,
-      userTierLevel,
-      postTierLevel,
-      userTierName: userSubscription.tier?.name || userSubscription.tier_name,
-      hasAccess: userTierLevel >= postTierLevel,
-      creatorId,
-      userId: user?.id
-    });
-
-    // User has access if their tier level is equal or higher than required
-    return userTierLevel >= postTierLevel;
-  };
+  // Access control is now handled entirely by the backend
+  // The backend's /api/feed/:userId endpoint checks subscriptions and sets has_access flag
 
   const handleLike = async (postId: string) => {
     if (!user) return;
