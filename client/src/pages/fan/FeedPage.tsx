@@ -388,10 +388,16 @@ export const FeedPage: React.FC = () => {
             };
           });
 
-          // Remove duplicates based on post ID
-          const uniquePosts = transformedPosts.filter((post, index, self) =>
-            index === self.findIndex((p) => p.id === post.id)
-          );
+          // Remove duplicates and keep the version with best access
+          // Group by post ID and pick the one with has_access=true if available
+          const postMap = new Map();
+          transformedPosts.forEach(post => {
+            const existing = postMap.get(post.id);
+            if (!existing || (!existing.hasAccess && post.hasAccess)) {
+              postMap.set(post.id, post);
+            }
+          });
+          const uniquePosts = Array.from(postMap.values());
 
           console.log('Feed posts with access:', uniquePosts.map(p => ({ 
             id: p.id, 
