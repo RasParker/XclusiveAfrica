@@ -464,7 +464,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           WHERE subscriptions.fan_id = $1 AND subscriptions.status = 'active'
         ),
         accessible_posts AS (
-          -- Posts from followed creators (all tiers for conversion - locked content fully redacted)
+          -- Posts from followed creators (all tiers for conversion - locked content redacted but thumbnails preserved)
           SELECT 
             posts.id,
             posts.creator_id,
@@ -473,10 +473,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               WHEN posts.tier = 'public' THEN posts.content
               ELSE 'Exclusive content for subscribers'  -- Placeholder for locked posts
             END as content,
-            CASE 
-              WHEN posts.tier = 'public' THEN posts.media_urls
-              ELSE NULL  -- Fully redact media URLs for locked content (UI uses placeholder)
-            END as media_urls,
+            posts.media_urls,  -- Keep media_urls for blurred thumbnails on locked content
             posts.tier,
             posts.status,
             posts.scheduled_for,
@@ -509,7 +506,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           UNION ALL
 
-          -- Posts from subscribed creators (conditionally redacted based on tier access)
+          -- Posts from subscribed creators (conditionally redacted based on tier access, but thumbnails preserved)
           SELECT 
             posts.id,
             posts.creator_id,
@@ -518,10 +515,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               WHEN posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name THEN posts.content
               ELSE 'Exclusive content for higher-tier subscribers'  -- Redact if tier mismatch
             END as content,
-            CASE 
-              WHEN posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name THEN posts.media_urls
-              ELSE NULL  -- Redact media if tier mismatch
-            END as media_urls,
+            posts.media_urls,  -- Keep media_urls for blurred thumbnails even if tier mismatch
             posts.tier,
             posts.status,
             posts.scheduled_for,
