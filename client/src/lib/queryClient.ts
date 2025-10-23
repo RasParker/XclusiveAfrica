@@ -10,23 +10,6 @@ export const queryClient = new QueryClient({
   },
 });
 
-export async function adminApiRequest(url: string, options?: RequestInit) {
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.statusText}`);
-  }
-
-  return response.json();
-}
-
 // Enhanced API request function with better error handling
 export const apiRequest = async (url: string, options?: RequestInit) => {
   try {
