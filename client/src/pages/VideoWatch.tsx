@@ -297,6 +297,10 @@ export const VideoWatch: React.FC = () => {
     );
   }
 
+  // Define media URLs before access check
+  const mediaUrl = Array.isArray(post.media_urls) ? post.media_urls[0] : post.media_urls;
+  const fullMediaUrl = mediaUrl?.startsWith('http') ? mediaUrl : `/uploads/${mediaUrl}`;
+
   // Check access before rendering video
   if (!hasAccess && post.tier?.toLowerCase() !== 'public' && (!user || post.creator_id !== user.id)) {
     const thumbnailUrl = mediaUrl?.includes('cloudinary.com/') 
@@ -465,9 +469,6 @@ export const VideoWatch: React.FC = () => {
       </div>
     );
   }
-
-  const mediaUrl = Array.isArray(post.media_urls) ? post.media_urls[0] : post.media_urls;
-  const fullMediaUrl = mediaUrl?.startsWith('http') ? mediaUrl : `/uploads/${mediaUrl}`;
 
   return (
     <div className={`min-h-screen bg-background ${isImmersive ? 'is-immersive' : ''}`}>
