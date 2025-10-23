@@ -608,7 +608,7 @@ export const Explore: React.FC = () => {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
-                        {creator.subscribers.toLocaleString()} subscribers
+                        {Math.max(0, creator.subscribers).toLocaleString()} subscribers
                       </div>
                       <div className="flex items-center gap-1">
                         <UserPlus className="w-3 h-3" />

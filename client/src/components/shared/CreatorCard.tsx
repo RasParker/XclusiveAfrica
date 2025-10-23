@@ -115,7 +115,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator }) => {
         });
         toast({
           title: isFollowing ? "Unfollowed!" : "Following!",
-          description: isFollowing 
+          description: isFollowing
             ? `You unfollowed ${creator.display_name || creator.username}`
             : `You are now following ${creator.display_name || creator.username}`,
         });
@@ -144,7 +144,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator }) => {
     if (creator.id) {
       fetchCreatorLikeCount(creator.id);
       fetchCreatorFollowerCount(creator.id);
-      
+
       if (user && user.id !== parseInt(creator.id)) {
         checkFollowStatus(creator.id, user.id);
       }
@@ -193,7 +193,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator }) => {
               <div className="flex items-center gap-1">
                 <Users className="w-3 h-3 text-muted-foreground" />
                 <span className="text-xs text-muted-foreground">
-                  {creator.total_subscribers || 0} subscribers
+                  {Math.max(0, creator.total_subscribers || 0)} subscribers
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -237,7 +237,7 @@ export const CreatorCard: React.FC<CreatorCardProps> = ({ creator }) => {
               )}
             </Button>
           )}
-          
+
           {/* View Profile Button */}
           <Link to={`/creator/${encodeURIComponent(creator.username)}`} className={user && user.id !== parseInt(creator.id) ? "flex-1" : "w-full"}>
             <Button
