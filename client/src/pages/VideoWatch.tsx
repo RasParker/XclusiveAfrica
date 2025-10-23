@@ -23,6 +23,8 @@ export const VideoWatch: React.FC = () => {
   const [liked, setLiked] = useState(false);
   const [showCommentsSheet, setShowCommentsSheet] = useState(false);
   const [nextVideos, setNextVideos] = useState<any[]>([]);
+  const [userSubscription, setUserSubscription] = useState<any>(null);
+  const [hasAccess, setHasAccess] = useState(false);
 
 
   const getTimeAgo = (dateString: string) => {
@@ -51,6 +53,66 @@ export const VideoWatch: React.FC = () => {
     return `${Math.floor(diffInDays / 7)}w ago`;
   };
 
+  // Check tier access control
+  useEffect(() => {
+    if (!post) {
+      setHasAccess(false);
+      return;
+    }
+
+    const postTier = post.tier?.toLowerCase() || 'public';
+
+    // Own post - always has access
+    if (user && post.creator_id === user.id) {
+      setHasAccess(true);
+      return;
+    }
+
+    // Public content - everyone has access
+    if (postTier === 'public') {
+      setHasAccess(true);
+      return;
+    }
+
+    // Not logged in - no access to premium content
+    if (!user) {
+      setHasAccess(false);
+      return;
+    }
+
+    // No active subscription - no access to premium content
+    if (!userSubscription || userSubscription.status !== 'active') {
+      setHasAccess(false);
+      return;
+    }
+
+    // Check tier hierarchy
+    const tierHierarchy: Record<string, number> = {
+      'supporter': 1,
+      'starter pump': 1,
+      'fan': 2,
+      'premium': 2,
+      'power gains': 2,
+      'superfan': 3,
+      'elite beast mode': 3,
+      'the vip elite': 3
+    };
+
+    const userTierLevel = tierHierarchy[userSubscription.tier_name?.toLowerCase()] || 0;
+    const postTierLevel = tierHierarchy[postTier] || 999;
+
+    const access = userTierLevel >= postTierLevel;
+    console.log('Video access check:', { 
+      postTier, 
+      userTierLevel, 
+      postTierLevel, 
+      userTierName: userSubscription.tier_name,
+      hasAccess: access 
+    });
+
+    setHasAccess(access);
+  }, [post, user, userSubscription]);
+
   useEffect(() => {
     const fetchPost = async () => {
       if (!id) return;
@@ -73,6 +135,20 @@ export const VideoWatch: React.FC = () => {
             }
           };
           setPost(mappedPost);
+
+          // Check user's subscription to this creator
+          if (user && mappedPost.creator_id) {
+            try {
+              const subResponse = await fetch(`/api/subscriptions/user/${user.id}/creator/${mappedPost.creator_id}`);
+              if (subResponse.ok) {
+                const subscription = await subResponse.json();
+                setUserSubscription(subscription);
+                console.log('User subscription:', subscription);
+              }
+            } catch (error) {
+              console.error('Error checking subscription:', error);
+            }
+          }
 
           // Check if user has liked this post
           if (user) {
@@ -216,6 +292,36 @@ export const VideoWatch: React.FC = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Feed
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Check access before rendering video
+  if (!hasAccess && post.tier?.toLowerCase() !== 'public' && (!user || post.creator_id !== user.id)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="text-center max-w-md space-y-6">
+          <div className="w-20 h-20 mx-auto bg-accent/10 rounded-full flex items-center justify-center">
+            <svg className="w-10 h-10 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold">Exclusive Content</h2>
+            <p className="text-muted-foreground">
+              This video is available for {post.tier} tier subscribers
+            </p>
+          </div>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => navigate(`/creator/${post.creator_username || post.creator?.username}`)}>
+              Subscribe to Access
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/fan/feed')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Feed
+            </Button>
+          </div>
         </div>
       </div>
     );
