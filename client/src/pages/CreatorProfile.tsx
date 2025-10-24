@@ -13,6 +13,7 @@ import { PostCardLayout } from '@/components/creator/PostCardLayout';
 import { CommentSection } from '@/components/fan/CommentSection';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import { TierDetailsModal } from '@/components/subscription/TierDetailsModal';
+import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { Star, Users, UserPlus, UserCheck, DollarSign, Settings, Eye, MessageSquare, Heart, Share2, Share, Image, Video, FileText, Edit, Trash2, ArrowLeft, Plus, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -193,6 +194,7 @@ export const CreatorProfile: React.FC = () => {
   const [selectedTier, setSelectedTier] = useState<any>(null);
   const [isSubscriptionTiersExpanded, setIsSubscriptionTiersExpanded] = useState(false);
   const [tierDetailsModalOpen, setTierDetailsModalOpen] = useState(false);
+  const [subscriptionTierModalOpen, setSubscriptionTierModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [isCreatorLiked, setIsCreatorLiked] = useState(false);
   const [isCreatorFavorited, setIsCreatorFavorited] = useState(false);
@@ -967,13 +969,17 @@ export const CreatorProfile: React.FC = () => {
     // Check access control first
     if (!hasAccessToTier(post.tier)) {
       console.log('Access denied for post tier:', post.tier);
-      // Show subscription prompt and scroll to tiers section
-      const tiersSection = document.getElementById('subscription-tiers');
-      if (tiersSection) {
-        tiersSection.scrollIntoView({ behavior: 'smooth' });
-        // Expand tiers if they're collapsed
-        if (!isSubscriptionTiersExpanded) {
-          setIsSubscriptionTiersExpanded(true);
+      // Open subscription tier modal instead of scrolling
+      if (creator && creator.tiers && creator.tiers.length > 0) {
+        setSubscriptionTierModalOpen(true);
+      } else {
+        // Fallback to scrolling if no tiers available
+        const tiersSection = document.getElementById('subscription-tiers');
+        if (tiersSection) {
+          tiersSection.scrollIntoView({ behavior: 'smooth' });
+          if (!isSubscriptionTiersExpanded) {
+            setIsSubscriptionTiersExpanded(true);
+          }
         }
       }
       return;
@@ -1967,6 +1973,8 @@ export const CreatorProfile: React.FC = () => {
                                       e.stopPropagation();
                                       if (!user) {
                                         window.location.href = `/login?redirect=/creator/${username}`;
+                                      } else if (creator && creator.tiers && creator.tiers.length > 0) {
+                                        setSubscriptionTierModalOpen(true);
                                       } else {
                                         document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
                                       }
@@ -2187,6 +2195,8 @@ export const CreatorProfile: React.FC = () => {
                                       e.stopPropagation();
                                       if (!user) {
                                         window.location.href = `/login?redirect=/creator/${username}`;
+                                      } else if (creator && creator.tiers && creator.tiers.length > 0) {
+                                        setSubscriptionTierModalOpen(true);
                                       } else {
                                         document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
                                       }
@@ -2407,6 +2417,8 @@ export const CreatorProfile: React.FC = () => {
                                       e.stopPropagation();
                                       if (!user) {
                                         window.location.href = `/login?redirect=/creator/${username}`;
+                                      } else if (creator && creator.tiers && creator.tiers.length > 0) {
+                                        setSubscriptionTierModalOpen(true);
                                       } else {
                                         document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
                                       }
@@ -2629,6 +2641,27 @@ export const CreatorProfile: React.FC = () => {
             setSelectedTier(null);
           }} 
           tier={selectedTier} 
+        />
+      )}
+
+      {/* Subscription Tier Modal */}
+      {creator && creator.tiers && creator.tiers.length > 0 && (
+        <SubscriptionTierModal
+          isOpen={subscriptionTierModalOpen}
+          onClose={() => setSubscriptionTierModalOpen(false)}
+          creator={{
+            id: creator.id,
+            username: creator.username,
+            display_name: creator.display_name || creator.username,
+            avatar: creator.avatar || ''
+          }}
+          tiers={creator.tiers}
+          onTierSelect={(tier) => {
+            setSelectedTier(tier);
+            setSubscriptionTierModalOpen(false);
+            setPaymentModalOpen(true);
+          }}
+          userIsLoggedIn={!!user}
         />
       )}
       </div>
