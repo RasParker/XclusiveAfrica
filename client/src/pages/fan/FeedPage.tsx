@@ -12,6 +12,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Heart, MessageSquare, MessageCircle, Calendar, Eye, Share2, Share, ArrowLeft, Image, Video, Music, FileText, Loader2, Grid3X3, List, MoreVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
+import { PaymentModal } from '@/components/payment/PaymentModal';
 
 // Helper function to construct proper image URLs
 const getImageUrl = (imageUrl: string | null | undefined): string | undefined => {
@@ -316,6 +318,10 @@ export const FeedPage: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'single'>('grid');
+  const [subscriptionTierModalOpen, setSubscriptionTierModalOpen] = useState(false);
+  const [selectedCreatorForSubscription, setSelectedCreatorForSubscription] = useState<any>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<any>(null);
 
   // Fetch real posts from API with subscription filtering
   useEffect(() => {
@@ -538,11 +544,31 @@ export const FeedPage: React.FC = () => {
   };
 
 
-  const handleThumbnailClick = (post: any) => {
+  const handleThumbnailClick = async (post: any) => {
     // Check if user has access to this content
     if (!post.hasAccess) {
-      // Redirect to creator profile for subscription
-      navigate(`/creator/${post.creator.username}`);
+      // Fetch creator data and open subscription tier modal
+      try {
+        const response = await fetch(`/api/users/${post.creator_id}`);
+        if (response.ok) {
+          const creatorData = await response.json();
+          setSelectedCreatorForSubscription({
+            id: creatorData.id,
+            username: creatorData.username,
+            display_name: creatorData.display_name || creatorData.username,
+            avatar: creatorData.avatar || '',
+            tiers: creatorData.tiers || []
+          });
+          setSubscriptionTierModalOpen(true);
+        } else {
+          // Fallback to navigation if API fails
+          navigate(`/creator/${post.creator.username}`);
+        }
+      } catch (error) {
+        console.error('Error fetching creator data:', error);
+        // Fallback to navigation if fetch fails
+        navigate(`/creator/${post.creator.username}`);
+      }
       return;
     }
 
@@ -1843,6 +1869,50 @@ export const FeedPage: React.FC = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Subscription Tier Modal */}
+      {selectedCreatorForSubscription && (
+        <SubscriptionTierModal
+          isOpen={subscriptionTierModalOpen}
+          onClose={() => {
+            setSubscriptionTierModalOpen(false);
+            setSelectedCreatorForSubscription(null);
+          }}
+          creator={selectedCreatorForSubscription}
+          tiers={selectedCreatorForSubscription.tiers}
+          onTierSelect={(tier) => {
+            setSelectedTier(tier);
+            setSubscriptionTierModalOpen(false);
+            setPaymentModalOpen(true);
+          }}
+          userIsLoggedIn={!!user}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {selectedTier && selectedCreatorForSubscription && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => {
+            setPaymentModalOpen(false);
+            setSelectedTier(null);
+          }}
+          tier={selectedTier}
+          creatorId={selectedCreatorForSubscription.id}
+          creatorName={selectedCreatorForSubscription.display_name}
+          onSuccess={() => {
+            setPaymentModalOpen(false);
+            setSelectedTier(null);
+            setSelectedCreatorForSubscription(null);
+            toast({
+              title: "Subscription successful!",
+              description: `You are now subscribed to ${selectedCreatorForSubscription.display_name}`,
+            });
+            // Refresh the feed to show unlocked content
+            window.location.reload();
+          }}
+        />
+      )}
         </EdgeToEdgeContainer>
       </div>
     </div>
