@@ -2616,7 +2616,7 @@ export const CreatorProfile: React.FC = () => {
       )}
 
       {/* Payment Modal */}
-      {selectedTier && (
+      {selectedTier && creator && (
         <PaymentModal 
           isOpen={paymentModalOpen} 
           onClose={() => {
@@ -2624,23 +2624,24 @@ export const CreatorProfile: React.FC = () => {
             setSelectedTier(null);
           }} 
           tier={selectedTier} 
-          creator={creator}
-          onSubscribe={() => {
-            if (selectedTier) handleSubscribe(selectedTier.id);
-            setPaymentModalOpen(false);
-          }}
+          creatorName={creator.display_name || creator.username}
         />
       )}
 
       {/* Tier Details Modal */}
-      {selectedTier && (
+      {selectedTier && creator && (
         <TierDetailsModal 
           isOpen={tierDetailsModalOpen} 
           onClose={() => {
             setTierDetailsModalOpen(false);
             setSelectedTier(null);
           }} 
-          tier={selectedTier} 
+          tier={selectedTier}
+          creatorName={creator.display_name || creator.username}
+          onSubscribe={() => {
+            if (selectedTier) handleSubscribe(selectedTier.id);
+            setTierDetailsModalOpen(false);
+          }}
         />
       )}
 

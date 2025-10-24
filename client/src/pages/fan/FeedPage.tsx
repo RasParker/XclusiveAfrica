@@ -1898,19 +1898,7 @@ export const FeedPage: React.FC = () => {
             setSelectedTier(null);
           }}
           tier={selectedTier}
-          creatorId={selectedCreatorForSubscription.id}
           creatorName={selectedCreatorForSubscription.display_name}
-          onSuccess={() => {
-            setPaymentModalOpen(false);
-            setSelectedTier(null);
-            setSelectedCreatorForSubscription(null);
-            toast({
-              title: "Subscription successful!",
-              description: `You are now subscribed to ${selectedCreatorForSubscription.display_name}`,
-            });
-            // Refresh the feed to show unlocked content
-            window.location.reload();
-          }}
         />
       )}
         </EdgeToEdgeContainer>
