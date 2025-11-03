@@ -374,7 +374,7 @@ export const FeedPage: React.FC = () => {
                 username: post.creator?.username || post.username || 'Unknown',
                 display_name: post.creator?.display_name || post.display_name || post.creator?.username || post.username || 'Unknown',
                 avatar: post.creator?.avatar || post.avatar || '',
-                id: post.creator_id
+                id: post.creator?.id || post.creator_id
               },
               title: post.title || 'Untitled Post',
               content: post.content || post.title || '',
@@ -549,7 +549,7 @@ export const FeedPage: React.FC = () => {
     if (!post.hasAccess) {
       // Fetch creator data and open subscription tier modal
       try {
-        const response = await fetch(`/api/users/${post.creator_id}`);
+        const response = await fetch(`/api/users/${post.creator.id}`);
         if (response.ok) {
           const creatorData = await response.json();
           setSelectedCreatorForSubscription({
@@ -561,13 +561,28 @@ export const FeedPage: React.FC = () => {
           });
           setSubscriptionTierModalOpen(true);
         } else {
-          // Fallback to navigation if API fails
-          navigate(`/creator/${post.creator.username}`);
+          // If creator data can't be loaded, still try to open the modal
+          // Use the basic creator info from the post
+          setSelectedCreatorForSubscription({
+            id: post.creator.id,
+            username: post.creator.username,
+            display_name: post.creator.display_name || post.creator.username,
+            avatar: post.creator.avatar || '',
+            tiers: []
+          });
+          setSubscriptionTierModalOpen(true);
         }
       } catch (error) {
         console.error('Error fetching creator data:', error);
-        // Fallback to navigation if fetch fails
-        navigate(`/creator/${post.creator.username}`);
+        // Still try to open the modal with basic creator info
+        setSelectedCreatorForSubscription({
+          id: post.creator.id,
+          username: post.creator.username,
+          display_name: post.creator.display_name || post.creator.username,
+          avatar: post.creator.avatar || '',
+          tiers: []
+        });
+        setSubscriptionTierModalOpen(true);
       }
       return;
     }
@@ -847,12 +862,46 @@ export const FeedPage: React.FC = () => {
                             <Button 
                               size="sm" 
                               className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
                                 if (!user) {
                                   window.location.href = `/login?redirect=/creator/${post.creator.username}`;
                                 } else {
-                                  navigate(`/creator/${post.creator.username}`);
+                                  // Open subscription modal instead of navigating
+                                  try {
+                                    const response = await fetch(`/api/users/${post.creator.id}`);
+                                    if (response.ok) {
+                                      const creatorData = await response.json();
+                                      setSelectedCreatorForSubscription({
+                                        id: creatorData.id,
+                                        username: creatorData.username,
+                                        display_name: creatorData.display_name || creatorData.username,
+                                        avatar: creatorData.avatar || '',
+                                        tiers: creatorData.tiers || []
+                                      });
+                                      setSubscriptionTierModalOpen(true);
+                                    } else {
+                                      // Fallback to basic info
+                                      setSelectedCreatorForSubscription({
+                                        id: post.creator.id,
+                                        username: post.creator.username,
+                                        display_name: post.creator.display_name || post.creator.username,
+                                        avatar: post.creator.avatar || '',
+                                        tiers: []
+                                      });
+                                      setSubscriptionTierModalOpen(true);
+                                    }
+                                  } catch (error) {
+                                    console.error('Error fetching creator data:', error);
+                                    setSelectedCreatorForSubscription({
+                                      id: post.creator.id,
+                                      username: post.creator.username,
+                                      display_name: post.creator.display_name || post.creator.username,
+                                      avatar: post.creator.avatar || '',
+                                      tiers: []
+                                    });
+                                    setSubscriptionTierModalOpen(true);
+                                  }
                                 }
                               }}
                               data-testid="button-unlock-content"
@@ -1337,12 +1386,46 @@ export const FeedPage: React.FC = () => {
                             <Button 
                               size="sm" 
                               className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
                                 if (!user) {
                                   window.location.href = `/login?redirect=/creator/${post.creator.username}`;
                                 } else {
-                                  navigate(`/creator/${post.creator.username}`);
+                                  // Open subscription modal instead of navigating
+                                  try {
+                                    const response = await fetch(`/api/users/${post.creator.id}`);
+                                    if (response.ok) {
+                                      const creatorData = await response.json();
+                                      setSelectedCreatorForSubscription({
+                                        id: creatorData.id,
+                                        username: creatorData.username,
+                                        display_name: creatorData.display_name || creatorData.username,
+                                        avatar: creatorData.avatar || '',
+                                        tiers: creatorData.tiers || []
+                                      });
+                                      setSubscriptionTierModalOpen(true);
+                                    } else {
+                                      // Fallback to basic info
+                                      setSelectedCreatorForSubscription({
+                                        id: post.creator.id,
+                                        username: post.creator.username,
+                                        display_name: post.creator.display_name || post.creator.username,
+                                        avatar: post.creator.avatar || '',
+                                        tiers: []
+                                      });
+                                      setSubscriptionTierModalOpen(true);
+                                    }
+                                  } catch (error) {
+                                    console.error('Error fetching creator data:', error);
+                                    setSelectedCreatorForSubscription({
+                                      id: post.creator.id,
+                                      username: post.creator.username,
+                                      display_name: post.creator.display_name || post.creator.username,
+                                      avatar: post.creator.avatar || '',
+                                      tiers: []
+                                    });
+                                    setSubscriptionTierModalOpen(true);
+                                  }
                                 }
                               }}
                               data-testid="button-unlock-content"
