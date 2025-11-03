@@ -547,17 +547,23 @@ export const FeedPage: React.FC = () => {
   const handleThumbnailClick = async (post: any) => {
     // Check if user has access to this content
     if (!post.hasAccess) {
-      // Fetch creator data and open subscription tier modal
+      // Fetch creator data and tiers, then open subscription tier modal
       try {
-        const response = await fetch(`/api/users/${post.creator.id}`);
-        if (response.ok) {
-          const creatorData = await response.json();
+        const [userResponse, tiersResponse] = await Promise.all([
+          fetch(`/api/users/${post.creator.id}`),
+          fetch(`/api/creators/${post.creator.id}/tiers`)
+        ]);
+        
+        const creatorData = userResponse.ok ? await userResponse.json() : null;
+        const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+        
+        if (creatorData) {
           setSelectedCreatorForSubscription({
             id: creatorData.id,
             username: creatorData.username,
             display_name: creatorData.display_name || creatorData.username,
             avatar: creatorData.avatar || '',
-            tiers: creatorData.tiers || []
+            tiers: tiersData
           });
           setSubscriptionTierModalOpen(true);
         } else {
@@ -568,7 +574,7 @@ export const FeedPage: React.FC = () => {
             username: post.creator.username,
             display_name: post.creator.display_name || post.creator.username,
             avatar: post.creator.avatar || '',
-            tiers: []
+            tiers: tiersData
           });
           setSubscriptionTierModalOpen(true);
         }
@@ -869,25 +875,31 @@ export const FeedPage: React.FC = () => {
                                 } else {
                                   // Open subscription modal instead of navigating
                                   try {
-                                    const response = await fetch(`/api/users/${post.creator.id}`);
-                                    if (response.ok) {
-                                      const creatorData = await response.json();
+                                    const [userResponse, tiersResponse] = await Promise.all([
+                                      fetch(`/api/users/${post.creator.id}`),
+                                      fetch(`/api/creators/${post.creator.id}/tiers`)
+                                    ]);
+                                    
+                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                                    
+                                    if (creatorData) {
                                       setSelectedCreatorForSubscription({
                                         id: creatorData.id,
                                         username: creatorData.username,
                                         display_name: creatorData.display_name || creatorData.username,
                                         avatar: creatorData.avatar || '',
-                                        tiers: creatorData.tiers || []
+                                        tiers: tiersData
                                       });
                                       setSubscriptionTierModalOpen(true);
                                     } else {
-                                      // Fallback to basic info
+                                      // Fallback to basic info with tiers if available
                                       setSelectedCreatorForSubscription({
                                         id: post.creator.id,
                                         username: post.creator.username,
                                         display_name: post.creator.display_name || post.creator.username,
                                         avatar: post.creator.avatar || '',
-                                        tiers: []
+                                        tiers: tiersData
                                       });
                                       setSubscriptionTierModalOpen(true);
                                     }
@@ -1393,25 +1405,31 @@ export const FeedPage: React.FC = () => {
                                 } else {
                                   // Open subscription modal instead of navigating
                                   try {
-                                    const response = await fetch(`/api/users/${post.creator.id}`);
-                                    if (response.ok) {
-                                      const creatorData = await response.json();
+                                    const [userResponse, tiersResponse] = await Promise.all([
+                                      fetch(`/api/users/${post.creator.id}`),
+                                      fetch(`/api/creators/${post.creator.id}/tiers`)
+                                    ]);
+                                    
+                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                                    
+                                    if (creatorData) {
                                       setSelectedCreatorForSubscription({
                                         id: creatorData.id,
                                         username: creatorData.username,
                                         display_name: creatorData.display_name || creatorData.username,
                                         avatar: creatorData.avatar || '',
-                                        tiers: creatorData.tiers || []
+                                        tiers: tiersData
                                       });
                                       setSubscriptionTierModalOpen(true);
                                     } else {
-                                      // Fallback to basic info
+                                      // Fallback to basic info with tiers if available
                                       setSelectedCreatorForSubscription({
                                         id: post.creator.id,
                                         username: post.creator.username,
                                         display_name: post.creator.display_name || post.creator.username,
                                         avatar: post.creator.avatar || '',
-                                        tiers: []
+                                        tiers: tiersData
                                       });
                                       setSubscriptionTierModalOpen(true);
                                     }
