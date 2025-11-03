@@ -61,7 +61,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
               <DialogTitle className="text-left text-lg font-semibold">
                 Subscribe to {creator.display_name}
               </DialogTitle>
-              <p className="text-sm text-muted-foreground">@{creator.username}</p>
+              <p className="text-sm text-muted-foreground text-left">@{creator.username}</p>
             </div>
           </div>
         </DialogHeader>
