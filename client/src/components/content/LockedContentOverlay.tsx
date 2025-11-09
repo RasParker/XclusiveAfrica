@@ -7,6 +7,7 @@ interface LockedContentOverlayProps {
   isVideo?: boolean;
   onUnlockClick: (e: React.MouseEvent) => void;
   className?: string;
+  showButton?: boolean;
 }
 
 export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
@@ -14,7 +15,8 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
   tier,
   isVideo = false,
   onUnlockClick,
-  className = ''
+  className = '',
+  showButton = true
 }) => {
   const { user } = useAuth();
 
@@ -60,21 +62,23 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
             </div>
           </div>
 
-          <Button 
-            size="sm" 
-            className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
-            onClick={onUnlockClick}
-            data-testid="button-unlock-content"
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-              </svg>
-              {!user ? 'Login to Unlock' : 'Unlock Full Access'}
-            </span>
-            {/* Shimmer effect */}
-            <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-          </Button>
+          {showButton && (
+            <Button 
+              size="sm" 
+              className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
+              onClick={onUnlockClick}
+              data-testid="button-unlock-content"
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                </svg>
+                {!user ? 'Login to Unlock' : 'Unlock Full Access'}
+              </span>
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -268,25 +268,30 @@ export const VideoWatch: React.FC = () => {
     if (!post) return;
 
     try {
-      // Fetch creator tiers
-      const tiersResponse = await fetch(`/api/subscription-tiers/creator/${post.creator_id}`);
-      if (!tiersResponse.ok) {
+      // Fetch creator data and tiers
+      const [userResponse, tiersResponse] = await Promise.all([
+        fetch(`/api/users/${post.creator_id}`),
+        fetch(`/api/creators/${post.creator_id}/tiers`)
+      ]);
+      
+      if (!userResponse.ok || !tiersResponse.ok) {
         toast({
           title: "Error",
-          description: "Failed to load subscription tiers",
+          description: "Failed to load subscription options",
           variant: "destructive"
         });
         return;
       }
 
+      const creatorData = await userResponse.json();
       const tiersData = await tiersResponse.json();
       
       // Set creator data and open modal
       setSelectedCreatorForSubscription({
-        id: post.creator_id,
-        username: post.creator_username || post.creator?.username,
-        display_name: post.creator_display_name || post.creator?.display_name,
-        avatar: post.creator_avatar || post.creator?.avatar || '',
+        id: creatorData.id,
+        username: creatorData.username,
+        display_name: creatorData.display_name || creatorData.username,
+        avatar: creatorData.avatar || '',
         tiers: tiersData
       });
       setSubscriptionTierModalOpen(true);
@@ -1028,6 +1033,7 @@ export const VideoWatch: React.FC = () => {
                               thumbnail={thumbnailUrl}
                               tier={video.tier || 'public'}
                               isVideo={true}
+                              showButton={false}
                               onUnlockClick={async (e) => {
                                 e.stopPropagation();
                                 if (!user) {
