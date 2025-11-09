@@ -477,7 +477,7 @@ export const VideoWatch: React.FC = () => {
                     {post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}
                   </span>
                   <div className="flex items-center gap-1 flex-shrink-0 text-right">
-                    <span>{post.views_count ? (post.views_count >= 1000 ? `${Math.floor(post.views_count / 1000)}K` : post.views_count) : '0'} views</span>
+                    <span>{post.views_count ? (post.views_count >= 1000 ? `${(post.views_count / 1000).toFixed(1)}K` : post.views_count) : '0'} views</span>
                     <span>•</span>
                     <span>{getTimeAgo(post.posted || post.created_at)}</span>
                   </div>
@@ -719,7 +719,7 @@ export const VideoWatch: React.FC = () => {
                             <div className="flex items-center justify-between text-xs text-muted-foreground w-full">
                               <span className="truncate mr-2">{video.creator_display_name || video.creator_username}</span>
                               <div className="flex items-center gap-1 flex-shrink-0 text-right">
-                                <span>{Math.floor(Math.random() * 500) + 100}K views</span>
+                                <span>{video.views_count ? (video.views_count >= 1000 ? `${(video.views_count / 1000).toFixed(1)}K` : video.views_count) : '0'} views</span>
                                 <span>•</span>
                                 <span>{getTimeAgo(video.created_at)}</span>
                               </div>
@@ -851,7 +851,7 @@ export const VideoWatch: React.FC = () => {
                       {post.creator_display_name || post.creator?.display_name || post.creator_username || post.creator?.username}
                     </span>
                     <div className="flex items-center gap-1 flex-shrink-0 text-right">
-                      <span>876K views</span>
+                      <span>{post.views_count ? (post.views_count >= 1000 ? `${(post.views_count / 1000).toFixed(1)}K` : post.views_count) : '0'} views</span>
                       <span>•</span>
                       <span>{getTimeAgo(post.created_at)}</span>
                     </div>
