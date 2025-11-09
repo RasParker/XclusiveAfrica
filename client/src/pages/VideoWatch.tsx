@@ -7,11 +7,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CommentSection } from '@/components/fan/CommentSection';
-import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play, Lock } from 'lucide-react';
+import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
 import { PaymentModal } from '@/components/payment/PaymentModal';
+import { LockedContentOverlay } from '@/components/content/LockedContentOverlay';
 
 export const VideoWatch: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -425,45 +426,13 @@ export const VideoWatch: React.FC = () => {
               />
             )
           ) : (
-            <div className="relative w-full h-full min-h-[400px] bg-black flex items-center justify-center">
-              {/* Blurred Background */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center filter blur-md"
-                style={{
-                  backgroundImage: mediaUrl?.includes('cloudinary.com/') 
-                    ? `url(${mediaUrl.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')})`
-                    : 'none'
-                }}
+            <div className="w-full h-full min-h-[400px]">
+              <LockedContentOverlay
+                thumbnail={mediaUrl}
+                tier={post.tier || 'public'}
+                isVideo={post.media_type === 'video'}
+                onUnlockClick={handleSubscribeClick}
               />
-              {/* Dark Overlay */}
-              <div className="absolute inset-0 bg-black/60" />
-              
-              {/* Lock Icon and Message */}
-              <div className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center">
-                <div className="rounded-full bg-primary/20 p-6">
-                  <Lock className="w-12 h-12 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Exclusive Content
-                  </h3>
-                  <p className="text-white/80 mb-1">
-                    This content requires a subscription
-                  </p>
-                  {post.tier && (
-                    <Badge variant="secondary" className="mt-2">
-                      {post.tier}
-                    </Badge>
-                  )}
-                </div>
-                <Button 
-                  size="lg"
-                  onClick={handleSubscribeClick}
-                  data-testid="button-subscribe"
-                >
-                  Subscribe to Unlock
-                </Button>
-              </div>
             </div>
           )}
         </div>
