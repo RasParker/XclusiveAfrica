@@ -64,6 +64,19 @@ The project is configured to run on Replit with:
 - `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-11-09: Fixed VideoWatch page access control with complete content gating**
+  - **Issue**: Users could access VIP Elite tier videos without proper subscription - video player, comments, and interactions were exposed
+  - **Root Cause**: VideoWatch page calculated `hasAccess` correctly but didn't use it to gate video player, comments, or interactions
+  - **Complete Fix Implemented**:
+    - **Video Player**: Conditionally renders locked overlay (blurred thumbnail, lock icon, tier badge, "Subscribe to Unlock" CTA) when `hasAccess = false`
+    - **Interactive Controls**: Like, comment, share buttons disabled when `hasAccess = false`
+    - **Comments Gating**: Mobile comments container shows locked state; mobile Sheet and desktop CommentSection only render when `hasAccess = true` (prevents unauthorized API calls)
+    - **Subscription Modal Integration**: "Subscribe to Unlock" button opens SubscriptionTierModal instead of navigating to profile, complete flow: Subscribe → Tier selection → Payment modal → Checkout
+  - **Tier Hierarchy**: Uses same 3-level system as feed endpoint (Level 1: Supporter/Starter Pump, Level 2: Fan/Premium/Power Gains, Level 3: Superfan/Elite Beast Mode/VIP Elite)
+  - **Result**: Premium content fully protected - video, comments, and interactions completely inaccessible without proper subscription tier
+  - **Architect Review**: Approved - complete access control implementation with no security issues, all engagement gated end-to-end
+  - **Testing**: VIP Elite post correctly shows locked state for Power Gains subscriber; no unauthorized API calls
+
 - **2025-11-09: Implemented tier hierarchy access control for subscription-based content**
   - **Issue**: Users with higher-tier subscriptions (e.g., "Power Gains" level 2) couldn't access content from lower tiers (e.g., "Starter Pump" level 1)
   - **Root Cause**: Feed API endpoint used exact tier name matching instead of hierarchical level comparison
