@@ -203,7 +203,7 @@ export const VideoWatch: React.FC = () => {
               const hasAccessFlag = post.has_access !== undefined 
                 ? post.has_access === true 
                 : postTier === 'public';
-
+              
               return {
                 ...post,
                 creator_display_name: post.creator?.display_name || post.creator?.username || post.display_name || post.username || 'Unknown Creator',
@@ -280,7 +280,7 @@ export const VideoWatch: React.FC = () => {
       }
 
       const tiersData = await tiersResponse.json();
-
+      
       // Set creator data and open modal
       setSelectedCreatorForSubscription({
         id: post.creator_id,
@@ -640,7 +640,7 @@ export const VideoWatch: React.FC = () => {
                     : videoFullUrl;
 
                   const videoHasAccess = video.hasAccess !== false;
-
+                  
                   return (
                     <div 
                       key={video.id} 
@@ -684,10 +684,10 @@ export const VideoWatch: React.FC = () => {
                                       fetch(`/api/users/${video.creator_id}`),
                                       fetch(`/api/creators/${video.creator_id}/tiers`)
                                     ]);
-
+                                    
                                     const creatorData = userResponse.ok ? await userResponse.json() : null;
                                     const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-
+                                    
                                     if (creatorData) {
                                       setSelectedCreatorForSubscription({
                                         id: creatorData.id,
@@ -994,7 +994,7 @@ export const VideoWatch: React.FC = () => {
                     : videoFullUrl;
 
                   const videoHasAccess = video.hasAccess !== false;
-
+                  
                   return (
                     <div 
                       key={`${video.id}-${index}`} 
@@ -1038,10 +1038,10 @@ export const VideoWatch: React.FC = () => {
                                       fetch(`/api/users/${video.creator_id}`),
                                       fetch(`/api/creators/${video.creator_id}/tiers`)
                                     ]);
-
+                                    
                                     const creatorData = userResponse.ok ? await userResponse.json() : null;
                                     const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-
+                                    
                                     if (creatorData) {
                                       setSelectedCreatorForSubscription({
                                         id: creatorData.id,
