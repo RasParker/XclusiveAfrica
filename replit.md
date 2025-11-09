@@ -64,6 +64,18 @@ The project is configured to run on Replit with:
 - `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-11-09: Fixed duplicate posts in Up Next feed and personalized feed**
+  - **Issue**: Users who both followed AND subscribed to the same creator saw duplicate posts in their feed and Up Next section
+  - **Root Cause**: The `/api/feed/:userId` endpoint used `UNION ALL` which kept all rows from both the "followed creators" branch and "subscribed creators" branch, even when they returned the same post
+  - **Fix Implemented**:
+    - Added `ranked_posts` CTE using `ROW_NUMBER() OVER (PARTITION BY id ORDER BY has_access DESC, CASE WHEN access_type = 'subscription' THEN 1 ELSE 2 END, created_at DESC)`
+    - This deduplicates posts by ID while prioritizing subscription access over follow access
+    - Ensures users always see the highest-privilege access level for each post
+    - Changed `UNION` back to `UNION ALL` to retain all candidates for proper ranking
+  - **Result**: Each post now appears exactly once in the feed, showing subscription-level access when available
+  - **Architect Review**: Approved - deduplication logic correctly prioritizes subscription access and maintains consistent API response format
+  - **Testing**: Server restarted successfully, no SQL errors, feed endpoint working correctly
+
 - **2025-11-09: Implemented consistent locked content UI across Feed and VideoWatch pages**
   - **Goal**: Ensure locked content displays with consistent visual design across the platform
   - **Changes Made**:
