@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LockedContentOverlayProps {
-  thumbnail?: string | null;
+  thumbnail?: string | null | undefined;
   tier: string;
   isVideo?: boolean;
   onUnlockClick: (e: React.MouseEvent) => void;

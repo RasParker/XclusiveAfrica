@@ -188,19 +188,30 @@ export const VideoWatch: React.FC = () => {
 
     const fetchNextVideos = async () => {
       try {
-        const response = await fetch('/api/posts');
+        // Use personalized feed if user is logged in, otherwise show all public posts
+        const feedUrl = user ? `/api/feed/${user.id}` : '/api/posts';
+        const response = await fetch(feedUrl);
         if (response.ok) {
           const posts = await response.json();
           // Filter out current video and take next 5, and map creator data
           const filtered = posts
             .filter((p: any) => p.id.toString() !== id)
             .slice(0, 5)
-            .map((post: any) => ({
-              ...post,
-              creator_display_name: post.creator?.display_name || post.creator?.username || post.display_name || post.username || 'Unknown Creator',
-              creator_username: post.creator?.username || post.username || 'unknown',
-              creator_avatar: post.creator?.avatar || post.avatar || null
-            }));
+            .map((post: any) => {
+              // If has_access exists, use it. Otherwise, infer from tier (public = accessible)
+              const postTier = post.tier?.toLowerCase() || 'public';
+              const hasAccessFlag = post.has_access !== undefined 
+                ? post.has_access === true 
+                : postTier === 'public';
+              
+              return {
+                ...post,
+                creator_display_name: post.creator?.display_name || post.creator?.username || post.display_name || post.username || 'Unknown Creator',
+                creator_username: post.creator?.username || post.username || 'unknown',
+                creator_avatar: post.creator?.avatar || post.avatar || null,
+                hasAccess: hasAccessFlag
+              };
+            });
           setNextVideos(filtered);
         }
       } catch (error) {
@@ -589,7 +600,7 @@ export const VideoWatch: React.FC = () => {
 
                 <div className="flex items-center gap-3 mt-3">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src={user?.avatar} alt={user?.username} />
+                    <AvatarImage src={user?.avatar || undefined} alt={user?.username} />
                     <AvatarFallback className="text-xs">{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 bg-muted/50 rounded-full px-4 py-2">
@@ -607,7 +618,9 @@ export const VideoWatch: React.FC = () => {
                     <h3 className="text-base font-semibold">Comments</h3>
                     <span className="text-sm text-muted-foreground">{post.comments_count || 0}</span>
                   </div>
-                  <Lock className="w-4 h-4 text-muted-foreground" />
+                  <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Subscribe to view and add comments
@@ -626,6 +639,8 @@ export const VideoWatch: React.FC = () => {
                     ? videoMediaUrl.replace('/upload/', '/upload/so_0,w_640,h_360,c_fill,f_jpg/').replace('.mp4', '.jpg')
                     : videoFullUrl;
 
+                  const videoHasAccess = video.hasAccess !== false;
+                  
                   return (
                     <div 
                       key={video.id} 
@@ -634,22 +649,61 @@ export const VideoWatch: React.FC = () => {
                     >
                       <div className="py-3">
                         <div className="relative w-full aspect-video bg-black overflow-hidden mb-3 rounded-lg">
-                          <img
-                            src={thumbnailUrl}
-                            alt={video.title}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
-                            }}
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Play className="w-6 h-6 text-white" fill="white" />
-                          </div>
-                          {video.duration && (
-                            <div className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
-                              {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
-                            </div>
+                          {videoHasAccess ? (
+                            <>
+                              <img
+                                src={thumbnailUrl}
+                                alt={video.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
+                                }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Play className="w-6 h-6 text-white" fill="white" />
+                              </div>
+                              {video.duration && (
+                                <div className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
+                                  {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <LockedContentOverlay
+                              thumbnail={thumbnailUrl}
+                              tier={video.tier || 'public'}
+                              isVideo={true}
+                              onUnlockClick={async (e) => {
+                                e.stopPropagation();
+                                if (!user) {
+                                  window.location.href = `/login?redirect=/video/${video.id}`;
+                                } else {
+                                  try {
+                                    const [userResponse, tiersResponse] = await Promise.all([
+                                      fetch(`/api/users/${video.creator_id}`),
+                                      fetch(`/api/creators/${video.creator_id}/tiers`)
+                                    ]);
+                                    
+                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                                    
+                                    if (creatorData) {
+                                      setSelectedCreatorForSubscription({
+                                        id: creatorData.id,
+                                        username: creatorData.username,
+                                        display_name: creatorData.display_name || creatorData.username,
+                                        avatar: creatorData.avatar || '',
+                                        tiers: tiersData
+                                      });
+                                      setSubscriptionTierModalOpen(true);
+                                    }
+                                  } catch (error) {
+                                    console.error('Error fetching creator data:', error);
+                                  }
+                                }
+                              }}
+                            />
                           )}
                         </div>
 
@@ -760,45 +814,13 @@ export const VideoWatch: React.FC = () => {
                     />
                   )
                 ) : (
-                  <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-                    {/* Blurred Background */}
-                    <div 
-                      className="absolute inset-0 bg-cover bg-center filter blur-md"
-                      style={{
-                        backgroundImage: mediaUrl?.includes('cloudinary.com/') 
-                          ? `url(${mediaUrl.replace('/upload/', '/upload/so_0,w_1920,h_1080,c_fill,f_jpg/').replace('.mp4', '.jpg')})`
-                          : 'none'
-                      }}
+                  <div className="w-full aspect-video">
+                    <LockedContentOverlay
+                      thumbnail={mediaUrl}
+                      tier={post.tier || 'public'}
+                      isVideo={post.media_type === 'video'}
+                      onUnlockClick={handleSubscribeClick}
                     />
-                    {/* Dark Overlay */}
-                    <div className="absolute inset-0 bg-black/60" />
-                    
-                    {/* Lock Icon and Message */}
-                    <div className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center">
-                      <div className="rounded-full bg-primary/20 p-6">
-                        <Lock className="w-12 h-12 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-white mb-2">
-                          Exclusive Content
-                        </h3>
-                        <p className="text-lg text-white/80 mb-1">
-                          This content requires a subscription
-                        </p>
-                        {post.tier && (
-                          <Badge variant="secondary" className="mt-2">
-                            {post.tier}
-                          </Badge>
-                        )}
-                      </div>
-                      <Button 
-                        size="lg"
-                        onClick={handleSubscribeClick}
-                        data-testid="button-subscribe"
-                      >
-                        Subscribe to Unlock
-                      </Button>
-                    </div>
                   </div>
                 )}
               </div>
@@ -943,7 +965,9 @@ export const VideoWatch: React.FC = () => {
                 />
               ) : (
                 <div className="bg-background border border-border rounded-lg p-6 text-center opacity-50">
-                  <Lock className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <svg className="w-8 h-8 text-muted-foreground mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                   <h3 className="text-base font-semibold mb-2">Comments Locked</h3>
                   <p className="text-sm text-muted-foreground mb-4">
                     Subscribe to view and add comments
@@ -969,6 +993,8 @@ export const VideoWatch: React.FC = () => {
                     ? videoMediaUrl.replace('/upload/', '/upload/so_0,w_640,h_360,c_fill,f_jpg/').replace('.mp4', '.jpg')
                     : videoFullUrl;
 
+                  const videoHasAccess = video.hasAccess !== false;
+                  
                   return (
                     <div 
                       key={video.id} 
@@ -977,22 +1003,61 @@ export const VideoWatch: React.FC = () => {
                     >
                       <div className="p-3">
                         <div className="relative w-full aspect-video bg-black overflow-hidden mb-2 md:rounded-lg">
-                          <img
-                            src={thumbnailUrl}
-                            alt={video.title}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
-                            }}
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Play className="w-4 h-4 text-white" fill="white" />
-                          </div>
-                          {video.duration && (
-                            <div className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
-                              {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
-                            </div>
+                          {videoHasAccess ? (
+                            <>
+                              <img
+                                src={thumbnailUrl}
+                                alt={video.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
+                                }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Play className="w-4 h-4 text-white" fill="white" />
+                              </div>
+                              {video.duration && (
+                                <div className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
+                                  {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <LockedContentOverlay
+                              thumbnail={thumbnailUrl}
+                              tier={video.tier || 'public'}
+                              isVideo={true}
+                              onUnlockClick={async (e) => {
+                                e.stopPropagation();
+                                if (!user) {
+                                  window.location.href = `/login?redirect=/video/${video.id}`;
+                                } else {
+                                  try {
+                                    const [userResponse, tiersResponse] = await Promise.all([
+                                      fetch(`/api/users/${video.creator_id}`),
+                                      fetch(`/api/creators/${video.creator_id}/tiers`)
+                                    ]);
+                                    
+                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                                    
+                                    if (creatorData) {
+                                      setSelectedCreatorForSubscription({
+                                        id: creatorData.id,
+                                        username: creatorData.username,
+                                        display_name: creatorData.display_name || creatorData.username,
+                                        avatar: creatorData.avatar || '',
+                                        tiers: tiersData
+                                      });
+                                      setSubscriptionTierModalOpen(true);
+                                    }
+                                  } catch (error) {
+                                    console.error('Error fetching creator data:', error);
+                                  }
+                                }
+                              }}
+                            />
                           )}
                         </div>
 
@@ -1052,9 +1117,8 @@ export const VideoWatch: React.FC = () => {
             setPaymentModalOpen(false);
             setSelectedTier(null);
           }}
-          creator={selectedCreatorForSubscription}
           tier={selectedTier}
-          user={user}
+          creatorName={selectedCreatorForSubscription.display_name || selectedCreatorForSubscription.username}
         />
       )}
     </div>
