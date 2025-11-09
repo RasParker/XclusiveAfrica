@@ -63,14 +63,14 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
 };
 
 // Admin API request helper that includes auth token in Authorization header
-export async function adminApiRequest(endpoint: string, options: RequestInit = {}) {
-  const token = localStorage.getItem('token');
+export const adminApiRequest = async (url: string, options: RequestInit = {}) => {
+  const token = localStorage.getItem('xclusive_token');
 
   if (!token) {
     throw new Error('No authentication token found');
   }
 
-  const response = await fetch(endpoint, {
+  const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -82,11 +82,11 @@ export async function adminApiRequest(endpoint: string, options: RequestInit = {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || error.message || 'Request failed');
+    throw new Error(error.error || `HTTP error! status: ${response.status}`);
   }
 
   return response.json();
-}
+};
 
 // Helper function to provide user-friendly error messages
 const getGenericErrorMessage = (status: number): string => {

@@ -41,15 +41,25 @@ export const AdminLogin: React.FC = () => {
 
     try {
       await login(email, password);
-      
+
       // The useEffect above will handle redirection based on user role
       // But we also need to check the role immediately after login
       const response = await fetch('/api/auth/verify', {
         credentials: 'include'
       });
-      
+
       if (response.ok) {
         const data = await response.json();
+
+        // Store both user data and token
+        localStorage.setItem('xclusive_user', JSON.stringify(data.user));
+        if (data.token) {
+          localStorage.setItem('xclusive_token', data.token);
+        } else {
+          console.error('No token received from admin login');
+          throw new Error('Authentication token not received');
+        }
+
         if (data.user?.role === 'admin') {
           toast({
             title: "Welcome Admin",
@@ -156,9 +166,9 @@ export const AdminLogin: React.FC = () => {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full"
                 disabled={isLoading}
                 data-testid="button-admin-login"
               >

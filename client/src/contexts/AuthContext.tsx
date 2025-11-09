@@ -107,10 +107,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const data = await response.json();
 
-      // Store user data
+      // Store user data and token
       localStorage.setItem('xclusive_user', JSON.stringify(data.user));
       if (data.token) {
         localStorage.setItem('xclusive_token', data.token);
+      } else {
+        console.warn('No token received from login endpoint');
       }
 
       setUser(data.user);
@@ -171,6 +173,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Always clear client state
       setUser(null);
       localStorage.removeItem('xclusive_user');
+      localStorage.removeItem('xclusive_token');
     }
   };
 
