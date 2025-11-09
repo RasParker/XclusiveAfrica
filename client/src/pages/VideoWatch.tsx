@@ -7,9 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CommentSection } from '@/components/fan/CommentSection';
-import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play } from 'lucide-react';
+import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
+import { PaymentModal } from '@/components/payment/PaymentModal';
 
 export const VideoWatch: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +27,10 @@ export const VideoWatch: React.FC = () => {
   const [nextVideos, setNextVideos] = useState<any[]>([]);
   const [userSubscription, setUserSubscription] = useState<any>(null);
   const [hasAccess, setHasAccess] = useState(false);
+  const [subscriptionTierModalOpen, setSubscriptionTierModalOpen] = useState(false);
+  const [selectedCreatorForSubscription, setSelectedCreatorForSubscription] = useState<any>(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<any>(null);
 
 
   const getTimeAgo = (dateString: string) => {
@@ -241,6 +247,47 @@ export const VideoWatch: React.FC = () => {
     });
   };
 
+  const handleSubscribeClick = async () => {
+    if (!user) {
+      navigate(`/login?redirect=/video/${id}`);
+      return;
+    }
+
+    if (!post) return;
+
+    try {
+      // Fetch creator tiers
+      const tiersResponse = await fetch(`/api/subscription-tiers/creator/${post.creator_id}`);
+      if (!tiersResponse.ok) {
+        toast({
+          title: "Error",
+          description: "Failed to load subscription tiers",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const tiersData = await tiersResponse.json();
+      
+      // Set creator data and open modal
+      setSelectedCreatorForSubscription({
+        id: post.creator_id,
+        username: post.creator_username || post.creator?.username,
+        display_name: post.creator_display_name || post.creator?.display_name,
+        avatar: post.creator_avatar || post.creator?.avatar || '',
+        tiers: tiersData
+      });
+      setSubscriptionTierModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching creator tiers:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load subscription options",
+        variant: "destructive"
+      });
+    }
+  };
+
   const toggleImmersive = () => {
     if (videoAspectRatio === 'portrait') {
       setIsImmersive(!isImmersive);
@@ -351,30 +398,73 @@ export const VideoWatch: React.FC = () => {
             </Button>
           )}
 
-          {/* Video Element */}
-          {post.media_type === 'video' ? (
-            <video
-              src={fullMediaUrl}
-              poster={
-                mediaUrl?.includes('cloudinary.com/') 
-                  ? mediaUrl.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')
-                  : undefined
-              }
-              className="w-full h-full video-element"
-              controls
-              playsInline
-              onLoadedMetadata={handleVideoLoad}
-              style={{
-                objectFit: videoAspectRatio === 'landscape' ? 'contain' : 'contain',
-                backgroundColor: 'black'
-              }}
-            />
+          {/* Video Element or Locked State */}
+          {hasAccess ? (
+            post.media_type === 'video' ? (
+              <video
+                src={fullMediaUrl}
+                poster={
+                  mediaUrl?.includes('cloudinary.com/') 
+                    ? mediaUrl.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                    : undefined
+                }
+                className="w-full h-full video-element"
+                controls
+                playsInline
+                onLoadedMetadata={handleVideoLoad}
+                style={{
+                  objectFit: videoAspectRatio === 'landscape' ? 'contain' : 'contain',
+                  backgroundColor: 'black'
+                }}
+              />
+            ) : (
+              <img
+                src={fullMediaUrl}
+                alt={post.title}
+                className="w-full h-full object-contain bg-black"
+              />
+            )
           ) : (
-            <img
-              src={fullMediaUrl}
-              alt={post.title}
-              className="w-full h-full object-contain bg-black"
-            />
+            <div className="relative w-full h-full min-h-[400px] bg-black flex items-center justify-center">
+              {/* Blurred Background */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center filter blur-md"
+                style={{
+                  backgroundImage: mediaUrl?.includes('cloudinary.com/') 
+                    ? `url(${mediaUrl.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')})`
+                    : 'none'
+                }}
+              />
+              {/* Dark Overlay */}
+              <div className="absolute inset-0 bg-black/60" />
+              
+              {/* Lock Icon and Message */}
+              <div className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center">
+                <div className="rounded-full bg-primary/20 p-6">
+                  <Lock className="w-12 h-12 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Exclusive Content
+                  </h3>
+                  <p className="text-white/80 mb-1">
+                    This content requires a subscription
+                  </p>
+                  {post.tier && (
+                    <Badge variant="secondary" className="mt-2">
+                      {post.tier}
+                    </Badge>
+                  )}
+                </div>
+                <Button 
+                  size="lg"
+                  onClick={handleSubscribeClick}
+                  data-testid="button-subscribe"
+                >
+                  Subscribe to Unlock
+                </Button>
+              </div>
+            </div>
           )}
         </div>
 
@@ -423,17 +513,32 @@ export const VideoWatch: React.FC = () => {
                   size="sm"
                   className={`flex items-center gap-1 h-auto py-2 px-2 ${liked ? 'text-red-500' : 'text-muted-foreground'}`}
                   onClick={handleLike}
+                  disabled={!hasAccess}
+                  data-testid="button-like"
                 >
                   <Heart className={`w-4 h-4 ${liked ? 'fill-current' : ''}`} />
                   <span className="text-sm">{post.likes_count || 0}</span>
                 </Button>
 
-                <Button variant="ghost" size="sm" className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground"
+                  disabled={!hasAccess}
+                  data-testid="button-comment"
+                >
                   <MessageSquare className="w-4 h-4" />
                   <span className="text-sm">{post.comments_count || 0}</span>
                 </Button>
 
-                <Button variant="ghost" size="sm" className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground" onClick={handleShare}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex items-center gap-1 h-auto py-2 px-2 text-muted-foreground" 
+                  onClick={handleShare}
+                  disabled={!hasAccess}
+                  data-testid="button-share"
+                >
                   <Share2 className="w-4 h-4" />
                   <span className="text-sm">Share</span>
                 </Button>
@@ -499,28 +604,47 @@ export const VideoWatch: React.FC = () => {
 
 
             {/* Comments Container - YouTube Style */}
-            <div 
-              className="bg-background border border-border rounded-lg p-4 mb-6 cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={() => setShowCommentsSheet(true)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-base font-semibold">Comments</h3>
-                  <span className="text-sm text-muted-foreground">{post.comments_count || 379}</span>
+            {hasAccess ? (
+              <div 
+                className="bg-background border border-border rounded-lg p-4 mb-6 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => setShowCommentsSheet(true)}
+                data-testid="container-comments"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-base font-semibold">Comments</h3>
+                    <span className="text-sm text-muted-foreground">{post.comments_count || 379}</span>
+                  </div>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <ChevronDown className="w-5 h-5 text-muted-foreground" />
-              </div>
 
-              <div className="flex items-center gap-3 mt-3">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={user?.avatar} alt={user?.username} />
-                  <AvatarFallback className="text-xs">{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 bg-muted/50 rounded-full px-4 py-2">
-                  <span className="text-sm text-muted-foreground">Add a comment...</span>
+                <div className="flex items-center gap-3 mt-3">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={user?.avatar} alt={user?.username} />
+                    <AvatarFallback className="text-xs">{user?.username?.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 bg-muted/50 rounded-full px-4 py-2">
+                    <span className="text-sm text-muted-foreground">Add a comment...</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div 
+                className="bg-background border border-border rounded-lg p-4 mb-6 opacity-50 cursor-not-allowed"
+                data-testid="container-comments-locked"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-base font-semibold">Comments</h3>
+                    <span className="text-sm text-muted-foreground">{post.comments_count || 0}</span>
+                  </div>
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Subscribe to view and add comments
+                </p>
+              </div>
+            )}
 
             {/* Next Videos Section - Edge-to-Edge */}
             <div className="space-y-0 -mx-4">
@@ -589,27 +713,29 @@ export const VideoWatch: React.FC = () => {
         </div>
 
         {/* Comments Bottom Sheet - Mobile Only */}
-        <Sheet open={showCommentsSheet} onOpenChange={setShowCommentsSheet}>
-          <SheetContent 
-            side="bottom" 
-            className="p-0 border-t-4 border-border/30 rounded-t-xl bg-background flex flex-col touch-pan-y"
-            style={{
-              height: '85vh',
-              maxHeight: '85vh',
-              minHeight: '40vh'
-            }}
-          >
+        {hasAccess && (
+          <Sheet open={showCommentsSheet} onOpenChange={setShowCommentsSheet}>
+            <SheetContent 
+              side="bottom" 
+              className="p-0 border-t-4 border-border/30 rounded-t-xl bg-background flex flex-col touch-pan-y"
+              style={{
+                height: '85vh',
+                maxHeight: '85vh',
+                minHeight: '40vh'
+              }}
+            >
 
-            <div className="flex-1 overflow-hidden">
-              <CommentSection
-                postId={post.id.toString()}
-                initialComments={[]}
-                onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
-                isBottomSheet={true}
-              />
-            </div>
-          </SheetContent>
-        </Sheet>
+              <div className="flex-1 overflow-hidden">
+                <CommentSection
+                  postId={post.id.toString()}
+                  initialComments={[]}
+                  onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
+                  isBottomSheet={true}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
       </div>
 
       {/* Desktop Layout */}
@@ -638,30 +764,73 @@ export const VideoWatch: React.FC = () => {
                 Back to Feed
               </Button>
 
-              {/* Video Player */}
+              {/* Video Player or Locked State */}
               <div className="bg-black rounded-lg overflow-hidden mb-4">
-                {post.media_type === 'video' ? (
-                  <video
-                    src={fullMediaUrl}
-                    poster={
-                      mediaUrl?.includes('cloudinary.com/') 
-                        ? mediaUrl.replace('/upload/', '/upload/so_0,w_1920,h_1080,c_fill,f_jpg/').replace('.mp4', '.jpg')
-                        : undefined
-                    }
-                    className="w-full aspect-video"
-                    controls
-                    onLoadedMetadata={handleVideoLoad}
-                    style={{
-                      objectFit: 'contain',
-                      backgroundColor: 'black'
-                    }}
-                  />
+                {hasAccess ? (
+                  post.media_type === 'video' ? (
+                    <video
+                      src={fullMediaUrl}
+                      poster={
+                        mediaUrl?.includes('cloudinary.com/') 
+                          ? mediaUrl.replace('/upload/', '/upload/so_0,w_1920,h_1080,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                          : undefined
+                      }
+                      className="w-full aspect-video"
+                      controls
+                      onLoadedMetadata={handleVideoLoad}
+                      style={{
+                        objectFit: 'contain',
+                        backgroundColor: 'black'
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={fullMediaUrl}
+                      alt={post.title}
+                      className="w-full aspect-video object-contain bg-black"
+                    />
+                  )
                 ) : (
-                  <img
-                    src={fullMediaUrl}
-                    alt={post.title}
-                    className="w-full aspect-video object-contain bg-black"
-                  />
+                  <div className="relative w-full aspect-video bg-black flex items-center justify-center">
+                    {/* Blurred Background */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center filter blur-md"
+                      style={{
+                        backgroundImage: mediaUrl?.includes('cloudinary.com/') 
+                          ? `url(${mediaUrl.replace('/upload/', '/upload/so_0,w_1920,h_1080,c_fill,f_jpg/').replace('.mp4', '.jpg')})`
+                          : 'none'
+                      }}
+                    />
+                    {/* Dark Overlay */}
+                    <div className="absolute inset-0 bg-black/60" />
+                    
+                    {/* Lock Icon and Message */}
+                    <div className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center">
+                      <div className="rounded-full bg-primary/20 p-6">
+                        <Lock className="w-12 h-12 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-white mb-2">
+                          Exclusive Content
+                        </h3>
+                        <p className="text-lg text-white/80 mb-1">
+                          This content requires a subscription
+                        </p>
+                        {post.tier && (
+                          <Badge variant="secondary" className="mt-2">
+                            {post.tier}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button 
+                        size="lg"
+                        onClick={handleSubscribeClick}
+                        data-testid="button-subscribe"
+                      >
+                        Subscribe to Unlock
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -707,17 +876,32 @@ export const VideoWatch: React.FC = () => {
                     size="sm"
                     className={`flex items-center gap-2 h-auto py-2 px-3 ${liked ? 'text-red-500' : 'text-muted-foreground'}`}
                     onClick={handleLike}
+                    disabled={!hasAccess}
+                    data-testid="button-like"
                   >
                     <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
                     <span className="text-sm">{post.likes_count || 0}</span>
                   </Button>
 
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2 h-auto py-2 px-3 text-muted-foreground">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-2 h-auto py-2 px-3 text-muted-foreground"
+                    disabled={!hasAccess}
+                    data-testid="button-comment"
+                  >
                     <MessageSquare className="w-5 h-5" />
                     <span className="text-sm">{post.comments_count || 0}</span>
                   </Button>
 
-                  <Button variant="ghost" size="sm" className="flex items-center gap-2 h-auto py-2 px-3 text-muted-foreground" onClick={handleShare}>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="flex items-center gap-2 h-auto py-2 px-3 text-muted-foreground" 
+                    onClick={handleShare}
+                    disabled={!hasAccess}
+                    data-testid="button-share"
+                  >
                     <Share2 className="w-5 h-5" />
                     <span className="text-sm">Share</span>
                   </Button>
@@ -781,12 +965,28 @@ export const VideoWatch: React.FC = () => {
               </div>
 
               {/* Comments Section - Desktop */}
-              <CommentSection
-                postId={post.id.toString()}
-                initialComments={[]}
-                onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
-                isBottomSheet={false}
-              />
+              {hasAccess ? (
+                <CommentSection
+                  postId={post.id.toString()}
+                  initialComments={[]}
+                  onCommentCountChange={(count) => setPost((prev: any) => ({ ...prev, comments_count: count }))}
+                  isBottomSheet={false}
+                />
+              ) : (
+                <div className="bg-background border border-border rounded-lg p-6 text-center opacity-50">
+                  <Lock className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="text-base font-semibold mb-2">Comments Locked</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Subscribe to view and add comments
+                  </p>
+                  <Button 
+                    onClick={handleSubscribeClick}
+                    data-testid="button-subscribe-comments"
+                  >
+                    Subscribe to Unlock
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Sidebar - Next Videos */}
@@ -855,6 +1055,39 @@ export const VideoWatch: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Subscription Tier Modal */}
+      {selectedCreatorForSubscription && (
+        <SubscriptionTierModal
+          isOpen={subscriptionTierModalOpen}
+          onClose={() => {
+            setSubscriptionTierModalOpen(false);
+            setSelectedCreatorForSubscription(null);
+          }}
+          creator={selectedCreatorForSubscription}
+          tiers={selectedCreatorForSubscription.tiers}
+          onTierSelect={(tier) => {
+            setSelectedTier(tier);
+            setSubscriptionTierModalOpen(false);
+            setPaymentModalOpen(true);
+          }}
+          userIsLoggedIn={!!user}
+        />
+      )}
+
+      {/* Payment Modal */}
+      {selectedTier && selectedCreatorForSubscription && (
+        <PaymentModal
+          isOpen={paymentModalOpen}
+          onClose={() => {
+            setPaymentModalOpen(false);
+            setSelectedTier(null);
+          }}
+          creator={selectedCreatorForSubscription}
+          tier={selectedTier}
+          user={user}
+        />
+      )}
     </div>
   );
 };
