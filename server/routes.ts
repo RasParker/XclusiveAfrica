@@ -454,6 +454,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get posts from followed creators (public tier) and subscribed creators (all accessible tiers)
       // For locked content from followed creators, we redact sensitive fields but still show metadata
+      // Use ROW_NUMBER to deduplicate posts and prioritize subscription access over follow access
       let query = `
         WITH tier_hierarchy AS (
           SELECT tier_name, tier_level FROM (VALUES
@@ -568,9 +569,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           LEFT JOIN tier_hierarchy AS post_tier ON LOWER(posts.tier) = post_tier.tier_name
           WHERE user_subscriptions.creator_id IS NOT NULL 
             AND (posts.status = 'published' OR (posts.status = 'scheduled' AND posts.scheduled_for <= NOW()))
+        ),
+        ranked_posts AS (
+          SELECT 
+            *,
+            ROW_NUMBER() OVER (
+              PARTITION BY id 
+              ORDER BY 
+                has_access DESC,
+                CASE WHEN access_type = 'subscription' THEN 1 ELSE 2 END,
+                created_at DESC
+            ) as rn
+          FROM accessible_posts
         )
-        SELECT * FROM accessible_posts 
-        ORDER BY accessible_posts.created_at DESC
+        SELECT 
+          id, creator_id, title, content, media_urls, tier, status, scheduled_for,
+          created_at, updated_at, likes_count, comments_count, media_type, views_count,
+          duration, username, avatar, display_name, creator, access_type, has_access
+        FROM ranked_posts 
+        WHERE rn = 1
+        ORDER BY created_at DESC
         LIMIT 50
       `;
 
