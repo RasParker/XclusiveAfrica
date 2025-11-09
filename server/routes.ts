@@ -455,12 +455,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get posts from followed creators (public tier) and subscribed creators (all accessible tiers)
       // For locked content from followed creators, we redact sensitive fields but still show metadata
       let query = `
-        WITH user_follows AS (
+        WITH tier_hierarchy AS (
+          SELECT tier_name, tier_level FROM (VALUES
+            ('supporter', 1),
+            ('starter pump', 1),
+            ('fan', 2),
+            ('premium', 2),
+            ('power gains', 2),
+            ('superfan', 3),
+            ('elite beast mode', 3),
+            ('the vip elite', 3),
+            ('public', 0)
+          ) AS t(tier_name, tier_level)
+        ),
+        user_follows AS (
           SELECT follows.creator_id FROM follows WHERE follows.follower_id = $1
         ),
         user_subscriptions AS (
-          SELECT subscriptions.creator_id, subscription_tiers.name as tier_name FROM subscriptions 
+          SELECT 
+            subscriptions.creator_id, 
+            subscription_tiers.name as tier_name,
+            COALESCE(tier_hierarchy.tier_level, 0) as tier_level
+          FROM subscriptions 
           JOIN subscription_tiers ON subscriptions.tier_id = subscription_tiers.id
+          LEFT JOIN tier_hierarchy ON LOWER(subscription_tiers.name) = tier_hierarchy.tier_name
           WHERE subscriptions.fan_id = $1 AND subscriptions.status = 'active'
         ),
         accessible_posts AS (
@@ -506,16 +524,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           UNION ALL
 
-          -- Posts from subscribed creators (conditionally redacted based on tier access, but thumbnails preserved)
+          -- Posts from subscribed creators (conditionally redacted based on tier access hierarchy, but thumbnails preserved)
           SELECT 
             posts.id,
             posts.creator_id,
             posts.title,
             CASE 
-              WHEN posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name THEN posts.content
-              ELSE 'Exclusive content for higher-tier subscribers'  -- Redact if tier mismatch
+              WHEN posts.tier = 'public' 
+                OR user_subscriptions.tier_level >= COALESCE(post_tier.tier_level, 999)
+              THEN posts.content
+              ELSE 'Exclusive content for higher-tier subscribers'  -- Redact if tier level insufficient
             END as content,
-            posts.media_urls,  -- Keep media_urls for blurred thumbnails even if tier mismatch
+            posts.media_urls,  -- Keep media_urls for blurred thumbnails even if tier level insufficient
             posts.tier,
             posts.status,
             posts.scheduled_for,
@@ -537,12 +557,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ) as creator,
             'subscription' as access_type,
             CASE 
-              WHEN posts.tier = 'public' OR posts.tier = user_subscriptions.tier_name THEN true
+              WHEN posts.tier = 'public' 
+                OR user_subscriptions.tier_level >= COALESCE(post_tier.tier_level, 999)
+              THEN true
               ELSE false
             END as has_access
           FROM posts 
           LEFT JOIN users ON posts.creator_id = users.id
           LEFT JOIN user_subscriptions ON posts.creator_id = user_subscriptions.creator_id
+          LEFT JOIN tier_hierarchy AS post_tier ON LOWER(posts.tier) = post_tier.tier_name
           WHERE user_subscriptions.creator_id IS NOT NULL 
             AND (posts.status = 'published' OR (posts.status = 'scheduled' AND posts.scheduled_for <= NOW()))
         )
