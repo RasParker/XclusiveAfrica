@@ -369,7 +369,7 @@ export const VideoWatch: React.FC = () => {
       {/* Mobile Layout */}
       <div className="md:hidden">
         {/* Video Player Wrapper - YouTube style for mobile - Sticky */}
-        <div className="video-player-wrapper sticky top-0 z-20 relative bg-black w-full">
+        <div className="video-player-wrapper sticky top-0 z-20 relative bg-black w-full min-h-[450px]">
           {/* Back Button */}
           {!isImmersive && (
             <Button
@@ -442,7 +442,7 @@ export const VideoWatch: React.FC = () => {
               />
             )
           ) : (
-            <div className="w-full h-full min-h-[400px]">
+            <div className="w-full h-full">
               <LockedContentOverlay
                 thumbnail={mediaUrl}
                 tier={post.tier || 'public'}
