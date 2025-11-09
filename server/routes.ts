@@ -578,6 +578,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const rows = await pool.unsafe(query, [userId]);
 
       console.log(`Found ${rows.length} posts for user's personalized feed`);
+      
+      // Debug: Log access details for subscription posts
+      rows.forEach((row: any) => {
+        if (row.access_type === 'subscription') {
+          console.log(`[DEBUG] Post ${row.id}: tier="${row.tier}", has_access=${row.has_access}, access_type=${row.access_type}`);
+        }
+      });
 
       res.json(rows);
     } catch (error) {
