@@ -997,7 +997,7 @@ export const VideoWatch: React.FC = () => {
                   
                   return (
                     <div 
-                      key={video.id} 
+                      key={`${video.id}-${index}`} 
                       className={`cursor-pointer hover:bg-muted/50 transition-colors ${index !== nextVideos.length - 1 ? 'border-b border-border' : ''}`}
                       onClick={() => handleVideoCardClick(video.id)}
                     >

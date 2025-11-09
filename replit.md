@@ -64,6 +64,18 @@ The project is configured to run on Replit with:
 - `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-11-09: Implemented consistent locked content UI across Feed and VideoWatch pages**
+  - **Goal**: Ensure locked content displays with consistent visual design across the platform
+  - **Changes Made**:
+    - **Created LockedContentOverlay Component**: Reusable component matching Feed page design with blurred thumbnail background, frosted glass gradient overlay (from-black/50 via-black/40 to-black/60), backdrop-blur-xl, animated lock icon with pulse effect, tier badge, and shimmer CTA button
+    - **Updated VideoWatch Video Player**: Conditionally renders LockedContentOverlay when `hasAccess = false` on both mobile and desktop views
+    - **Updated "Up Next" Section**: Video cards display locked overlay for inaccessible content, showing tier badge and encouraging upgrades
+    - **Fixed Access Logic for Logged-Out Users**: Updated `fetchNextVideos` to properly handle public content when `has_access` field is missing (falls back to tier-based inference: public tier = accessible)
+  - **Design Pattern**: Uses "showcase approach" - users see premium content exists with locked overlay to drive conversions, rather than hiding it completely
+  - **Access Control**: When logged in, uses personalized feed endpoint's `has_access` flag; when logged out, infers access from tier (public = true, others = false)
+  - **Architect Review**: Approved - consistent UI implementation, correct access control for both authenticated and guest flows, no security issues
+  - **Testing**: Verified public videos show unlocked for logged-out users, premium videos show locked overlay with correct tier badges and unlock CTAs
+
 - **2025-11-09: Fixed VideoWatch page access control with complete content gating**
   - **Issue**: Users could access VIP Elite tier videos without proper subscription - video player, comments, and interactions were exposed
   - **Root Cause**: VideoWatch page calculated `hasAccess` correctly but didn't use it to gate video player, comments, or interactions
