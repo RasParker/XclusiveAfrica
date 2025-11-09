@@ -64,6 +64,21 @@ The project is configured to run on Replit with:
 - `npx drizzle-kit studio` - Open Drizzle Studio for database visualization
 
 ## Recent Changes
+- **2025-11-09: Implemented tier hierarchy access control for subscription-based content**
+  - **Issue**: Users with higher-tier subscriptions (e.g., "Power Gains" level 2) couldn't access content from lower tiers (e.g., "Starter Pump" level 1)
+  - **Root Cause**: Feed API endpoint used exact tier name matching instead of hierarchical level comparison
+  - **Fix Implemented**:
+    - Added `tier_hierarchy` CTE in feed endpoint SQL query that maps tier names to numeric levels (1-3)
+    - **Level 1**: 'supporter', 'starter pump'
+    - **Level 2**: 'fan', 'premium', 'power gains'
+    - **Level 3**: 'superfan', 'elite beast mode', 'the vip elite'
+    - Changed access check from exact match (`posts.tier = user_subscriptions.tier_name`) to level comparison (`user_subscriptions.tier_level >= post_tier.tier_level`)
+    - Used LOWER() to normalize tier names for case-insensitive matching
+    - Set unknown tiers to level 999 to prevent accidental access
+  - **Result**: Users with higher-tier subscriptions now automatically unlock all content at their tier and below
+  - **Architect Review**: Approved - tier hierarchy logic correctly implements level-based access control
+  - **Future Improvements**: Consider centralizing tier hierarchy in a database table or configuration file for easier maintenance
+
 - **2025-10-19: Fixed critical security vulnerability in feed endpoint with complete content redaction**
   - **Security Issue**: Feed endpoint was exposing premium content (text and media URLs) to unauthorized users
   - **Root Cause**: Backend returned full content/media_urls regardless of access level, relying only on frontend to hide it
