@@ -28,7 +28,8 @@ import {
   Upload,
   Grid3X3,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  ShoppingBag
 } from 'lucide-react';
 
 export const SidebarNavigation: React.FC = () => {
@@ -81,6 +82,12 @@ export const SidebarNavigation: React.FC = () => {
             href: '/fan/subscriptions', 
             icon: CreditCard,
             active: location.pathname === '/fan/subscriptions'
+          },
+          { 
+            label: 'Purchases', 
+            href: '/fan/purchases', 
+            icon: ShoppingBag,
+            active: location.pathname === '/fan/purchases'
           },
           { 
             label: 'Messages', 
