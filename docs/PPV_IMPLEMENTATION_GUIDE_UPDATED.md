@@ -895,13 +895,15 @@ export function PPVPaymentModal({ isOpen, onClose, post, userId, onSuccess }: PP
 
 ---
 
-## Phase 6: Frontend - Update Locked Content Overlay
+## Phase 6: Frontend UI Integration - Modal-Based Unlock Flow
+
+**Design Philosophy**: Keep the locked content overlay clean and minimal with a single "Unlock Full Access" button. When clicked, present payment options (Subscribe OR Pay Per View) in a dedicated modal for a clutter-free, intentional user experience.
 
 ### Step 6.1: Update LockedContentOverlay Component
 
 **File**: `client/src/components/content/LockedContentOverlay.tsx`
 
-Update the component props and implementation:
+Update the component to use a single unlock button with subtle hint text:
 
 ```typescript
 import { Button } from "@/components/ui/button";
@@ -912,12 +914,11 @@ interface LockedContentOverlayProps {
   tier: string;
   isVideo?: boolean;
   onUnlockClick: (e: React.MouseEvent) => void;
-  onPPVUnlockClick?: (e: React.MouseEvent) => void; // NEW: PPV unlock handler
   className?: string;
   showButton?: boolean;
   ppvEnabled?: boolean; // NEW: Whether PPV is enabled for this content
-  ppvPrice?: string; // NEW: PPV price
-  ppvCurrency?: string; // NEW: PPV currency
+  ppvPrice?: string; // NEW: PPV price for hint text
+  ppvCurrency?: string; // NEW: PPV currency for hint text
 }
 
 export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
@@ -925,7 +926,6 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
   tier,
   isVideo = false,
   onUnlockClick,
-  onPPVUnlockClick,
   className = '',
   showButton = true,
   ppvEnabled = false,
@@ -977,9 +977,7 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
             
             <p className="text-white/90 text-sm max-w-xs mx-auto">
               {user 
-                ? ppvEnabled 
-                  ? 'Subscribe for unlimited access or unlock just this content'
-                  : 'Subscribe to unlock this exclusive content'
+                ? 'Unlock this exclusive content'
                 : 'Sign in to unlock this content'
               }
             </p>
@@ -987,55 +985,23 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
 
           {showButton && (
             <div className="space-y-3">
-              {/* Dual Buttons: Subscribe OR PPV */}
-              {ppvEnabled && ppvPrice && user ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Subscribe Button */}
-                  <Button 
-                    size="default"
-                    variant="default"
-                    onClick={onUnlockClick}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 backdrop-blur-sm border border-primary/20 font-semibold"
-                    data-testid="button-subscribe-unlock"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    Subscribe
-                  </Button>
+              {/* Single Unlock Button */}
+              <Button 
+                size="default"
+                onClick={onUnlockClick}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 backdrop-blur-sm border border-primary/20"
+                data-testid="button-unlock"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                {user ? 'Unlock Full Access' : 'Login to Unlock'}
+              </Button>
 
-                  {/* PPV Unlock Button */}
-                  <Button 
-                    size="default"
-                    variant="outline"
-                    onClick={onPPVUnlockClick}
-                    className="bg-white/10 text-white border-white/30 hover:bg-white/20 backdrop-blur-sm font-semibold"
-                    data-testid="button-ppv-unlock"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    {ppvCurrency} {parseFloat(ppvPrice).toFixed(2)}
-                  </Button>
-                </div>
-              ) : (
-                // Single Subscribe/Login Button
-                <Button 
-                  size="default"
-                  onClick={onUnlockClick}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 backdrop-blur-sm border border-primary/20"
-                  data-testid="button-unlock"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  {user ? 'Unlock Full Access' : 'Login to Unlock'}
-                </Button>
-              )}
-
+              {/* Subtle hint text for PPV option */}
               {ppvEnabled && ppvPrice && user && (
-                <p className="text-xs text-white/60 px-2">
-                  Subscribe for unlimited access to all {tier} tier content
+                <p className="text-xs text-white/70 px-2">
+                  Subscribe or unlock from {ppvCurrency} {parseFloat(ppvPrice).toFixed(0)}
                 </p>
               )}
             </div>
@@ -1047,12 +1013,259 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
 };
 ```
 
+### Step 6.2: Create Unlock Options Modal
+
+**File**: `client/src/components/payment/UnlockOptionsModal.tsx` (new file)
+
+Create a modal that presents both payment options side-by-side:
+
+```typescript
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Check, Sparkles, Zap } from 'lucide-react';
+
+interface UnlockOptionsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  post: {
+    id: number;
+    title: string;
+    tier: string;
+    ppv_price: string;
+    ppv_currency: string;
+    creator_display_name?: string;
+  };
+  onSubscribeClick: () => void;
+  onPPVClick: () => void;
+}
+
+export function UnlockOptionsModal({ 
+  isOpen, 
+  onClose, 
+  post, 
+  onSubscribeClick, 
+  onPPVClick 
+}: UnlockOptionsModalProps) {
+  const ppvPrice = parseFloat(post.ppv_price);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-2xl" data-testid="modal-unlock-options">
+        <DialogHeader>
+          <DialogTitle className="text-2xl">Choose How to Unlock</DialogTitle>
+          <DialogDescription>
+            Get access to "{post.title}" and more exclusive content
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid md:grid-cols-2 gap-4 mt-4">
+          {/* Subscribe Option */}
+          <Card className="relative hover-elevate transition-all border-2" data-testid="card-subscribe-option">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-lg">
+                <Sparkles className="w-3 h-3" />
+                Best Value
+              </span>
+            </div>
+            
+            <CardHeader className="pt-8">
+              <CardTitle>Subscribe</CardTitle>
+              <CardDescription>Unlimited access to all {post.tier} tier content</CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>All current {post.tier} tier content</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Future {post.tier} tier uploads</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Support the creator monthly</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>Cancel anytime</span>
+                </div>
+              </div>
+
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={() => {
+                  onClose();
+                  onSubscribeClick();
+                }}
+                data-testid="button-modal-subscribe"
+              >
+                View Subscription Plans
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Pay Per View Option */}
+          <Card className="hover-elevate transition-all" data-testid="card-ppv-option">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Pay Once
+              </CardTitle>
+              <CardDescription>Permanent access to this content only</CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-muted-foreground" />
+                  <span>This content only</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-muted-foreground" />
+                  <span>Permanent access</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-muted-foreground" />
+                  <span>One-time payment</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Check className="w-4 h-4 text-muted-foreground" />
+                  <span>No subscription needed</span>
+                </div>
+              </div>
+
+              <div className="text-center py-4">
+                <div className="text-3xl font-bold">
+                  {post.ppv_currency} {ppvPrice.toFixed(2)}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">One-time payment</p>
+              </div>
+
+              <Button 
+                className="w-full" 
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  onClose();
+                  onPPVClick();
+                }}
+                data-testid="button-modal-ppv"
+              >
+                Unlock for {post.ppv_currency} {ppvPrice.toFixed(2)}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center text-xs text-muted-foreground mt-4">
+          All payments are securely processed through Paystack
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+```
+
+### Step 6.3: Integration Instructions
+
+Update your VideoWatch (or content viewing) page to use the new modal workflow:
+
+**File**: `client/src/pages/VideoWatch.tsx` (or similar)
+
+```typescript
+// Add imports
+import { UnlockOptionsModal } from '@/components/payment/UnlockOptionsModal';
+import { PPVPaymentModal } from '@/components/payment/PPVPaymentModal';
+
+// Add state for modals
+const [unlockOptionsModalOpen, setUnlockOptionsModalOpen] = useState(false);
+const [ppvPaymentModalOpen, setPPVPaymentModalOpen] = useState(false);
+
+// Update the unlock click handler
+const handleUnlockClick = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  
+  if (!user) {
+    // Redirect to login
+    navigate('/login');
+    return;
+  }
+
+  // If PPV is enabled, show options modal
+  if (post.is_ppv_enabled) {
+    setUnlockOptionsModalOpen(true);
+  } else {
+    // If no PPV, go straight to subscription tiers
+    handleSubscribeClick(e);
+  }
+};
+
+// Handler for when user selects PPV from modal
+const handlePPVSelection = () => {
+  setPPVPaymentModalOpen(true);
+};
+
+// Handler for when user selects Subscribe from modal
+const handleSubscribeSelection = () => {
+  // Navigate to creator's subscription tiers page
+  navigate(`/creator/${post.creator_id}/tiers`);
+};
+
+// In JSX, update the LockedContentOverlay
+{!hasAccess && post && (
+  <LockedContentOverlay
+    thumbnail={post.media_urls?.[0]}
+    tier={post.tier}
+    isVideo={true}
+    onUnlockClick={handleUnlockClick}
+    ppvEnabled={post.is_ppv_enabled}
+    ppvPrice={post.ppv_price}
+    ppvCurrency={post.ppv_currency || 'GHS'}
+  />
+)}
+
+// Add both modals before closing tag
+{post && user && post.is_ppv_enabled && (
+  <>
+    <UnlockOptionsModal
+      isOpen={unlockOptionsModalOpen}
+      onClose={() => setUnlockOptionsModalOpen(false)}
+      post={post}
+      onSubscribeClick={handleSubscribeSelection}
+      onPPVClick={handlePPVSelection}
+    />
+    
+    <PPVPaymentModal
+      isOpen={ppvPaymentModalOpen}
+      onClose={() => setPPVPaymentModalOpen(false)}
+      post={post}
+      userId={user.id}
+      onSuccess={handlePPVSuccess}
+    />
+  </>
+)}
+```
+
 **Testing Checklist Phase 6:**
-- [ ] Locked overlay shows dual buttons when PPV enabled
-- [ ] Subscribe button works as before
-- [ ] PPV unlock button displays correct price
-- [ ] Layout responsive on mobile (stacks vertically)
-- [ ] Non-PPV content shows single button as before
+- [ ] Locked overlay shows single clean "Unlock Full Access" button
+- [ ] Clicking unlock button opens unlock options modal (when PPV enabled)
+- [ ] Modal presents Subscribe and PPV options side-by-side
+- [ ] Subscribe option leads to tier selection
+- [ ] PPV option opens payment modal
+- [ ] Modal responsive on mobile devices
+- [ ] Non-PPV content skips modal and goes straight to subscription
+- [ ] Hint text displays PPV price when available
+
+**UX Design Notes:**
+- **Clean First Impression**: Users see the content teaser without payment clutter
+- **Intentional Interaction**: Clicking to unlock shows commitment to engage
+- **Clear Comparison**: Modal lets users compare options at their own pace
+- **Flexible**: Easy to add more unlock methods (promo codes, gifts) later
+- **Mobile Friendly**: Modal provides better real estate than cramped overlay buttons
 
 ---
 
