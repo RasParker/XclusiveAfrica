@@ -305,4 +305,179 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   }
 });
 
+// PPV (Pay-Per-View) Payment Routes
+
+// Initialize PPV payment for a post
+router.post('/ppv/initialize', async (req, res) => {
+  try {
+    const { user_id, post_id, payment_method = 'card' } = req.body;
+
+    // Validate required fields
+    if (!user_id || !post_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID and Post ID are required'
+      });
+    }
+
+    // Get user details
+    const user = await storage.getUser(user_id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Get post details
+    const post = await storage.getPost(post_id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // Check if post has PPV enabled
+    if (!post.is_ppv_enabled || !post.ppv_price) {
+      return res.status(400).json({
+        success: false,
+        message: 'This post is not available for purchase'
+      });
+    }
+
+    // Check if user already purchased this post
+    const existingPurchase = await storage.getPPVPurchaseByUserAndPost(user_id, post_id);
+    if (existingPurchase) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already purchased access to this content'
+      });
+    }
+
+    // Check if user has an active subscription to the creator (they shouldn't need to purchase PPV content)
+    const activeSubscription = await storage.getUserSubscriptionToCreator(user_id, post.creator_id);
+    if (activeSubscription && activeSubscription.status === 'active') {
+      return res.status(400).json({
+        success: false,
+        message: 'You already have access to this content through your subscription'
+      });
+    }
+
+    const paymentAmount = parseFloat(post.ppv_price);
+    const metadata = {
+      user_id,
+      post_id,
+      payment_type: 'ppv',
+      creator_id: post.creator_id
+    };
+
+    // Initialize payment
+    const paymentData = await paymentService.createPPVPayment(
+      user_id,
+      post_id,
+      paymentAmount,
+      user.email,
+      metadata
+    );
+
+    res.json({
+      success: true,
+      data: paymentData.data,
+      message: 'PPV payment initialized successfully'
+    });
+  } catch (error: any) {
+    console.error('PPV payment initialization error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'PPV payment initialization failed'
+    });
+  }
+});
+
+// Check if user has access to a PPV post
+router.get('/ppv/access/:postId', async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'User ID is required'
+      });
+    }
+
+    const post = await storage.getPost(parseInt(postId));
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // If post doesn't have PPV enabled, access is free
+    if (!post.is_ppv_enabled) {
+      return res.json({
+        success: true,
+        data: { 
+          hasAccess: true,
+          accessType: 'free'
+        }
+      });
+    }
+
+    // Check if user owns the post
+    if (post.creator_id === parseInt(userId as string)) {
+      return res.json({
+        success: true,
+        data: { 
+          hasAccess: true,
+          accessType: 'owner'
+        }
+      });
+    }
+
+    // Check for active subscription
+    const activeSubscription = await storage.getUserSubscriptionToCreator(parseInt(userId as string), post.creator_id);
+    if (activeSubscription && activeSubscription.status === 'active') {
+      return res.json({
+        success: true,
+        data: { 
+          hasAccess: true,
+          accessType: 'subscription'
+        }
+      });
+    }
+
+    // Check for PPV purchase
+    const hasPurchased = await storage.hasPurchasedPost(parseInt(userId as string), parseInt(postId));
+    if (hasPurchased) {
+      return res.json({
+        success: true,
+        data: { 
+          hasAccess: true,
+          accessType: 'ppv_purchase'
+        }
+      });
+    }
+
+    // No access
+    return res.json({
+      success: true,
+      data: { 
+        hasAccess: false,
+        price: post.ppv_price,
+        currency: post.ppv_currency || 'GHS'
+      }
+    });
+  } catch (error: any) {
+    console.error('PPV access check error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to check PPV access'
+    });
+  }
+});
+
 export default router;
