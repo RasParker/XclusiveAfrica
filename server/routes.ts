@@ -608,6 +608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/posts/:id', async (req, res) => {
     try {
       const { id } = req.params;
+      const userId = req.query.userId ? parseInt(req.query.userId as string) : null;
 
       // First increment view count
       await db.update(posts)
@@ -625,6 +626,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         media_type: posts.media_type,
         media_urls: posts.media_urls,
         tier: posts.tier,
+        is_ppv_enabled: posts.is_ppv_enabled,
+        ppv_price: posts.ppv_price,
+        ppv_currency: posts.ppv_currency,
+        ppv_sales_count: posts.ppv_sales_count,
         status: posts.status,
         scheduled_for: posts.scheduled_for,
         created_at: posts.created_at,
@@ -649,7 +654,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Post not found' });
       }
 
-      res.json(post[0]);
+      const postData = post[0];
+
+      // ===== CHECK ACCESS =====
+      let hasAccess = false;
+      let accessReason = '';
+
+      // 1. Owner always has access
+      if (userId && postData.creator_id === userId) {
+        hasAccess = true;
+        accessReason = 'owner';
+      }
+      // 2. Public content WITHOUT PPV
+      else if (postData.tier === 'public' && !postData.is_ppv_enabled) {
+        hasAccess = true;
+        accessReason = 'public';
+      }
+      // 3. Check PPV purchase
+      else if (userId && postData.is_ppv_enabled) {
+        const ppvPurchase = await storage.getPPVPurchaseByUserAndPost(userId, postData.id);
+        if (ppvPurchase) {
+          hasAccess = true;
+          accessReason = 'ppv_purchase';
+        }
+      }
+      
+      // 4. Check subscription (existing logic)
+      if (!hasAccess && userId && postData.tier !== 'public') {
+        const subscription = await storage.getUserSubscriptionToCreator(userId, postData.creator_id);
+        if (subscription && subscription.status === 'active') {
+          // Tier hierarchy check
+          const tierHierarchy: Record<string, number> = {
+            'supporter': 1,
+            'starter pump': 1,
+            'fan': 2,
+            'premium': 2,
+            'power gains': 2,
+            'superfan': 3,
+            'elite beast mode': 3,
+            'the vip elite': 3
+          };
+
+          const userTierLevel = tierHierarchy[subscription.tier_name?.toLowerCase()] || 0;
+          const postTierLevel = tierHierarchy[postData.tier.toLowerCase()] || 999;
+
+          if (userTierLevel >= postTierLevel) {
+            hasAccess = true;
+            accessReason = 'subscription';
+          }
+        }
+      }
+      // ========================
+
+      // Return post with access info
+      const responsePost = {
+        ...postData,
+        has_access: hasAccess,
+        access_reason: accessReason,
+        // Hide media if no access
+        media_urls: hasAccess ? postData.media_urls : [],
+      };
+
+      res.json(responsePost);
     } catch (error) {
       console.error('Error fetching post:', error);
       res.status(500).json({ error: 'Failed to fetch post' });
