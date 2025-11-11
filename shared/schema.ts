@@ -64,6 +64,10 @@ export const posts = pgTable('posts', {
   media_type: text('media_type').notNull().default('text'),
   media_urls: text("media_urls").array().notNull().default([]),
   tier: text('tier').notNull().default('public'),
+  is_ppv_enabled: boolean('is_ppv_enabled').notNull().default(false),
+  ppv_price: decimal('ppv_price', { precision: 10, scale: 2 }),
+  ppv_currency: text('ppv_currency').default('GHS'),
+  ppv_sales_count: integer('ppv_sales_count').notNull().default(0),
   status: text('status').notNull().default('published'), // published, draft, scheduled
   scheduled_for: timestamp('scheduled_for'), // when to publish scheduled posts
   likes_count: integer('likes_count').notNull().default(0),
@@ -142,17 +146,35 @@ export const payment_transactions = pgTable("payment_transactions", {
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const ppv_purchases = pgTable("ppv_purchases", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").notNull().references(() => users.id),
+  post_id: integer("post_id").notNull().references(() => posts.id),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("GHS"),
+  transaction_id: text("transaction_id"),
+  payment_method: text("payment_method"),
+  status: text("status").notNull().default("completed"),
+  purchased_at: timestamp("purchased_at").notNull().defaultNow(),
+  created_at: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const creator_payouts = pgTable("creator_payouts", {
   id: serial("id").primaryKey(),
   creator_id: integer("creator_id").notNull().references(() => users.id),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("GHS"),
-  status: text("status").notNull().default("pending"), // pending, completed, failed
   period_start: timestamp("period_start").notNull(),
   period_end: timestamp("period_end").notNull(),
-  payout_method: text("payout_method"), // mtn_momo, vodafone_cash, bank_transfer, etc.
-  transaction_id: text("transaction_id"), // External payout provider transaction ID
+  subscription_revenue: decimal("subscription_revenue", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  ppv_revenue: decimal("ppv_revenue", { precision: 10, scale: 2 }).notNull().default("0.00"),
+  total_revenue: decimal("total_revenue", { precision: 10, scale: 2 }).notNull(),
+  platform_fee: decimal("platform_fee", { precision: 10, scale: 2 }).notNull(),
+  payout_amount: decimal("payout_amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("GHS"),
+  status: text("status").notNull().default("pending"),
+  payment_method: text("payment_method"),
+  payment_details: jsonb("payment_details"),
   processed_at: timestamp("processed_at"),
+  notes: text("notes"),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -684,6 +706,12 @@ export const insertPaymentTransactionSchema = createInsertSchema(payment_transac
   processed_at: true,
 });
 
+export const insertPPVPurchaseSchema = createInsertSchema(ppv_purchases).omit({
+  id: true,
+  created_at: true,
+  purchased_at: true,
+});
+
 export const insertReportSchema = createInsertSchema(reports).pick({
   type: true,
   reason: true,
@@ -724,6 +752,8 @@ export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertPaymentTransaction = z.infer<typeof insertPaymentTransactionSchema>;
 export type PaymentTransaction = typeof payment_transactions.$inferSelect;
+export type InsertPPVPurchase = z.infer<typeof insertPPVPurchaseSchema>;
+export type PPVPurchase = typeof ppv_purchases.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
 export type Report = typeof reports.$inferSelect;
 export type CreatorPayout = typeof creator_payouts.$inferSelect;
