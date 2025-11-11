@@ -482,7 +482,17 @@ export const Earnings: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-semibold text-foreground">GHS {parseFloat(payout.amount).toFixed(2)}</div>
+                      <div className="text-lg font-semibold text-foreground">GHS {parseFloat(payout.payout_amount || '0').toFixed(2)}</div>
+                      {(payout.subscription_revenue || payout.ppv_revenue) && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {payout.subscription_revenue && parseFloat(payout.subscription_revenue) > 0 && (
+                            <span className="mr-2">Sub: GHS {parseFloat(payout.subscription_revenue).toFixed(2)}</span>
+                          )}
+                          {payout.ppv_revenue && parseFloat(payout.ppv_revenue) > 0 && (
+                            <span>PPV: GHS {parseFloat(payout.ppv_revenue).toFixed(2)}</span>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs text-muted-foreground">
                         {payout.processed_at ? new Date(payout.processed_at).toLocaleDateString() : 'Pending'}
                       </p>

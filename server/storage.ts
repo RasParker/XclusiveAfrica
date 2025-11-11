@@ -10,6 +10,7 @@ import {
   pending_subscription_changes,
   proration_credits,
   payment_transactions,
+  ppv_purchases,
   creator_payouts,
   creator_payout_settings,
   conversations,
@@ -43,6 +44,8 @@ import {
   type InsertProrationCredit,
   type PaymentTransaction,
   type InsertPaymentTransaction,
+  type PPVPurchase,
+  type InsertPPVPurchase,
   type CreatorPayoutSettings,
   type InsertCreatorPayoutSettings,
   type Conversation,
@@ -209,6 +212,17 @@ export interface IStorage {
   // Payment methods
   createPaymentTransaction(transaction: InsertPaymentTransaction): Promise<PaymentTransaction>;
   getPaymentTransactions(subscriptionId: number): Promise<PaymentTransaction[]>;
+
+  // PPV (Pay-Per-View) methods
+  createPPVPurchase(purchase: InsertPPVPurchase): Promise<PPVPurchase>;
+  getPPVPurchase(id: number): Promise<PPVPurchase | undefined>;
+  getPPVPurchaseByTransactionId(transactionId: string): Promise<PPVPurchase | undefined>;
+  getPPVPurchaseByUserAndPost(userId: number, postId: number): Promise<PPVPurchase | undefined>;
+  updatePPVPurchase(id: number, updates: Partial<PPVPurchase>): Promise<PPVPurchase | undefined>;
+  hasPurchasedPost(userId: number, postId: number): Promise<boolean>;
+  getPPVPurchasesByUser(userId: number, limit?: number, offset?: number): Promise<PPVPurchase[]>;
+  getPPVPurchasesByPost(postId: number, limit?: number, offset?: number): Promise<PPVPurchase[]>;
+  getCreatorPPVRevenue(creatorId: number, startDate?: Date, endDate?: Date): Promise<number>;
 
   // Creator payout settings methods
   getCreatorPayoutSettings(creatorId: number): Promise<CreatorPayoutSettings | undefined>;
@@ -1077,6 +1091,119 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(payment_transactions.created_at));
   }
 
+  // PPV (Pay-Per-View) Methods
+  
+  async createPPVPurchase(purchase: InsertPPVPurchase): Promise<PPVPurchase> {
+    const [newPurchase] = await db
+      .insert(ppv_purchases)
+      .values(purchase)
+      .returning();
+    
+    return newPurchase;
+  }
+
+  async getPPVPurchase(id: number): Promise<PPVPurchase | undefined> {
+    const [purchase] = await db
+      .select()
+      .from(ppv_purchases)
+      .where(eq(ppv_purchases.id, id));
+    
+    return purchase;
+  }
+
+  async getPPVPurchaseByTransactionId(transactionId: string): Promise<PPVPurchase | undefined> {
+    const [purchase] = await db
+      .select()
+      .from(ppv_purchases)
+      .where(eq(ppv_purchases.transaction_id, transactionId));
+    
+    return purchase;
+  }
+
+  async getPPVPurchaseByUserAndPost(userId: number, postId: number): Promise<PPVPurchase | undefined> {
+    const [purchase] = await db
+      .select()
+      .from(ppv_purchases)
+      .where(
+        and(
+          eq(ppv_purchases.user_id, userId),
+          eq(ppv_purchases.post_id, postId),
+          eq(ppv_purchases.status, 'completed')
+        )
+      );
+    
+    return purchase;
+  }
+
+  async updatePPVPurchase(id: number, updates: Partial<PPVPurchase>): Promise<PPVPurchase | undefined> {
+    const [updatedPurchase] = await db
+      .update(ppv_purchases)
+      .set(updates)
+      .where(eq(ppv_purchases.id, id))
+      .returning();
+    
+    return updatedPurchase;
+  }
+
+  async hasPurchasedPost(userId: number, postId: number): Promise<boolean> {
+    const purchase = await this.getPPVPurchaseByUserAndPost(userId, postId);
+    return !!purchase;
+  }
+
+  async getPPVPurchasesByUser(userId: number, limit: number = 50, offset: number = 0): Promise<PPVPurchase[]> {
+    const purchases = await db
+      .select()
+      .from(ppv_purchases)
+      .where(eq(ppv_purchases.user_id, userId))
+      .orderBy(desc(ppv_purchases.purchased_at))
+      .limit(limit)
+      .offset(offset);
+    
+    return purchases;
+  }
+
+  async getPPVPurchasesByPost(postId: number, limit: number = 50, offset: number = 0): Promise<PPVPurchase[]> {
+    const purchases = await db
+      .select()
+      .from(ppv_purchases)
+      .where(eq(ppv_purchases.post_id, postId))
+      .orderBy(desc(ppv_purchases.purchased_at))
+      .limit(limit)
+      .offset(offset);
+    
+    return purchases;
+  }
+
+  async getCreatorPPVRevenue(creatorId: number, startDate?: Date, endDate?: Date): Promise<number> {
+    try {
+      const conditions = [
+        eq(posts.creator_id, creatorId),
+        eq(ppv_purchases.status, 'completed')
+      ];
+
+      if (startDate) {
+        conditions.push(gte(ppv_purchases.purchased_at, startDate));
+      }
+
+      if (endDate) {
+        conditions.push(lte(ppv_purchases.purchased_at, endDate));
+      }
+
+      const result = await db
+        .select({
+          total: sql<number>`COALESCE(SUM(${ppv_purchases.amount}), 0)`
+        })
+        .from(ppv_purchases)
+        .innerJoin(posts, eq(ppv_purchases.post_id, posts.id))
+        .where(and(...conditions));
+
+      return Number(result[0]?.total || 0);
+    } catch (error) {
+      console.error('Error calculating creator PPV revenue:', error);
+      return 0;
+    }
+  }
+
   // Get creator subscription tiers
   async getCreatorTiers(creatorId: number): Promise<SubscriptionTier[]> {
     return db.select().from(subscription_tiers).where(eq(subscription_tiers.creator_id, creatorId));
@@ -1193,16 +1320,23 @@ export class DatabaseStorage implements IStorage {
 
       let totalPaid = 0;
       let totalPending = 0;
+      let totalSubscriptionRevenue = 0;
+      let totalPPVRevenue = 0;
       let completedCount = 0;
       let pendingCount = 0;
 
       payouts.forEach(payout => {
-        const amount = parseFloat(payout.amount);
+        const payoutAmount = parseFloat(payout.payout_amount || '0');
+        const subscriptionRev = parseFloat(payout.subscription_revenue || '0');
+        const ppvRev = parseFloat(payout.ppv_revenue || '0');
+        
         if (payout.status === 'completed') {
-          totalPaid += amount;
+          totalPaid += payoutAmount;
+          totalSubscriptionRevenue += subscriptionRev;
+          totalPPVRevenue += ppvRev;
           completedCount++;
         } else if (payout.status === 'pending') {
-          totalPending += amount;
+          totalPending += payoutAmount;
           pendingCount++;
         }
       });
@@ -1210,6 +1344,8 @@ export class DatabaseStorage implements IStorage {
       return {
         total_paid: totalPaid,
         total_pending: totalPending,
+        total_subscription_revenue: totalSubscriptionRevenue,
+        total_ppv_revenue: totalPPVRevenue,
         completed_count: completedCount,
         pending_count: pendingCount,
         last_payout: payouts.find(p => p.status === 'completed')?.processed_at || null
@@ -1219,6 +1355,8 @@ export class DatabaseStorage implements IStorage {
       return {
         total_paid: 0,
         total_pending: 0,
+        total_subscription_revenue: 0,
+        total_ppv_revenue: 0,
         completed_count: 0,
         pending_count: 0,
         last_payout: null
@@ -1232,16 +1370,23 @@ export class DatabaseStorage implements IStorage {
 
       let totalPaid = 0;
       let totalPending = 0;
+      let totalSubscriptionRevenue = 0;
+      let totalPPVRevenue = 0;
       let completedCount = 0;
       let pendingCount = 0;
 
       payouts.forEach(payout => {
-        const amount = parseFloat(payout.amount);
+        const payoutAmount = parseFloat(payout.payout_amount || '0');
+        const subscriptionRev = parseFloat(payout.subscription_revenue || '0');
+        const ppvRev = parseFloat(payout.ppv_revenue || '0');
+        
         if (payout.status === 'completed') {
-          totalPaid += amount;
+          totalPaid += payoutAmount;
+          totalSubscriptionRevenue += subscriptionRev;
+          totalPPVRevenue += ppvRev;
           completedCount++;
         } else if (payout.status === 'pending') {
-          totalPending += amount;
+          totalPending += payoutAmount;
           pendingCount++;
         }
       });
@@ -1249,6 +1394,8 @@ export class DatabaseStorage implements IStorage {
       return {
         total_paid: totalPaid,
         total_pending: totalPending,
+        total_subscription_revenue: totalSubscriptionRevenue,
+        total_ppv_revenue: totalPPVRevenue,
         completed_count: completedCount,
         pending_count: pendingCount,
         total_creators: await db.select().from(users).where(eq(users.role, 'creator')).then(r => r.length)
@@ -1258,6 +1405,8 @@ export class DatabaseStorage implements IStorage {
       return {
         total_paid: 0,
         total_pending: 0,
+        total_subscription_revenue: 0,
+        total_ppv_revenue: 0,
         completed_count: 0,
         pending_count: 0,
         total_creators: 0
