@@ -13,6 +13,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import { LockedContentOverlay } from '@/components/content/LockedContentOverlay';
+import { UnlockOptionsModal } from '@/components/payment/UnlockOptionsModal';
+import { PPVPaymentModal } from '@/components/payment/PPVPaymentModal';
 
 export const VideoWatch: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +34,9 @@ export const VideoWatch: React.FC = () => {
   const [selectedCreatorForSubscription, setSelectedCreatorForSubscription] = useState<any>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<any>(null);
+  const [hasPPVAccess, setHasPPVAccess] = useState(false);
+  const [unlockOptionsModalOpen, setUnlockOptionsModalOpen] = useState(false);
+  const [ppvPaymentModalOpen, setPPVPaymentModalOpen] = useState(false);
 
 
   const getTimeAgo = (dateString: string) => {
@@ -60,7 +65,32 @@ export const VideoWatch: React.FC = () => {
     return `${Math.floor(diffInDays / 7)}w ago`;
   };
 
-  // Check tier access control
+  // Check PPV access
+  useEffect(() => {
+    const checkPPVAccess = async () => {
+      if (!user || !post || !post.is_ppv_enabled) {
+        setHasPPVAccess(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/payment/ppv-access/${user.id}/${post.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setHasPPVAccess(data.has_access);
+        } else {
+          setHasPPVAccess(false);
+        }
+      } catch (error) {
+        console.error('Error checking PPV access:', error);
+        setHasPPVAccess(false);
+      }
+    };
+
+    checkPPVAccess();
+  }, [user, post]);
+
+  // Check tier access control (including PPV)
   useEffect(() => {
     if (!post) {
       setHasAccess(false);
@@ -75,8 +105,14 @@ export const VideoWatch: React.FC = () => {
       return;
     }
 
-    // Public content - everyone has access
-    if (postTier === 'public') {
+    // Public content WITHOUT PPV - everyone has access
+    if (postTier === 'public' && !post.is_ppv_enabled) {
+      setHasAccess(true);
+      return;
+    }
+
+    // Check PPV access first
+    if (post.is_ppv_enabled && hasPPVAccess) {
       setHasAccess(true);
       return;
     }
@@ -114,11 +150,12 @@ export const VideoWatch: React.FC = () => {
       userTierLevel, 
       postTierLevel, 
       userTierName: userSubscription.tier_name,
+      hasPPVAccess,
       hasAccess: access 
     });
 
     setHasAccess(access);
-  }, [post, user, userSubscription]);
+  }, [post, user, userSubscription, hasPPVAccess]);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -259,6 +296,25 @@ export const VideoWatch: React.FC = () => {
     });
   };
 
+  const handleUnlockClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      navigate(`/login?redirect=/video/${id}`);
+      return;
+    }
+
+    if (!post) return;
+
+    // If PPV is enabled, show options modal
+    if (post.is_ppv_enabled) {
+      setUnlockOptionsModalOpen(true);
+    } else {
+      // If no PPV, go straight to subscription
+      handleSubscribeClick();
+    }
+  };
+
   const handleSubscribeClick = async () => {
     if (!user) {
       navigate(`/login?redirect=/video/${id}`);
@@ -303,6 +359,27 @@ export const VideoWatch: React.FC = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handlePPVSelection = () => {
+    setUnlockOptionsModalOpen(false);
+    setPPVPaymentModalOpen(true);
+  };
+
+  const handleSubscribeSelection = () => {
+    setUnlockOptionsModalOpen(false);
+    handleSubscribeClick();
+  };
+
+  const handlePPVSuccess = () => {
+    setPPVPaymentModalOpen(false);
+    setHasPPVAccess(true);
+    toast({
+      title: "Content Unlocked!",
+      description: "You now have permanent access to this content",
+    });
+    // Reload to show unlocked content
+    window.location.reload();
   };
 
   const toggleImmersive = () => {
@@ -447,7 +524,10 @@ export const VideoWatch: React.FC = () => {
                 thumbnail={mediaUrl}
                 tier={post.tier || 'public'}
                 isVideo={post.media_type === 'video'}
-                onUnlockClick={handleSubscribeClick}
+                onUnlockClick={handleUnlockClick}
+                ppvEnabled={post.is_ppv_enabled}
+                ppvPrice={post.ppv_price}
+                ppvCurrency={post.ppv_currency || 'GHS'}
               />
             </div>
           )}
@@ -824,7 +904,10 @@ export const VideoWatch: React.FC = () => {
                       thumbnail={mediaUrl}
                       tier={post.tier || 'public'}
                       isVideo={post.media_type === 'video'}
-                      onUnlockClick={handleSubscribeClick}
+                      onUnlockClick={handleUnlockClick}
+                      ppvEnabled={post.is_ppv_enabled}
+                      ppvPrice={post.ppv_price}
+                      ppvCurrency={post.ppv_currency || 'GHS'}
                     />
                   </div>
                 )}
@@ -1125,6 +1208,28 @@ export const VideoWatch: React.FC = () => {
           }}
           tier={selectedTier}
           creatorName={selectedCreatorForSubscription.display_name || selectedCreatorForSubscription.username}
+        />
+      )}
+
+      {/* Unlock Options Modal */}
+      {post && user && post.is_ppv_enabled && (
+        <UnlockOptionsModal
+          isOpen={unlockOptionsModalOpen}
+          onClose={() => setUnlockOptionsModalOpen(false)}
+          post={post}
+          onSubscribeClick={handleSubscribeSelection}
+          onPPVClick={handlePPVSelection}
+        />
+      )}
+
+      {/* PPV Payment Modal */}
+      {post && user && (
+        <PPVPaymentModal
+          isOpen={ppvPaymentModalOpen}
+          onClose={() => setPPVPaymentModalOpen(false)}
+          post={post}
+          userId={user.id}
+          onSuccess={handlePPVSuccess}
         />
       )}
     </div>
