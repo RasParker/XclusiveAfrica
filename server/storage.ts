@@ -19,11 +19,12 @@ import {
   reports,
   categories,
   creator_categories,
-  creator_favorites, // Make sure creator_favorites is imported if it's a separate table
+  creator_favorites,
   creator_likes,
   follows,
   audit_logs,
   system_alerts,
+  platform_settings,
   type User,
   type InsertUser,
   type Post,
@@ -58,14 +59,16 @@ import {
   type InsertCategory,
   type CreatorCategory,
   type InsertCreatorCategory,
-  type CreatorFavorite, // Import the type for creator_favorites
-  type InsertCreatorFavorite, // Import the type for creator_favorites
+  type CreatorFavorite,
+  type InsertCreatorFavorite,
   type Follow,
   type InsertFollow,
   type AuditLog,
   type InsertAuditLog,
   type SystemAlert,
-  type InsertSystemAlert
+  type InsertSystemAlert,
+  type PlatformSetting,
+  type InsertPlatformSetting
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, desc, gte, lte } from "drizzle-orm";
