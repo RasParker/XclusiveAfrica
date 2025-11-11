@@ -37,6 +37,7 @@ const PaymentMethod = React.lazy(() => import('@/pages/fan/PaymentMethod').then(
 const FanSettings = React.lazy(() => import('@/pages/fan/FanSettings').then(m => ({ default: m.FanSettings })));
 const Notifications = React.lazy(() => import('@/pages/fan/Notifications').then(m => ({ default: m.Notifications })));
 const Favorites = React.lazy(() => import('@/pages/fan/Favorites').then(m => ({ default: m.Favorites })));
+const PurchaseHistory = React.lazy(() => import('@/pages/fan/PurchaseHistory'));
 
 // Admin pages
 const AdminDashboard = React.lazy(() => import('@/pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -92,6 +93,7 @@ function App() {
               <Route path="/fan/subscriptions" element={<ProtectedRoute allowedRoles={['fan']}><ManageSubscriptions /></ProtectedRoute>} />
               <Route path="/fan/messages" element={<ProtectedRoute allowedRoles={['fan']}><Messages /></ProtectedRoute>} />
               <Route path="/fan/favorites" element={<ProtectedRoute allowedRoles={['fan']}><Favorites /></ProtectedRoute>} />
+              <Route path="/fan/purchases" element={<ProtectedRoute allowedRoles={['fan']}><PurchaseHistory /></ProtectedRoute>} />
               <Route path="/fan/payment" element={<ProtectedRoute allowedRoles={['fan']}><PaymentMethod /></ProtectedRoute>} />
               <Route path="/fan/settings" element={<ProtectedRoute allowedRoles={['fan']}><FanSettings /></ProtectedRoute>} />
               <Route path="/fan/notifications" element={<ProtectedRoute allowedRoles={['fan']}><Notifications /></ProtectedRoute>} />
