@@ -35,6 +35,7 @@ export function PPVPaymentModal({ isOpen, onClose, post, userId, onSuccess }: PP
         body: JSON.stringify({
           fan_id: userId,
           post_id: post.id,
+          payment_method: selectedMethod,
         }),
       });
 

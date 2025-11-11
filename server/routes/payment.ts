@@ -390,13 +390,21 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 // Initialize PPV payment (documentation-specified route)
 router.post('/initialize-ppv', async (req, res) => {
   try {
-    const { fan_id, post_id } = req.body;
+    const { fan_id, post_id, payment_method = 'card' } = req.body;
 
     // Validate required fields
     if (!fan_id || !post_id) {
       return res.status(400).json({
         success: false,
         message: 'Fan ID and Post ID are required'
+      });
+    }
+
+    // Validate payment method
+    if (payment_method && !['card', 'mobile_money'].includes(payment_method)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment method. Must be "card" or "mobile_money"'
       });
     }
 
@@ -446,14 +454,15 @@ router.post('/initialize-ppv', async (req, res) => {
 
     // Initialize Paystack payment
     // Note: createPPVPayment already adds user_id, post_id, payment_type to metadata
-    // We pass additional context here
+    // We pass additional context here including the selected payment method
     const paymentData = await paymentService.createPPVPayment(
       fan_id,
       post_id,
       parseFloat(post.ppv_price),
       fan.email,
       {
-        content_title: post.title
+        content_title: post.title,
+        payment_method: payment_method
       }
     );
 
@@ -461,6 +470,7 @@ router.post('/initialize-ppv', async (req, res) => {
       fan_id,
       post_id,
       amount: post.ppv_price,
+      payment_method: payment_method,
       reference: paymentData.data.reference
     });
 

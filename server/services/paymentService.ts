@@ -351,12 +351,31 @@ export class PaymentService {
   async createPPVPayment(userId: number, postId: number, amount: number, email: string, customMetadata?: any): Promise<PaystackInitializeResponse> {
     const reference = this.generateReference();
 
+    // Extract and normalize payment method preference
+    const rawPaymentMethod = customMetadata?.payment_method;
+    let paymentMethod: string = 'unspecified';
+    let channels: string[];
+
+    // Validate and normalize payment method
+    if (rawPaymentMethod === 'card') {
+      paymentMethod = 'card';
+      channels = ['card'];
+    } else if (rawPaymentMethod === 'mobile_money') {
+      paymentMethod = 'mobile_money';
+      channels = ['mobile_money'];
+    } else {
+      // Default: allow all methods when no preference or invalid value
+      paymentMethod = 'unspecified';
+      channels = ['card', 'bank', 'ussd', 'mobile_money'];
+    }
+
     // Critical fields that must not be overridden
     const secureMetadata = {
       user_id: userId,
       post_id: postId,
       ppv_price: amount.toString(),
       payment_type: 'ppv',
+      payment_method: paymentMethod, // Store normalized payment method
       custom_fields: [
         {
           display_name: 'User ID',
@@ -381,6 +400,8 @@ export class PaymentService {
       : 'http://localhost:5000';
     const callbackUrl = `${baseUrl}/payment/callback`;
 
+    console.log('🎯 PPV Payment initialized with method:', paymentMethod, 'channels:', channels);
+
     return this.initializePayment({
       email,
       amount,
@@ -388,7 +409,7 @@ export class PaymentService {
       reference,
       callback_url: callbackUrl,
       metadata,
-      channels: ['card', 'bank', 'ussd', 'mobile_money']
+      channels // Use the dynamically determined channels
     });
   }
 
