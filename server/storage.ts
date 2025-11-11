@@ -71,8 +71,24 @@ import {
   type InsertPlatformSetting
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, sql, desc, gte, lte } from "drizzle-orm";
+import { eq, and, sql, desc, gte, lte, inArray } from "drizzle-orm";
 import bcrypt from "bcryptjs";
+
+export interface PlatformSettings {
+  commission_rate: number;
+  site_name: string;
+  site_description: string;
+  maintenance_mode: boolean;
+  new_user_registration: boolean;
+}
+
+const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
+  commission_rate: 0.05,
+  site_name: 'Xclusive',
+  site_description: 'Premium content monetization platform',
+  maintenance_mode: false,
+  new_user_registration: true,
+};
 
 export interface IStorage {
   // User methods
