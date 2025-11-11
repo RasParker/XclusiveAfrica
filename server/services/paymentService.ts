@@ -351,7 +351,8 @@ export class PaymentService {
   async createPPVPayment(userId: number, postId: number, amount: number, email: string, customMetadata?: any): Promise<PaystackInitializeResponse> {
     const reference = this.generateReference();
 
-    const defaultMetadata = {
+    // Critical fields that must not be overridden
+    const secureMetadata = {
       user_id: userId,
       post_id: postId,
       ppv_price: amount.toString(),
@@ -370,8 +371,9 @@ export class PaymentService {
       ]
     };
 
-    // Merge custom metadata with default metadata
-    const metadata = { ...defaultMetadata, ...customMetadata };
+    // Merge custom metadata FIRST, then override with secure fields
+    // This ensures critical fields cannot be tampered with
+    const metadata = { ...customMetadata, ...secureMetadata };
 
     // Use current environment's callback URL
     const baseUrl = process.env.REPL_SLUG && process.env.REPL_OWNER

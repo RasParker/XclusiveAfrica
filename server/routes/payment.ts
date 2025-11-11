@@ -212,6 +212,21 @@ router.post('/verify/:reference', async (req, res) => {
     if (metadata.payment_type === 'ppv') {
       console.log('🎬 Processing PPV purchase:', metadata);
 
+      // Idempotency check: prevent duplicate purchases if Paystack retries
+      const existingPurchase = await storage.getPPVPurchaseByUserAndPost(metadata.user_id, metadata.post_id);
+      if (existingPurchase) {
+        console.log('⚠️ PPV purchase already exists (idempotency check):', existingPurchase.id);
+        return res.json({
+          success: true,
+          message: 'Content already unlocked',
+          data: {
+            purchase: existingPurchase,
+            payment_type: 'ppv',
+            already_existed: true
+          }
+        });
+      }
+
       // Create PPV purchase record
       const ppvPurchase = await storage.createPPVPurchase({
         user_id: metadata.user_id,
@@ -322,19 +337,26 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           console.log('🎬 Webhook: Processing PPV purchase');
           const metadata = event.data.metadata;
           
-          // Create PPV purchase record
-          await storage.createPPVPurchase({
-            user_id: metadata.user_id,
-            post_id: metadata.post_id,
-            amount: (event.data.amount / 100).toString(),
-            currency: event.data.currency,
-            transaction_id: event.data.reference,
-            payment_method: event.data.channel,
-            status: 'completed',
-          });
-          
-          // Increment PPV sales count
-          await storage.incrementPPVSalesCount(metadata.post_id);
+          // Idempotency check: prevent duplicate purchases
+          const existingPurchase = await storage.getPPVPurchaseByUserAndPost(metadata.user_id, metadata.post_id);
+          if (!existingPurchase) {
+            // Create PPV purchase record
+            await storage.createPPVPurchase({
+              user_id: metadata.user_id,
+              post_id: metadata.post_id,
+              amount: (event.data.amount / 100).toString(),
+              currency: event.data.currency,
+              transaction_id: event.data.reference,
+              payment_method: event.data.channel,
+              status: 'completed',
+            });
+            
+            // Increment PPV sales count
+            await storage.incrementPPVSalesCount(metadata.post_id);
+            console.log('✅ Webhook: PPV purchase created');
+          } else {
+            console.log('⚠️ Webhook: PPV purchase already exists (idempotency check)');
+          }
         } else {
           // Handle as subscription payment
           await paymentService.processSuccessfulPayment(event.data);
@@ -363,9 +385,155 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   }
 });
 
-// PPV (Pay-Per-View) Payment Routes
+// ==================== PPV (Pay-Per-View) Payment Routes ====================
 
-// Initialize PPV payment for a post
+// Initialize PPV payment (documentation-specified route)
+router.post('/initialize-ppv', async (req, res) => {
+  try {
+    const { fan_id, post_id } = req.body;
+
+    // Validate required fields
+    if (!fan_id || !post_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Fan ID and Post ID are required'
+      });
+    }
+
+    // Get fan details
+    const fan = await storage.getUser(fan_id);
+    if (!fan) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Get post details
+    const post = await storage.getPost(post_id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Content not found'
+      });
+    }
+
+    // Verify PPV is enabled for this content
+    if (!post.is_ppv_enabled || !post.ppv_price) {
+      return res.status(400).json({
+        success: false,
+        message: 'Pay Per View is not available for this content'
+      });
+    }
+
+    // Check if user already purchased this content
+    const existingPurchase = await storage.getPPVPurchaseByUserAndPost(fan_id, post_id);
+    if (existingPurchase) {
+      return res.status(400).json({
+        success: false,
+        message: 'You already have access to this content',
+        already_purchased: true
+      });
+    }
+
+    // Check if user is creator (creators don't need to purchase their own content)
+    if (post.creator_id === fan_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot purchase your own content'
+      });
+    }
+
+    // Initialize Paystack payment
+    // Note: createPPVPayment already adds user_id, post_id, payment_type to metadata
+    // We pass additional context here
+    const paymentData = await paymentService.createPPVPayment(
+      fan_id,
+      post_id,
+      parseFloat(post.ppv_price),
+      fan.email,
+      {
+        content_title: post.title
+      }
+    );
+
+    console.log('✅ PPV payment initialized:', {
+      fan_id,
+      post_id,
+      amount: post.ppv_price,
+      reference: paymentData.data.reference
+    });
+
+    res.json({
+      success: true,
+      data: paymentData.data
+    });
+  } catch (error: any) {
+    console.error('❌ PPV payment initialization error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to initialize payment'
+    });
+  }
+});
+
+// Check if user has PPV access to content (documentation-specified route)
+router.get('/ppv-access/:userId/:postId', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const postId = parseInt(req.params.postId);
+
+    if (isNaN(userId) || isNaN(postId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user or post ID'
+      });
+    }
+
+    const purchase = await storage.getPPVPurchaseByUserAndPost(userId, postId);
+
+    res.json({
+      success: true,
+      has_access: !!purchase,
+      purchase: purchase || null
+    });
+  } catch (error: any) {
+    console.error('❌ PPV access check error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Get all PPV purchases for a user (documentation-specified route)
+router.get('/ppv-purchases/:userId', async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+
+    if (isNaN(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID'
+      });
+    }
+
+    const purchases = await storage.getPPVPurchasesByUser(userId);
+
+    res.json({
+      success: true,
+      purchases
+    });
+  } catch (error: any) {
+    console.error('❌ Error fetching PPV purchases:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Initialize PPV payment for a post (alternative route for backward compatibility)
 router.post('/ppv/initialize', async (req, res) => {
   try {
     const { user_id, post_id, payment_method = 'card' } = req.body;
