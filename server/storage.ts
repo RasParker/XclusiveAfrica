@@ -90,6 +90,54 @@ const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   new_user_registration: true,
 };
 
+function normalizeSettingRows(rows: PlatformSetting[]): PlatformSettings {
+  const settings = { ...DEFAULT_PLATFORM_SETTINGS };
+  
+  for (const row of rows) {
+    switch (row.key) {
+      case 'commission_rate':
+        settings.commission_rate = parseFloat(row.value || '0.05');
+        break;
+      case 'site_name':
+        settings.site_name = row.value || DEFAULT_PLATFORM_SETTINGS.site_name;
+        break;
+      case 'site_description':
+        settings.site_description = row.value || DEFAULT_PLATFORM_SETTINGS.site_description;
+        break;
+      case 'maintenance_mode':
+        settings.maintenance_mode = row.value === 'true';
+        break;
+      case 'new_user_registration':
+        settings.new_user_registration = row.value === 'true';
+        break;
+    }
+  }
+  
+  return settings;
+}
+
+function prepareSettingRows(partial: Partial<PlatformSettings>): InsertPlatformSetting[] {
+  const rows: InsertPlatformSetting[] = [];
+  
+  if (partial.commission_rate !== undefined) {
+    rows.push({ key: 'commission_rate', value: partial.commission_rate.toString() });
+  }
+  if (partial.site_name !== undefined) {
+    rows.push({ key: 'site_name', value: partial.site_name });
+  }
+  if (partial.site_description !== undefined) {
+    rows.push({ key: 'site_description', value: partial.site_description });
+  }
+  if (partial.maintenance_mode !== undefined) {
+    rows.push({ key: 'maintenance_mode', value: partial.maintenance_mode.toString() });
+  }
+  if (partial.new_user_registration !== undefined) {
+    rows.push({ key: 'new_user_registration', value: partial.new_user_registration.toString() });
+  }
+  
+  return rows;
+}
+
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -168,8 +216,8 @@ export interface IStorage {
   updateCreatorPayoutSettings(creatorId: number, updates: Partial<CreatorPayoutSettings>): Promise<CreatorPayoutSettings | undefined>;
 
   // Platform settings methods
-  getPlatformSettings(): Promise<any>;
-  updatePlatformSettings(settings: any): Promise<void>;
+  getPlatformSettings(): Promise<PlatformSettings>;
+  updatePlatformSettings(settings: Partial<PlatformSettings>): Promise<void>;
 
   // Messaging methods
   getConversations(userId: number): Promise<any[]>;
@@ -1289,55 +1337,39 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getPlatformSettings(): Promise<any> {
-    // For now, we'll store platform settings in a simple key-value approach
-    // In production, you might want a dedicated platform_settings table
+  async getPlatformSettings(): Promise<PlatformSettings> {
     try {
-      const result = await db.execute(sql`
-        SELECT value FROM platform_settings WHERE key = 'commission_rate'
-      `);
-
-      const commissionRate = result[0]?.value as string || '0.05'; // Default 5%
-
-      return {
-        commission_rate: parseFloat(commissionRate),
-        site_name: 'Xclusive',
-        site_description: 'Premium content monetization platform',
-        maintenance_mode: false,
-        new_user_registration: true
-      };
+      const settingKeys: string[] = Object.keys(DEFAULT_PLATFORM_SETTINGS);
+      const rows = await db
+        .select()
+        .from(platform_settings)
+        .where(inArray(platform_settings.key, settingKeys));
+      
+      return normalizeSettingRows(rows);
     } catch (error) {
       console.error('Error getting platform settings:', error);
-      // If table doesn't exist or other error, return defaults
-      return {
-        commission_rate: 0.05,
-        site_name: 'Xclusive',
-        site_description: 'Premium content monetization platform',
-        maintenance_mode: false,
-        new_user_registration: true
-      };
+      return DEFAULT_PLATFORM_SETTINGS;
     }
   }
 
-  async updatePlatformSettings(settings: any): Promise<void> {
+  async updatePlatformSettings(settings: Partial<PlatformSettings>): Promise<void> {
     try {
-      // Create table if it doesn't exist
-      await db.execute(sql`
-        CREATE TABLE IF NOT EXISTS platform_settings (
-          key VARCHAR(255) PRIMARY KEY,
-          value TEXT,
-          updated_at TIMESTAMP DEFAULT NOW()
-        )
-      `);
+      const rows = prepareSettingRows(settings);
+      
+      if (rows.length === 0) {
+        return;
+      }
 
-      // Update commission rate
-      await db.execute(sql`
-        INSERT INTO platform_settings (key, value, updated_at)
-        VALUES ('commission_rate', ${settings.commission_rate.toString()}, NOW())
-        ON CONFLICT (key) DO UPDATE SET
-          value = EXCLUDED.value,
-          updated_at = EXCLUDED.updated_at
-      `);
+      await db
+        .insert(platform_settings)
+        .values(rows)
+        .onConflictDoUpdate({
+          target: platform_settings.key,
+          set: {
+            value: sql`excluded.value`,
+            updated_at: sql`now()`,
+          },
+        });
     } catch (error) {
       console.error('Error updating platform settings:', error);
       throw error;
