@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, json, jsonb, decimal, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json, jsonb, decimal, uuid, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -355,6 +355,13 @@ export const system_alerts = pgTable("system_alerts", {
   resolved_at: timestamp("resolved_at"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Platform settings table for system-wide configuration
+export const platform_settings = pgTable("platform_settings", {
+  key: varchar("key", { length: 255 }).primaryKey(),
+  value: text("value"),
+  updated_at: timestamp("updated_at").defaultNow(),
 });
 
 // Database relations
@@ -886,7 +893,11 @@ export const insertSystemAlertSchema = createInsertSchema(system_alerts).pick({
   resolved_at: true,
 });
 
+export const insertPlatformSettingSchema = createInsertSchema(platform_settings);
+
 export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 export type AuditLog = typeof audit_logs.$inferSelect;
 export type InsertSystemAlert = z.infer<typeof insertSystemAlertSchema>;
 export type SystemAlert = typeof system_alerts.$inferSelect;
+export type InsertPlatformSetting = z.infer<typeof insertPlatformSettingSchema>;
+export type PlatformSetting = typeof platform_settings.$inferSelect;
