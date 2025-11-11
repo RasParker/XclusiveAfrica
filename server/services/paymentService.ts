@@ -347,6 +347,49 @@ export class PaymentService {
     });
   }
 
+  // Create PPV payment
+  async createPPVPayment(userId: number, postId: number, amount: number, email: string, customMetadata?: any): Promise<PaystackInitializeResponse> {
+    const reference = this.generateReference();
+
+    const defaultMetadata = {
+      user_id: userId,
+      post_id: postId,
+      ppv_price: amount.toString(),
+      payment_type: 'ppv',
+      custom_fields: [
+        {
+          display_name: 'User ID',
+          variable_name: 'user_id',
+          value: userId.toString()
+        },
+        {
+          display_name: 'Post ID',
+          variable_name: 'post_id',
+          value: postId.toString()
+        }
+      ]
+    };
+
+    // Merge custom metadata with default metadata
+    const metadata = { ...defaultMetadata, ...customMetadata };
+
+    // Use current environment's callback URL
+    const baseUrl = process.env.REPL_SLUG && process.env.REPL_OWNER
+      ? `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app`
+      : 'http://localhost:5000';
+    const callbackUrl = `${baseUrl}/payment/callback`;
+
+    return this.initializePayment({
+      email,
+      amount,
+      currency: 'GHS',
+      reference,
+      callback_url: callbackUrl,
+      metadata,
+      channels: ['card', 'bank', 'ussd', 'mobile_money']
+    });
+  }
+
   // Process successful payment
   async processSuccessfulPayment(paymentData: PaystackVerifyResponse['data']): Promise<void> {
     try {

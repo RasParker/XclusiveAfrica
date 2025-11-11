@@ -199,17 +199,54 @@ router.post('/verify/:reference', async (req, res) => {
     const verificationResult = await paymentService.verifyPayment(reference);
     console.log('✅ Payment verification result:', verificationResult.data.status);
 
-    if (verificationResult.data.status === 'success') {
-      console.log('💳 Processing successful payment...');
-      // Process successful payment
-      await paymentService.processSuccessfulPayment(verificationResult.data);
-      console.log('✅ Payment processing completed successfully');
+    if (verificationResult.data.status !== 'success') {
+      return res.json({
+        success: false,
+        message: 'Payment verification failed'
+      });
     }
+
+    const metadata = verificationResult.data.metadata;
+    
+    // Check if this is a PPV payment
+    if (metadata.payment_type === 'ppv') {
+      console.log('🎬 Processing PPV purchase:', metadata);
+
+      // Create PPV purchase record
+      const ppvPurchase = await storage.createPPVPurchase({
+        user_id: metadata.user_id,
+        post_id: metadata.post_id,
+        amount: (verificationResult.data.amount / 100).toString(), // Convert from pesewas
+        currency: verificationResult.data.currency,
+        transaction_id: reference,
+        payment_method: verificationResult.data.channel,
+        status: 'completed',
+      });
+
+      // Increment PPV sales count
+      await storage.incrementPPVSalesCount(metadata.post_id);
+
+      console.log('✅ PPV purchase completed:', ppvPurchase);
+
+      return res.json({
+        success: true,
+        message: 'Content unlocked successfully!',
+        data: {
+          purchase: ppvPurchase,
+          payment_type: 'ppv'
+        }
+      });
+    }
+
+    // Otherwise, handle as subscription payment
+    console.log('💳 Processing subscription payment...');
+    await paymentService.processSuccessfulPayment(verificationResult.data);
+    console.log('✅ Payment processing completed successfully');
 
     res.json({
       success: true,
-      data: verificationResult.data,
-      message: 'Payment verified successfully'
+      message: 'Payment verified successfully',
+      data: verificationResult.data
     });
   } catch (error: any) {
     console.error('❌ Payment verification error:', error);
@@ -280,7 +317,28 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     // Handle different webhook events
     switch (event.event) {
       case 'charge.success':
-        await paymentService.processSuccessfulPayment(event.data);
+        // Check if this is a PPV payment
+        if (event.data.metadata?.payment_type === 'ppv') {
+          console.log('🎬 Webhook: Processing PPV purchase');
+          const metadata = event.data.metadata;
+          
+          // Create PPV purchase record
+          await storage.createPPVPurchase({
+            user_id: metadata.user_id,
+            post_id: metadata.post_id,
+            amount: (event.data.amount / 100).toString(),
+            currency: event.data.currency,
+            transaction_id: event.data.reference,
+            payment_method: event.data.channel,
+            status: 'completed',
+          });
+          
+          // Increment PPV sales count
+          await storage.incrementPPVSalesCount(metadata.post_id);
+        } else {
+          // Handle as subscription payment
+          await paymentService.processSuccessfulPayment(event.data);
+        }
         break;
       case 'charge.failed':
         console.log('Payment failed:', event.data);

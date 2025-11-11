@@ -223,6 +223,7 @@ export interface IStorage {
   getPPVPurchasesByUser(userId: number, limit?: number, offset?: number): Promise<PPVPurchase[]>;
   getPPVPurchasesByPost(postId: number, limit?: number, offset?: number): Promise<PPVPurchase[]>;
   getCreatorPPVRevenue(creatorId: number, startDate?: Date, endDate?: Date): Promise<number>;
+  incrementPPVSalesCount(postId: number): Promise<void>;
 
   // Creator payout settings methods
   getCreatorPayoutSettings(creatorId: number): Promise<CreatorPayoutSettings | undefined>;
@@ -1202,6 +1203,16 @@ export class DatabaseStorage implements IStorage {
       console.error('Error calculating creator PPV revenue:', error);
       return 0;
     }
+  }
+
+  async incrementPPVSalesCount(postId: number): Promise<void> {
+    await db
+      .update(posts)
+      .set({
+        ppv_sales_count: sql`${posts.ppv_sales_count} + 1`,
+        updated_at: new Date(),
+      })
+      .where(eq(posts.id, postId));
   }
 
   // Get creator subscription tiers
