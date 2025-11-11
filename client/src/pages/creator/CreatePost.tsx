@@ -8,9 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
 
-import { ArrowLeft, Upload, Image, Video, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { ArrowLeft, Upload, Image, Video, Calendar as CalendarIcon, Clock, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,8 +27,20 @@ const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/mov'];
 const formSchema = z.object({
   caption: z.string().optional(),
   accessTier: z.string().min(1, "Please select who can see this post"),
+  ppvEnabled: z.boolean().default(false),
+  ppvPrice: z.coerce.number().positive("Price must be a positive number").optional().or(z.literal(undefined)),
+  ppvCurrency: z.string().default('GHS'),
   scheduledDate: z.date().optional(),
   scheduledTime: z.string().optional(),
+}).refine((data) => {
+  // If PPV is enabled, price is required and must be positive
+  if (data.ppvEnabled && (!data.ppvPrice || data.ppvPrice <= 0)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "PPV price is required when Pay Per View is enabled",
+  path: ["ppvPrice"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -62,6 +75,9 @@ export const CreatePost: React.FC = () => {
     defaultValues: {
       caption: '',
       accessTier: '',
+      ppvEnabled: false,
+      ppvPrice: undefined,
+      ppvCurrency: 'GHS',
       scheduledTime: '',
     },
   });
@@ -237,7 +253,10 @@ export const CreatePost: React.FC = () => {
         media_urls: uploadedMediaUrls,
         tier: data.accessTier === 'free' ? 'public' : data.accessTier,
         status: action === 'draft' ? 'draft' : action === 'schedule' ? 'scheduled' : 'published',
-        scheduled_for: scheduled_for
+        scheduled_for: scheduled_for,
+        is_ppv_enabled: data.ppvEnabled,
+        ppv_price: data.ppvEnabled && data.ppvPrice ? data.ppvPrice : null,
+        ppv_currency: data.ppvEnabled && data.ppvCurrency ? data.ppvCurrency : null
       };
 
       console.log('Creating post with data:', postData);
@@ -438,6 +457,91 @@ export const CreatePost: React.FC = () => {
                     </FormItem>
                   )}
                 />
+
+                {/* PPV Settings */}
+                <div className="space-y-4 border-t border-border pt-6">
+                  <FormField
+                    control={form.control}
+                    name="ppvEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            Enable Pay Per View (PPV)
+                          </FormLabel>
+                          <FormDescription>
+                            Allow fans to purchase permanent access to this specific content without subscribing
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            data-testid="switch-ppv-enabled"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch('ppvEnabled') && (
+                    <div className="grid md:grid-cols-2 gap-4 pl-4 border-l-2 border-primary">
+                      <FormField
+                        control={form.control}
+                        name="ppvPrice"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>PPV Price *</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0.01"
+                                  placeholder="0.00"
+                                  className="pl-10"
+                                  {...field}
+                                  value={field.value ?? ''}
+                                  onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                  data-testid="input-ppv-price"
+                                />
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              One-time payment for permanent access
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="ppvCurrency"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Currency</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger data-testid="select-ppv-currency">
+                                  <SelectValue placeholder="Select currency" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="GHS">GHS (Ghanaian Cedi)</SelectItem>
+                                <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                                <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                                <SelectItem value="GBP">GBP (British Pound)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                </div>
 
                 {/* Schedule Options */}
                 <div className="grid md:grid-cols-2 gap-4">
