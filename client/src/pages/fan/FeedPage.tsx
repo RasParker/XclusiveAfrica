@@ -9,7 +9,7 @@ import { EdgeToEdgeContainer } from '@/components/layout/EdgeToEdgeContainer';
 import { CommentSection } from '@/components/fan/CommentSection';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Heart, MessageSquare, MessageCircle, Calendar, Eye, Share2, Share, ArrowLeft, Image, Video, Music, FileText, Loader2, Grid3X3, List, MoreVertical } from 'lucide-react';
+import { Heart, MessageSquare, MessageCircle, Calendar, Eye, Share2, Share, ArrowLeft, Image, Video, Music, FileText, Loader2, Grid3X3, List, MoreVertical, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
@@ -50,6 +50,35 @@ const getPostThumbnail = (post: any): string | null => {
   
   // No actual media found
   return null;
+};
+
+// Helper function to render PPV price badge
+const renderPpvBadge = (post: any) => {
+  if (!post.is_ppv_enabled || !post.ppv_price) {
+    return null;
+  }
+
+  const formatter = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: post.ppv_currency || 'GHS',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+
+  const formattedPrice = formatter.format(parseFloat(post.ppv_price));
+
+  return (
+    <div className="absolute top-2 right-2 z-30 pointer-events-none">
+      <Badge 
+        variant="secondary" 
+        className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
+        data-testid={`text-ppv-price-${post.id}`}
+      >
+        <DollarSign className="w-3 h-3" />
+        {formattedPrice}
+      </Badge>
+    </div>
+  );
 };
 
 const MOCK_FEED = [
@@ -932,7 +961,8 @@ export const FeedPage: React.FC = () => {
                       </div>
                     )}
 
-
+                    {/* PPV Price Badge */}
+                    {renderPpvBadge(post)}
                   </div>
 
                   {/* Enhanced bottom section with better spacing */}
