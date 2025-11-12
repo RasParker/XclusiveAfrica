@@ -66,6 +66,13 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
               </svg>
               <span className="capitalize">{tier.toLowerCase() === 'ppv' ? 'Pay Per View' : tier} Tier</span>
             </div>
+            
+            {/* PPV Price hint - render internally for consistent spacing */}
+            {ppvEnabled && ppvPrice && (
+              <p className="text-xs text-white/70 font-medium">
+                One-time unlock for {ppvCurrency} {parseFloat(ppvPrice).toFixed(2)}
+              </p>
+            )}
           </div>
 
           {showButton && (
