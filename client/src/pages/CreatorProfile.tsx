@@ -1920,114 +1920,35 @@ export const CreatorProfile: React.FC = () => {
                       }}
                     >
                       {(() => {
-                        const hasAccess = hasAccessToTier(post.tier);
+                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.ppv_purchases?.some((p: any) => p.user_id === user?.id));
 
-                        if (!hasAccess) {
-                          return (
-                            <div className="w-full h-full relative overflow-hidden group">
-                              {/* Blurred content preview underneath */}
-                              <div className="absolute inset-0">
-                                {(() => {
-                                  const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
-                                  const mediaUrl = mediaUrls[0];
-
-                                  if (mediaUrl) {
-                                    const fullUrl = getImageUrl(mediaUrl);
-
-                                    return post.media_type === 'video' ? (
-                                      <img 
-                                        src={
-                                          fullUrl?.includes('cloudinary.com/') 
-                                            ? fullUrl.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
-                                            : fullUrl
-                                        }
-                                        alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-md scale-110"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Premium+Content`;
-                                        }}
-                                      />
-                                    ) : (
-                                      <img 
-                                        src={fullUrl}
-                                        alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-md scale-110"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
-                                          target.className = "w-full h-full object-cover opacity-50 blur-xl scale-110";
-                                        }}
-                                      />
-                                    );
-                                  } else {
-                                    return (
-                                      <img 
-                                        src={post.id === '1' ? 'https://placehold.co/640x360/E63946/FFFFFF?text=Exclusive+Content' :
-                                             post.id === '2' ? 'https://placehold.co/640x360/457B9D/FFFFFF?text=Exclusive+Content' :
-                                             post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
-                                             `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
-                                        alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-md scale-110"
-                                      />
-                                    );
-                                  }
-                                })()}
-                              </div>
-
-                              {/* Frosted glass overlay with gradient */}
-                              <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 backdrop-blur-xl group-hover:backdrop-blur-2xl transition-all duration-500" />
-
-                              {/* Lock icon and CTA */}
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center p-4 space-y-3">
-                                  {/* Animated lock icon */}
-                                  <div className="w-14 h-14 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
-                                    <svg className="w-7 h-7 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                  </div>
-
-                                  {/* Exclusive tier badge */}
-                                  <div className="space-y-2">
-                                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-white border border-white/30 backdrop-blur-md shadow-lg">
-                                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                      </svg>
-                                      {post.tier === 'ppv' ? 'Pay Per View' : post.tier} Tier
-                                    </div>
-                                  </div>
-
-                                  {/* Enhanced CTA button with shimmer effect */}
-                                  <Button 
-                                    size="sm" 
-                                    className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (!user) {
-                                        window.location.href = `/login?redirect=/creator/${username}`;
-                                      } else if (creator && creator.tiers && creator.tiers.length > 0) {
-                                        setSubscriptionTierModalOpen(true);
-                                      } else {
-                                        document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
-                                      }
-                                    }}
-                                    data-testid="button-unlock-content"
-                                  >
-                                    <span className="relative z-10 flex items-center gap-2">
-                                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                      </svg>
-                                      {!user ? 'Login to Unlock' : 'Unlock Full Access'}
-                                    </span>
-                                    {/* Shimmer effect */}
-                                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        }
+                        return !hasAccess ? (
+                          <LockedContentOverlay
+                            thumbnail={getImageUrl(post.media_urls?.[0])}
+                            tier={post.tier}
+                            isVideo={post.media_type === 'video'}
+                            onUnlockClick={(e) => {
+                              e.stopPropagation();
+                              if (!user) {
+                                window.location.href = `/login?redirect=/creator/${username}`;
+                              } else if (post.is_ppv_enabled) {
+                                handlePPVPurchase(post);
+                              } else if (creator && creator.tiers && creator.tiers.length > 0) {
+                                setSubscriptionTierModalOpen(true);
+                              } else {
+                                document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }}
+                            showButton={true}
+                            ppvEnabled={post.is_ppv_enabled}
+                            ppvPrice={post.ppv_price}
+                            ppvCurrency={post.ppv_currency || 'GHS'}
+                          />
+                        ) : null;
+                      })()}
+                      {(() => {
+                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.ppv_purchases?.some((p: any) => p.user_id === user?.id));
+                        if (!hasAccess) return null;
 
                         const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
                         const mediaUrl = mediaUrls[0];
@@ -2142,114 +2063,32 @@ export const CreatorProfile: React.FC = () => {
                       }}
                     >
                       {(() => {
-                        const hasAccess = hasAccessToTier(post.tier);
+                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.ppv_purchases?.some((p: any) => p.user_id === user?.id));
 
-                        if (!hasAccess) {
-                          return (
-                            <div className="w-full h-full relative overflow-hidden group">
-                              {/* Blurred content preview underneath */}
-                              <div className="absolute inset-0">
-                                {(() => {
-                                  const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
-                                  const mediaUrl = mediaUrls[0];
-
-                                  if (mediaUrl) {
-                                    const fullUrl = getImageUrl(mediaUrl);
-
-                                    return post.media_type === 'video' ? (
-                                      <img 
-                                        src={
-                                          fullUrl?.includes('cloudinary.com/') 
-                                            ? fullUrl.replace('/upload/', '/upload/so_0,w_800,h_800,c_fill,f_jpg/').replace('.mp4', '.jpg')
-                                            : fullUrl
-                                        }
-                                        alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-md scale-110"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Premium+Content`;
-                                        }}
-                                      />
-                                    ) : (
-                                      <img 
-                                        src={fullUrl}
-                                        alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-md scale-110"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
-                                          target.className = "w-full h-full object-cover opacity-50 blur-xl scale-110";
-                                        }}
-                                      />
-                                    );
-                                  } else {
-                                    return (
-                                      <img 
-                                        src={post.id === '1' ? 'https://placehold.co/640x360/E63946/FFFFFF?text=Exclusive+Content' :
-                                             post.id === '2' ? 'https://placehold.co/640x360/457B9D/FFFFFF?text=Exclusive+Content' :
-                                             post.id === '3' ? 'https://placehold.co/640x360/1D3557/FFFFFF?text=Exclusive+Content' :
-                                             `https://placehold.co/640x360/6366F1/FFFFFF?text=Premium+Content`}
-                                        alt="Locked content preview"
-                                        className="w-full h-full object-cover blur-md scale-110"
-                                      />
-                                    );
-                                  }
-                                })()}
-                              </div>
-
-                              {/* Frosted glass overlay with gradient */}
-                              <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60 backdrop-blur-xl group-hover:backdrop-blur-2xl transition-all duration-500" />
-
-                              {/* Lock icon and CTA */}
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center p-4 space-y-3">
-                                  {/* Animated lock icon */}
-                                  <div className="w-14 h-14 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
-                                    <svg className="w-7 h-7 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                  </div>
-
-                                  {/* Exclusive tier badge */}
-                                  <div className="space-y-2">
-                                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/10 text-white border border-white/30 backdrop-blur-md shadow-lg">
-                                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                      </svg>
-                                      {post.tier} Tier
-                                    </div>
-                                  </div>
-
-                                  {/* Enhanced CTA button with shimmer effect */}
-                                  <Button 
-                                    size="sm" 
-                                    className="bg-accent hover:bg-accent/90 text-white text-sm px-6 py-2.5 rounded-lg font-semibold shadow-2xl hover:shadow-accent/50 transition-all duration-300 hover:scale-105 relative overflow-hidden group/btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (!user) {
-                                        window.location.href = `/login?redirect=/creator/${username}`;
-                                      } else if (creator && creator.tiers && creator.tiers.length > 0) {
-                                        setSubscriptionTierModalOpen(true);
-                                      } else {
-                                        document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
-                                      }
-                                    }}
-                                    data-testid="button-unlock-content"
-                                  >
-                                    <span className="relative z-10 flex items-center gap-2">
-                                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
-                                      </svg>
-                                      {!user ? 'Login to Unlock' : 'Unlock Full Access'}
-                                    </span>
-                                    {/* Shimmer effect */}
-                                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        }
+                        return !hasAccess ? (
+                          <LockedContentOverlay
+                            thumbnail={getImageUrl(post.media_urls?.[0])}
+                            tier={post.tier}
+                            isVideo={post.media_type === 'video'}
+                            onUnlockClick={(e) => {
+                              e.stopPropagation();
+                              if (!user) {
+                                window.location.href = `/login?redirect=/creator/${username}`;
+                              } else if (post.is_ppv_enabled) {
+                                handlePPVPurchase(post);
+                              } else if (creator && creator.tiers && creator.tiers.length > 0) {
+                                setSubscriptionTierModalOpen(true);
+                              } else {
+                                document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }}
+                            showButton={true}
+                            ppvEnabled={post.is_ppv_enabled}
+                            ppvPrice={post.ppv_price}
+                            ppvCurrency={post.ppv_currency || 'GHS'}
+                          />
+                        ) : null;
+                      })() || (() => {
 
                         const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
                         const mediaUrl = mediaUrls[0];
@@ -2403,20 +2242,6 @@ export const CreatorProfile: React.FC = () => {
                           </>
                         );
                       })()}
-
-                      {/* PPV Price Badge - only show on locked PPV content */}
-                      {!hasAccessToTier(post.tier) && !(post.is_ppv_enabled && post.ppv_purchases?.some(p => p.user_id === user?.id)) && post.is_ppv_enabled && post.ppv_price && (
-                        <div className="absolute top-2 right-2 z-30 pointer-events-none">
-                          <Badge 
-                            variant="secondary" 
-                            className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
-                            data-testid={`text-ppv-price-${post.id}`}
-                          >
-                            <DollarSign className="w-3 h-3" />
-                            {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(0)}
-                          </Badge>
-                        </div>
-                      )}
                     </div>
 
                     {/* Bottom section - Use PostCardLayout for consistency */}
