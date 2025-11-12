@@ -503,6 +503,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             posts.media_type,
             posts.views_count,
             posts.duration,
+            posts.is_ppv_enabled,
+            posts.ppv_price,
+            posts.ppv_currency,
             users.username,
             users.avatar,
             users.display_name,
@@ -547,6 +550,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             posts.media_type,
             posts.views_count,
             posts.duration,
+            posts.is_ppv_enabled,
+            posts.ppv_price,
+            posts.ppv_currency,
             users.username,
             users.avatar,
             users.display_name,
@@ -585,7 +591,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         SELECT 
           id, creator_id, title, content, media_urls, tier, status, scheduled_for,
           created_at, updated_at, likes_count, comments_count, media_type, views_count,
-          duration, username, avatar, display_name, creator, access_type, has_access
+          duration, username, avatar, display_name, creator, access_type, has_access,
+          is_ppv_enabled, ppv_price, ppv_currency
         FROM ranked_posts 
         WHERE rn = 1
         ORDER BY created_at DESC
