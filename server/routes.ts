@@ -739,10 +739,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ppv_currency: req.body.ppv_currency || 'GHS',
       };
 
-      console.log('Creating post with data:', postData);
-      const post = await storage.createPost(postData);
-
-      // Validate required fields
+      // Validate required fields BEFORE creating the post
       if (!postData.creator_id) {
         return res.status(400).json({ error: 'Creator ID is required' });
       }
@@ -755,6 +752,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Access tier is required' });
       }
 
+      console.log('Creating post with data:', postData);
       const newPost = await db.insert(posts).values(postData).returning();
 
       console.log('Post created successfully:', newPost[0].id);

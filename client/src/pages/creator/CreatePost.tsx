@@ -250,7 +250,7 @@ export const CreatePost: React.FC = () => {
         content: data.caption || '',
         media_type: mediaType || 'text',
         media_urls: uploadedMediaUrls,
-        tier: data.accessTier === 'free' ? 'public' : isPPV ? 'public' : data.accessTier,
+        tier: isPPV ? 'ppv' : data.accessTier === 'free' ? 'public' : data.accessTier,
         status: action === 'draft' ? 'draft' : action === 'schedule' ? 'scheduled' : 'published',
         scheduled_for: scheduled_for,
         is_ppv_enabled: isPPV,
