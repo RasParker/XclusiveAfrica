@@ -916,6 +916,13 @@ export const FeedPage: React.FC = () => {
                                 </svg>
                                 {post.tier === 'public' ? 'Free' : post.tier === 'ppv' ? 'Pay Per View Tier' : `${post.tier} Tier`}
                               </div>
+                              
+                              {/* PPV Price hint */}
+                              {post.is_ppv_enabled && post.ppv_price && (
+                                <p className="text-xs text-white/70 font-medium">
+                                  One-time unlock for {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(2)}
+                                </p>
+                              )}
                             </div>
 
                             <Button 
@@ -1266,6 +1273,13 @@ export const FeedPage: React.FC = () => {
                                 </svg>
                                 {post.tier.toLowerCase() === 'ppv' ? 'Pay Per View' : post.tier} Tier
                               </div>
+                              
+                              {/* PPV Price hint */}
+                              {post.is_ppv_enabled && post.ppv_price && (
+                                <p className="text-xs text-white/70 font-medium">
+                                  One-time unlock for {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(2)}
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1461,6 +1475,13 @@ export const FeedPage: React.FC = () => {
                                 </svg>
                                 {post.tier === 'public' ? 'Free' : post.tier === 'ppv' ? 'Pay Per View Tier' : `${post.tier} Tier`}
                               </div>
+                              
+                              {/* PPV Price hint */}
+                              {post.is_ppv_enabled && post.ppv_price && (
+                                <p className="text-xs text-white/70 font-medium">
+                                  One-time unlock for {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(2)}
+                                </p>
+                              )}
                             </div>
 
                             <Button 
