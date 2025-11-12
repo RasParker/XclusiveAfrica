@@ -422,7 +422,10 @@ export const FeedPage: React.FC = () => {
               liked: false,
               initialComments: [],
               hasAccess: hasAccess,
-              access_type: post.access_type || 'unknown'
+              access_type: post.access_type || 'unknown',
+              is_ppv_enabled: post.is_ppv_enabled || false,
+              ppv_price: post.ppv_price || null,
+              ppv_currency: post.ppv_currency || 'GHS'
             };
           });
 
