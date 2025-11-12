@@ -66,13 +66,6 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
               </svg>
               <span className="capitalize">{tier === 'ppv' ? 'Pay Per View' : tier} Tier</span>
             </div>
-            
-            <p className="text-white/90 text-sm max-w-xs mx-auto">
-              {user 
-                ? 'Unlock this exclusive content'
-                : 'Sign in to unlock this content'
-              }
-            </p>
           </div>
 
           {showButton && (
