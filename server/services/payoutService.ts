@@ -5,6 +5,8 @@ import { payment_transactions, creator_payouts } from '../../shared/schema';
 
 export interface PayoutCalculation {
   creator_id: number;
+  subscription_revenue: number;
+  ppv_revenue: number;
   gross_revenue: number;
   platform_fee: number;
   paystack_fees: number;
@@ -87,28 +89,37 @@ export class PayoutService {
     endDate: Date
   ): Promise<PayoutCalculation> {
     try {
-      // Get all successful payment transactions for this creator in the period
+      // Get subscription revenue from payment transactions
       const transactions = await storage.getCreatorPaymentTransactions(creatorId, startDate, endDate);
       
-      let gross_revenue = 0;
+      let subscription_revenue = 0;
       let transaction_count = 0;
       
       for (const transaction of transactions) {
-        gross_revenue += parseFloat(transaction.amount);
+        subscription_revenue += parseFloat(transaction.amount);
         transaction_count++;
       }
+      
+      // Get PPV revenue
+      const ppv_revenue = await storage.getCreatorPPVRevenue(creatorId, startDate, endDate);
+      
+      // Calculate total revenue
+      const gross_revenue = subscription_revenue + ppv_revenue;
       
       // Get platform settings for commission rate
       const platformSettings = await storage.getPlatformSettings();
       const platform_fee_rate = platformSettings.commission_rate; // Use dynamic commission rate
       const paystack_fee_rate = 0.035; // 3.5% Paystack fee (approximate)
       
+      // Calculate fees on combined revenue
       const platform_fee = gross_revenue * platform_fee_rate;
       const paystack_fees = gross_revenue * paystack_fee_rate;
       const net_payout = gross_revenue - platform_fee - paystack_fees;
       
       return {
         creator_id: creatorId,
+        subscription_revenue,
+        ppv_revenue,
         gross_revenue,
         platform_fee,
         paystack_fees,
@@ -148,12 +159,16 @@ export class PayoutService {
       // Create pending payout record
       const payout = await storage.createCreatorPayout({
         creator_id: calculation.creator_id,
-        amount: calculation.net_payout.toString(),
+        subscription_revenue: calculation.subscription_revenue.toFixed(2),
+        ppv_revenue: calculation.ppv_revenue.toFixed(2),
+        total_revenue: calculation.gross_revenue.toFixed(2),
+        platform_fee: calculation.platform_fee.toFixed(2),
+        payout_amount: calculation.net_payout.toFixed(2),
         currency: 'GHS',
         status: 'pending',
         period_start,
         period_end,
-        payout_method: payoutSettings.payout_method
+        payment_method: payoutSettings.payout_method
       });
       
       console.log(`Created payout record ${payout.id} for creator ${calculation.creator_id}: GHS ${calculation.net_payout}`);

@@ -135,6 +135,22 @@ export const CreatorDashboard: React.FC = () => {
     enabled: !!user
   });
 
+  // Fetch current earnings with PPV breakdown
+  const { data: earningsData } = useQuery({
+    queryKey: ['creator', user?.id, 'current-earnings'],
+    queryFn: async () => {
+      if (!user) return null;
+      const response = await fetch(`/api/payouts/creator/${user.id}/current-earnings`);
+      if (response.ok) {
+        const result = await response.json();
+        return result.data;
+      }
+      return null;
+    },
+    enabled: !!user,
+    refetchInterval: 60000 // Refetch every minute
+  });
+
   const fetchUserPosts = async () => {
     if (!user) return;
 
@@ -343,6 +359,70 @@ export const CreatorDashboard: React.FC = () => {
             </Card>
 
             <QuickActionsGrid />
+
+            {/* Revenue Breakdown - Subscriptions vs PPV */}
+            {earningsData && (
+              <Card className="bg-gradient-card border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-base sm:text-xl">Revenue This Month</CardTitle>
+                  <CardDescription className="text-sm">Subscription vs Pay-Per-View breakdown</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-2xl font-bold text-foreground">
+                        GHS {earningsData.gross_revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        Current Month
+                      </Badge>
+                    </div>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Subscriptions</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">
+                            GHS {parseFloat(earningsData.subscription_revenue).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            ({earningsData.gross_revenue > 0 
+                              ? Math.round((parseFloat(earningsData.subscription_revenue) / earningsData.gross_revenue) * 100) 
+                              : 0}%)
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Pay Per View</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-foreground">
+                            GHS {parseFloat(earningsData.ppv_revenue).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            ({earningsData.gross_revenue > 0 
+                              ? Math.round((parseFloat(earningsData.ppv_revenue) / earningsData.gross_revenue) * 100) 
+                              : 0}%)
+                          </span>
+                        </div>
+                      </div>
+                      <div className="pt-3 border-t border-border">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>Platform Fee (10%)</span>
+                          <span>-GHS {parseFloat(earningsData.platform_fee).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
+                          <span>Payment Processing (~3.5%)</span>
+                          <span>-GHS {parseFloat(earningsData.paystack_fees).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                        <div className="flex items-center justify-between font-semibold text-foreground mt-2 pt-2 border-t border-border">
+                          <span>Estimated Net Payout</span>
+                          <span>GHS {earningsData.net_payout.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Subscription Tiers Performance */}
             <Card className="bg-gradient-card border-border/50">
