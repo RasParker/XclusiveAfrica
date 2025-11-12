@@ -1933,7 +1933,7 @@ export const CreatorProfile: React.FC = () => {
 
                                   if (mediaUrl) {
                                     const fullUrl = getImageUrl(mediaUrl);
-                                    
+
                                     return post.media_type === 'video' ? (
                                       <img 
                                         src={
@@ -2155,7 +2155,7 @@ export const CreatorProfile: React.FC = () => {
 
                                   if (mediaUrl) {
                                     const fullUrl = getImageUrl(mediaUrl);
-                                    
+
                                     return post.media_type === 'video' ? (
                                       <img 
                                         src={
@@ -2364,60 +2364,43 @@ export const CreatorProfile: React.FC = () => {
                       }}
                     >
                       {(() => {
-                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.hasPPVAccess);
+                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.ppv_purchases?.some(p => p.user_id === user?.id));
 
-                        if (!hasAccess) {
-                          return (
-                            <LockedContentOverlay
-                              thumbnail={Array.isArray(post.media_urls) ? post.media_urls[0] : post.media_urls}
-                              tier={post.tier}
-                              isVideo={post.media_type === 'video'}
-                              onUnlockClick={(e) => {
-                                e.stopPropagation();
-                                if (post.is_ppv_enabled) {
-                                  handlePPVPurchase(post);
-                                } else {
-                                  setSubscriptionTierModalOpen(true);
-                                }
-                              }}
-                              className="w-full h-full"
-                              ppvEnabled={post.is_ppv_enabled}
-                              ppvPrice={post.ppv_price}
-                              ppvCurrency={post.ppv_currency || 'GHS'}
-                            />
-                          );
-                        }
-
-                        const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
-                        const mediaUrl = mediaUrls[0];
-
-                        if (mediaUrl) {
-                          const fullUrl = getImageUrl(mediaUrl);
-
-                          return post.media_type === 'video' ? (
-                            <video 
-                              src={fullUrl}
-                              className="w-full h-full object-contain bg-black"
-                              controls
-                              playsInline
-                            />
-                          ) : (
-                            <img 
-                              src={fullUrl}
-                              alt={post.title}
-                              className="w-full h-full object-contain"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Image+Not+Found`;
-                              }}
-                            />
-                          );
-                        }
-
-                        return (
-                          <div className="flex items-center justify-center h-full bg-muted">
-                            <FileText className="w-12 h-12 text-muted-foreground" />
-                          </div>
+                        return !hasAccess ? (
+                          <LockedContentOverlay
+                            thumbnail={getImageUrl(post.media_urls?.[0])}
+                            tier={post.tier}
+                            isVideo={post.media_type === 'video'}
+                            onUnlockClick={(e) => {
+                              e.stopPropagation();
+                              handlePPVPurchase(post);
+                            }}
+                            showButton={true}
+                            ppvEnabled={post.is_ppv_enabled}
+                            ppvPrice={post.ppv_price}
+                            ppvCurrency={post.ppv_currency || 'GHS'}
+                          />
+                        ) : (
+                          <>
+                            {post.media_type === 'video' ? (
+                              <video
+                                src={getImageUrl(post.media_urls?.[0])}
+                                className="w-full h-full object-contain bg-black"
+                                controls
+                                playsInline
+                              />
+                            ) : (
+                              <img
+                                src={getImageUrl(post.media_urls?.[0])}
+                                alt={post.title}
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Image+Not+Found`;
+                                }}
+                              />
+                            )}
+                          </>
                         );
                       })()}
 
@@ -2491,7 +2474,7 @@ export const CreatorProfile: React.FC = () => {
 
                                   if (mediaUrl) {
                                     const fullUrl = getImageUrl(mediaUrl);
-                                    
+
                                     return post.media_type === 'video' ? (
                                       <img 
                                         src={
