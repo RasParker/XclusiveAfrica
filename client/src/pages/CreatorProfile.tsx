@@ -945,9 +945,11 @@ export const CreatorProfile: React.FC = () => {
 
     switch (activeTab) {
       case 'public':
-        return userPosts.filter(post => post.tier?.toLowerCase() === 'public');
+        return userPosts.filter(post => post.tier?.toLowerCase() === 'public' && !post.is_ppv_enabled);
       case 'subscription':
-        return userPosts.filter(post => post.tier?.toLowerCase() !== 'public');
+        return userPosts.filter(post => post.tier?.toLowerCase() !== 'public' && !post.is_ppv_enabled);
+      case 'ppv':
+        return userPosts.filter(post => post.is_ppv_enabled);
       case 'all':
       default:
         return userPosts;
@@ -956,12 +958,13 @@ export const CreatorProfile: React.FC = () => {
 
   // Get post counts for each tab
   const getPostCounts = () => {
-    if (!userPosts) return { all: 0, subscription: 0, public: 0 };
+    if (!userPosts) return { all: 0, subscription: 0, public: 0, ppv: 0 };
 
     return {
       all: userPosts.length,
-      subscription: userPosts.filter(post => post.tier?.toLowerCase() !== 'public').length,
-      public: userPosts.filter(post => post.tier?.toLowerCase() === 'public').length
+      subscription: userPosts.filter(post => post.tier?.toLowerCase() !== 'public' && !post.is_ppv_enabled).length,
+      public: userPosts.filter(post => post.tier?.toLowerCase() === 'public' && !post.is_ppv_enabled).length,
+      ppv: userPosts.filter(post => post.is_ppv_enabled).length
     };
   };
 
@@ -1852,12 +1855,15 @@ export const CreatorProfile: React.FC = () => {
           {/* Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Tab Navigation */}
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="all" className="text-sm">
                 All ({getPostCounts().all})
               </TabsTrigger>
               <TabsTrigger value="subscription" className="text-sm">
                 Subscription ({getPostCounts().subscription})
+              </TabsTrigger>
+              <TabsTrigger value="ppv" className="text-sm">
+                PPV ({getPostCounts().ppv})
               </TabsTrigger>
               <TabsTrigger value="public" className="text-sm">
                 Public ({getPostCounts().public})
@@ -2303,6 +2309,120 @@ export const CreatorProfile: React.FC = () => {
             ) : (
               <div className="text-center py-10">
                 <p className="text-muted-foreground">No subscription content available from this creator.</p>
+              </div>
+            )}
+          </div>
+            </TabsContent>
+
+            <TabsContent value="ppv" className="space-y-6">
+              {/* PPV Posts Content */}
+              <div>
+            {getFilteredPosts().length > 0 ? (
+              <div className="w-full bg-background space-y-0 md:space-y-6 scrollbar-hide mobile-feed-container" style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}>
+                {getFilteredPosts().map((post) => (
+                  <div key={post.id} className="w-full bg-background border-b border-border/20 overflow-hidden md:rounded-lg md:border md:border-border/50 md:shadow-sm">
+                    <div 
+                      className="relative w-full aspect-video bg-black cursor-pointer md:rounded-t-lg overflow-hidden"
+                      onClick={() => handleContentClick(post)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleContentClick(post);
+                        }
+                      }}
+                    >
+                      {(() => {
+                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.hasPPVAccess);
+
+                        if (!hasAccess) {
+                          return (
+                            <LockedContentOverlay
+                              thumbnail={Array.isArray(post.media_urls) ? post.media_urls[0] : post.media_urls}
+                              tier={post.tier}
+                              isVideo={post.media_type === 'video'}
+                              onUnlockClick={(e) => {
+                                e.stopPropagation();
+                                if (post.is_ppv_enabled) {
+                                  handlePPVPurchase(post);
+                                } else {
+                                  setSubscriptionTierModalOpen(true);
+                                }
+                              }}
+                              className="w-full h-full"
+                              ppvEnabled={post.is_ppv_enabled}
+                              ppvPrice={post.ppv_price}
+                              ppvCurrency={post.ppv_currency || 'GHS'}
+                            />
+                          );
+                        }
+
+                        const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+                        const mediaUrl = mediaUrls[0];
+
+                        if (mediaUrl) {
+                          const fullUrl = getImageUrl(mediaUrl);
+
+                          return post.media_type === 'video' ? (
+                            <video 
+                              src={fullUrl}
+                              className="w-full h-full object-contain bg-black"
+                              controls
+                              playsInline
+                            />
+                          ) : (
+                            <img 
+                              src={fullUrl}
+                              alt={post.title}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Image+Not+Found`;
+                              }}
+                            />
+                          );
+                        }
+
+                        return (
+                          <div className="flex items-center justify-center h-full bg-muted">
+                            <FileText className="w-12 h-12 text-muted-foreground" />
+                          </div>
+                        );
+                      })()}
+
+                      {post.media_type && (
+                        <div className="absolute bottom-2 right-2">
+                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-black/60 backdrop-blur-sm">
+                            {getMediaOverlayIcon(post.media_type)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom section - Use PostCardLayout for consistency */}
+                    <PostCardLayout
+                      post={post}
+                      creator={creator}
+                      postLikes={postLikes}
+                      isOwnProfile={isOwnProfile}
+                      getImageUrl={getImageUrl}
+                      getTimeAgo={getTimeAgo}
+                      handleLike={handleLike}
+                      handleCommentClick={handleCommentClick}
+                      handleShare={handleShare}
+                      handleEditPost={handleEditPost}
+                      handleDeletePost={handleDeletePost}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground">No Pay-Per-View content available from this creator.</p>
               </div>
             )}
           </div>
