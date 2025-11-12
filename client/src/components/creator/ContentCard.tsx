@@ -122,7 +122,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
               type === 'Video' ? (
                 <video
                   src={mediaPreview}
-                  className="w-16 h-16 object-cover rounded-lg"
+                  className="w-16 h-16 sm:w-32 sm:h-18 object-cover rounded-lg"
                   muted
                   preload="metadata"
                   onError={(e) => {
@@ -133,7 +133,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                 <img
                   src={mediaPreview}
                   alt={caption}
-                  className="w-16 h-16 object-cover rounded-lg"
+                  className="w-16 h-16 sm:w-32 sm:h-18 object-cover rounded-lg"
                   onError={(e) => {
                     console.error('Image thumbnail load error:', mediaPreview);
                     const target = e.target as HTMLImageElement;
@@ -143,7 +143,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                 />
               )
             ) : (
-              <div className="w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-32 sm:h-18 bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center">
                 {getTypeIcon()}
               </div>
             )}
