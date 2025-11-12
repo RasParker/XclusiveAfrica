@@ -66,8 +66,7 @@ export function PPVPaymentModal({ isOpen, onClose, post, userId, onSuccess }: PP
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md" data-testid="modal-ppv-payment">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Lock className="w-5 h-5 text-primary" />
+          <DialogTitle>
             Unlock This Content
           </DialogTitle>
         </DialogHeader>
