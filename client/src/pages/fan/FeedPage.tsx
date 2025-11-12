@@ -40,7 +40,7 @@ const getPostThumbnail = (post: any): string | null => {
   if (post.thumbnail) {
     return post.thumbnail;
   }
-  
+
   // Then try media_urls array
   if (post.media_urls) {
     const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
@@ -48,7 +48,7 @@ const getPostThumbnail = (post: any): string | null => {
       return mediaUrls[0];
     }
   }
-  
+
   // No actual media found
   return null;
 };
@@ -392,7 +392,7 @@ export const FeedPage: React.FC = () => {
             // IMPORTANT: Trust the backend's has_access flag completely
             // Backend already checked subscription tier access
             const hasAccess = post.has_access === true;
-            
+
             console.log(`Post ${post.id} access:`, {
               tier: postTier,
               has_access: post.has_access,
@@ -443,7 +443,7 @@ export const FeedPage: React.FC = () => {
             hasAccess: p.hasAccess,
             access_type: p.access_type 
           })));
-          
+
           setFeed(uniquePosts);
         } else {
           const errorText = await response.text();
@@ -585,10 +585,10 @@ export const FeedPage: React.FC = () => {
           fetch(`/api/users/${post.creator.id}`),
           fetch(`/api/creators/${post.creator.id}/tiers`)
         ]);
-        
+
         const creatorData = userResponse.ok ? await userResponse.json() : null;
         const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-        
+
         if (creatorData) {
           setSelectedCreatorForSubscription({
             id: creatorData.id,
@@ -870,6 +870,10 @@ export const FeedPage: React.FC = () => {
                               alt="Locked content preview"
                               className="w-full h-full object-cover blur-md scale-110"
                               loading={index > 3 ? "lazy" : "eager"}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `https://placehold.co/800x800/6366F1/FFFFFF?text=Creator+Post+${post.id}`;
+                              }}
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800" />
@@ -893,7 +897,7 @@ export const FeedPage: React.FC = () => {
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
-                                {post.tier === 'public' ? 'Free' : `${post.tier} Tier`}
+                                {post.tier === 'public' ? 'Free' : post.tier === 'ppv' ? 'Pay Per View Tier' : `${post.tier} Tier`}
                               </div>
                             </div>
 
@@ -924,10 +928,10 @@ export const FeedPage: React.FC = () => {
                                         fetch(`/api/users/${post.creator.id}`),
                                         fetch(`/api/creators/${post.creator.id}/tiers`)
                                       ]);
-                                      
+
                                       const creatorData = userResponse.ok ? await userResponse.json() : null;
                                       const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-                                      
+
                                       if (creatorData) {
                                         setSelectedCreatorForSubscription({
                                           id: creatorData.id,
@@ -1438,7 +1442,7 @@ export const FeedPage: React.FC = () => {
                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                 </svg>
-                                {post.tier === 'public' ? 'Free' : `${post.tier} Tier`}
+                                {post.tier === 'public' ? 'Free' : post.tier === 'ppv' ? 'Pay Per View Tier' : `${post.tier} Tier`}
                               </div>
                             </div>
 
@@ -1469,10 +1473,10 @@ export const FeedPage: React.FC = () => {
                                         fetch(`/api/users/${post.creator.id}`),
                                         fetch(`/api/creators/${post.creator.id}/tiers`)
                                       ]);
-                                      
+
                                       const creatorData = userResponse.ok ? await userResponse.json() : null;
                                       const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-                                      
+
                                       if (creatorData) {
                                         setSelectedCreatorForSubscription({
                                           id: creatorData.id,
