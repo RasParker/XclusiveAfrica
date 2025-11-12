@@ -60,7 +60,6 @@ export function PPVPaymentModal({ isOpen, onClose, post, userId, onSuccess }: PP
     }
   };
 
-  const thumbnail = post.media_urls?.[0] || null;
   const price = parseFloat(post.ppv_price);
 
   return (
@@ -74,20 +73,6 @@ export function PPVPaymentModal({ isOpen, onClose, post, userId, onSuccess }: PP
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Content Preview */}
-          {thumbnail && (
-            <div className="relative w-full h-40 rounded-md overflow-hidden bg-muted">
-              <img
-                src={thumbnail}
-                alt={post.title}
-                className="w-full h-full object-cover blur-sm"
-              />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <Lock className="w-8 h-8 text-white" />
-              </div>
-            </div>
-          )}
-
           {/* Content Details */}
           <div className="space-y-1">
             <h3 className="font-semibold text-lg" data-testid="text-ppv-title">{post.title}</h3>
