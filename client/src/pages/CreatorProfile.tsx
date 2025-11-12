@@ -14,6 +14,7 @@ import { CommentSection } from '@/components/fan/CommentSection';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import { TierDetailsModal } from '@/components/subscription/TierDetailsModal';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
+import { LockedContentOverlay } from '@/components/content/LockedContentOverlay';
 import { useAuth } from '@/contexts/AuthContext';
 import { Star, Users, UserPlus, UserCheck, DollarSign, Settings, Eye, MessageSquare, Heart, Share2, Share, Image, Video, FileText, Edit, Trash2, ArrowLeft, Plus, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -192,6 +193,7 @@ export const CreatorProfile: React.FC = () => {
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<any>(null);
+  const [selectedPPVPost, setSelectedPPVPost] = useState<any>(null);
   const [isSubscriptionTiersExpanded, setIsSubscriptionTiersExpanded] = useState(false);
   const [tierDetailsModalOpen, setTierDetailsModalOpen] = useState(false);
   const [subscriptionTierModalOpen, setSubscriptionTierModalOpen] = useState(false);
@@ -1107,6 +1109,22 @@ export const CreatorProfile: React.FC = () => {
       title: "Link copied",
       description: "Post link has been copied to your clipboard.",
     });
+  };
+
+  // PPV purchase handler
+  const handlePPVPurchase = (post: any) => {
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please log in to purchase this content.",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    setSelectedPPVPost(post);
+    setPaymentModalOpen(true);
   };
 
   // Chat initiation functionality
@@ -2736,14 +2754,16 @@ export const CreatorProfile: React.FC = () => {
       )}
 
       {/* Payment Modal */}
-      {selectedTier && creator && (
+      {(selectedTier || selectedPPVPost) && creator && (
         <PaymentModal 
           isOpen={paymentModalOpen} 
           onClose={() => {
             setPaymentModalOpen(false);
             setSelectedTier(null);
+            setSelectedPPVPost(null);
           }} 
           tier={selectedTier} 
+          ppvPost={selectedPPVPost}
           creatorName={creator.display_name || creator.username}
         />
       )}

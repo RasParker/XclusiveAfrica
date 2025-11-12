@@ -12,20 +12,76 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CreditCard, Smartphone, Loader2, Lock, Shield, Star, Check, AlertCircle } from 'lucide-react';
 import { validatePhoneNumber } from '@/lib/validation';
 
+type PurchaseIntent = 
+  | { type: 'subscription'; tier: {
+      id: number;
+      name: string;
+      price: string;
+      description: string;
+      creator_id: number;
+    }}
+  | { type: 'ppv'; post: {
+      id: number;
+      title: string;
+      ppv_price: string;
+      ppv_currency: string;
+      creator_id: number;
+    }};
+
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  tier: {
+  tier?: {
     id: number;
     name: string;
     price: string;
     description: string;
     creator_id: number;
   };
+  ppvPost?: {
+    id: number;
+    title: string;
+    ppv_price: string;
+    ppv_currency: string;
+    creator_id: number;
+  };
   creatorName: string;
 }
 
-export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tier, creatorName }) => {
+export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tier, ppvPost, creatorName }) => {
+  // Determine purchase intent
+  const intent: PurchaseIntent | null = tier 
+    ? { type: 'subscription', tier }
+    : ppvPost 
+    ? { type: 'ppv', post: ppvPost }
+    : null;
+
+  // Get display values based on intent
+  const getDisplayInfo = () => {
+    if (!intent) return { title: '', price: '', description: '', buttonLabel: '', isRecurring: false, footerNote: '' };
+    
+    if (intent.type === 'subscription') {
+      return {
+        title: `Subscribe to ${creatorName}`,
+        price: `GHS ${intent.tier.price}`,
+        description: `Join the ${intent.tier.name} tier for exclusive content access`,
+        buttonLabel: `Pay GHS ${intent.tier.price}/month`,
+        isRecurring: true,
+        footerNote: 'By subscribing, you agree to our terms and conditions'
+      };
+    } else {
+      return {
+        title: `Unlock Post`,
+        price: `${intent.post.ppv_currency} ${intent.post.ppv_price}`,
+        description: 'Get permanent access to this exclusive content',
+        buttonLabel: `Pay ${intent.post.ppv_currency} ${intent.post.ppv_price}`,
+        isRecurring: false,
+        footerNote: 'By completing this purchase, you agree to our terms and conditions'
+      };
+    }
+  };
+
+  const displayInfo = getDisplayInfo();
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -36,11 +92,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tie
   const [paystackConfig, setPaystackConfig] = useState<{ public_key: string; currency: string } | null>(null);
   const [phoneError, setPhoneError] = useState<string>('');
 
+  // Guard: Close modal if no valid intent
+  if (!intent) {
+    if (isOpen) onClose();
+    return null;
+  }
+
   useEffect(() => {
     if (isOpen) {
       fetchPaystackConfig();
+      // Reset payment method to card when intent changes
+      setPaymentMethod('card');
     }
-  }, [isOpen]);
+  }, [isOpen, intent?.type]);
 
   const fetchPaystackConfig = async () => {
     try {
@@ -55,12 +119,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tie
   };
 
   const handleCardPayment = async () => {
-    if (!user || !tier) return;
+    if (!user || !intent) return;
 
     console.log('Initializing card payment for:', { 
-      fan_id: user.id, 
-      tier_id: tier.id, 
-      tier_name: tier.name,
+      intent: intent.type,
       payment_method: 'card' 
     });
 
@@ -69,16 +131,29 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tie
     try {
       sessionStorage.setItem('lastCreatorProfile', window.location.pathname);
 
-      const response = await fetch('/api/payments/initialize', {
+      // Determine endpoint and payload based on intent
+      const endpoint = intent.type === 'subscription' 
+        ? '/api/payments/initialize' 
+        : '/api/payments/ppv/initialize';
+
+      const payload = intent.type === 'subscription'
+        ? {
+            fan_id: user.id,
+            tier_id: intent.tier.id,
+            payment_method: 'card'
+          }
+        : {
+            fan_id: user.id,
+            post_id: intent.post.id,
+            payment_method: 'card'
+          };
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fan_id: user.id,
-          tier_id: tier.id,
-          payment_method: 'card'
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
@@ -111,19 +186,18 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tie
   };
 
   const handleMobileMoneyPayment = async () => {
-    if (!user || !phoneNumber || !mobileProvider) {
+    if (!user || !phoneNumber || !mobileProvider || !intent) {
       console.error('Missing mobile money payment data:', { 
         user: !!user, 
         phoneNumber: !!phoneNumber, 
-        mobileProvider: !!mobileProvider 
+        mobileProvider: !!mobileProvider,
+        intent: !!intent
       });
       return;
     }
 
     console.log('Initializing mobile money payment for:', { 
-      fan_id: user.id, 
-      tier_id: tier.id,
-      tier_name: tier.name,
+      intent: intent.type,
       phone: phoneNumber,
       provider: mobileProvider
     });
@@ -133,17 +207,32 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tie
     try {
        sessionStorage.setItem('lastCreatorProfile', window.location.pathname);
       
-      const response = await fetch('/api/payments/mobile-money/initialize', {
+      // Determine endpoint and payload based on intent
+      // Note: PPV mobile money might use the same endpoint as subscription
+      // or a separate endpoint depending on backend implementation
+      const endpoint = '/api/payments/mobile-money/initialize';
+
+      const payload = intent.type === 'subscription'
+        ? {
+            fan_id: user.id,
+            tier_id: intent.tier.id,
+            phone: phoneNumber,
+            provider: mobileProvider
+          }
+        : {
+            fan_id: user.id,
+            post_id: intent.post.id,
+            phone: phoneNumber,
+            provider: mobileProvider,
+            is_ppv: true
+          };
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fan_id: user.id,
-          tier_id: tier.id,
-          phone: phoneNumber,
-          provider: mobileProvider
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
@@ -199,32 +288,38 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tie
       <DialogContent className="sm:max-w-lg bg-[#08080c] backdrop-blur-xl border border-slate-700/50">
         <DialogHeader className="text-center space-y-3">
           <DialogTitle className="text-xl font-semibold text-white">
-            Subscribe to {creatorName}
+            {displayInfo.title}
           </DialogTitle>
           <DialogDescription className="text-slate-400">
-            Join the {tier.name} tier for exclusive content access
+            {displayInfo.description}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-6">
-          {/* Tier Summary */}
+          {/* Purchase Summary */}
           <Card className="border border-slate-700/50 backdrop-blur-sm" style={{ backgroundColor: '#262626' }}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg text-slate-100">{tier.name}</CardTitle>
-                  <CardDescription className="text-slate-400 text-sm">{tier.description}</CardDescription>
+                <div className="flex-1">
+                  <CardTitle className="text-lg text-slate-100">
+                    {intent.type === 'subscription' ? intent.tier.name : intent.post.title}
+                  </CardTitle>
+                  <CardDescription className="text-slate-400 text-sm">
+                    {intent.type === 'subscription' ? intent.tier.description : 'One-time access'}
+                  </CardDescription>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-gradient-primary">GHS {tier.price}</div>
-                  <div className="text-sm text-slate-400 px-2 py-1 rounded-full" style={{ backgroundColor: '#262626' }}>Monthly</div>
+                  <div className="text-2xl font-bold text-gradient-primary">{displayInfo.price}</div>
+                  {displayInfo.isRecurring && (
+                    <div className="text-sm text-slate-400 px-2 py-1 rounded-full" style={{ backgroundColor: '#262626' }}>Monthly</div>
+                  )}
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="flex items-center gap-2 text-sm text-slate-300">
                 <Check className="h-4 w-4 text-green-400" />
-                <span>Cancel anytime</span>
+                <span>{displayInfo.isRecurring ? 'Cancel anytime' : 'Permanent access'}</span>
               </div>
             </CardContent>
           </Card>
@@ -328,14 +423,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, tie
             ) : (
               <div className="flex items-center justify-center gap-2">
                 <Lock className="h-5 w-5" />
-                <span>Pay GHS {tier.price}/month</span>
+                <span>{displayInfo.buttonLabel}</span>
               </div>
             )}
           </Button>
 
           {/* Footer Note */}
           <p className="text-center text-xs text-slate-500">
-            By subscribing, you agree to our terms and conditions
+            {displayInfo.footerNote}
           </p>
         </div>
       </DialogContent>
