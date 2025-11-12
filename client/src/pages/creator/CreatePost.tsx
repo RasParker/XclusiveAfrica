@@ -27,19 +27,18 @@ const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/mov'];
 const formSchema = z.object({
   caption: z.string().optional(),
   accessTier: z.string().min(1, "Please select who can see this post"),
-  ppvEnabled: z.boolean().default(false),
   ppvPrice: z.coerce.number().positive("Price must be a positive number").optional().or(z.literal(undefined)),
   ppvCurrency: z.string().default('GHS'),
   scheduledDate: z.date().optional(),
   scheduledTime: z.string().optional(),
 }).refine((data) => {
-  // If PPV is enabled, price is required and must be positive
-  if (data.ppvEnabled && (!data.ppvPrice || data.ppvPrice <= 0)) {
+  // If accessTier is PPV, price is required and must be positive
+  if (data.accessTier === 'ppv' && (!data.ppvPrice || data.ppvPrice <= 0)) {
     return false;
   }
   return true;
 }, {
-  message: "PPV price is required when Pay Per View is enabled",
+  message: "PPV price is required when Pay Per View is selected",
   path: ["ppvPrice"],
 });
 
@@ -75,7 +74,6 @@ export const CreatePost: React.FC = () => {
     defaultValues: {
       caption: '',
       accessTier: '',
-      ppvEnabled: false,
       ppvPrice: undefined,
       ppvCurrency: 'GHS',
       scheduledTime: '',
@@ -245,18 +243,19 @@ export const CreatePost: React.FC = () => {
       }
 
       // Prepare post data for API
+      const isPPV = data.accessTier === 'ppv';
       const postData = {
         creator_id: parseInt(user.id.toString()),
         title: data.caption?.substring(0, 50) || 'Untitled Post',
         content: data.caption || '',
         media_type: mediaType || 'text',
         media_urls: uploadedMediaUrls,
-        tier: data.accessTier === 'free' ? 'public' : data.accessTier,
+        tier: data.accessTier === 'free' ? 'public' : isPPV ? 'public' : data.accessTier,
         status: action === 'draft' ? 'draft' : action === 'schedule' ? 'scheduled' : 'published',
         scheduled_for: scheduled_for,
-        is_ppv_enabled: data.ppvEnabled,
-        ppv_price: data.ppvEnabled && data.ppvPrice ? data.ppvPrice : null,
-        ppv_currency: data.ppvEnabled && data.ppvCurrency ? data.ppvCurrency : null
+        is_ppv_enabled: isPPV,
+        ppv_price: isPPV && data.ppvPrice ? data.ppvPrice : null,
+        ppv_currency: isPPV && data.ppvCurrency ? data.ppvCurrency : null
       };
 
       console.log('Creating post with data:', postData);
@@ -441,6 +440,7 @@ export const CreatePost: React.FC = () => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="free">Free for all followers</SelectItem>
+                          <SelectItem value="ppv">Pay Per View (PPV)</SelectItem>
                           {tiers.length === 0 && (
                             <SelectItem value="create_new_tier" className="text-primary font-medium">
                               + Create new tier
@@ -458,34 +458,19 @@ export const CreatePost: React.FC = () => {
                   )}
                 />
 
-                {/* PPV Settings */}
-                <div className="space-y-4 border-t border-border pt-6">
-                  <FormField
-                    control={form.control}
-                    name="ppvEnabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            Enable Pay Per View (PPV)
-                          </FormLabel>
-                          <FormDescription>
-                            Allow fans to purchase permanent access to this specific content without subscribing
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            data-testid="switch-ppv-enabled"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                  {form.watch('ppvEnabled') && (
-                    <div className="grid md:grid-cols-2 gap-4 pl-4 border-l-2 border-primary">
+                {/* PPV Settings - Only show when PPV is selected */}
+                {form.watch('accessTier') === 'ppv' && (
+                  <div className="space-y-4 border-t border-border pt-6">
+                    <div className="rounded-lg border border-border p-4 bg-muted/50">
+                      <div className="space-y-0.5 mb-4">
+                        <FormLabel className="text-base">
+                          Pay Per View Settings
+                        </FormLabel>
+                        <FormDescription>
+                          Set a one-time price for fans to purchase permanent access to this content without subscribing
+                        </FormDescription>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="ppvPrice"
@@ -540,8 +525,9 @@ export const CreatePost: React.FC = () => {
                         )}
                       />
                     </div>
-                  )}
-                </div>
+                  </div>
+                  </div>
+                )}
 
                 {/* Schedule Options */}
                 <div className="grid md:grid-cols-2 gap-4">
