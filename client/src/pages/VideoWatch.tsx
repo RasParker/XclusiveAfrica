@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CommentSection } from '@/components/fan/CommentSection';
-import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play } from 'lucide-react';
+import { Heart, MessageSquare, Share2, ArrowLeft, Maximize2, X, Eye, ChevronDown, Play, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
@@ -519,7 +519,7 @@ export const VideoWatch: React.FC = () => {
               />
             )
           ) : (
-            <div className="w-full h-full">
+            <div className="w-full h-full relative">
               <LockedContentOverlay
                 thumbnail={mediaUrl}
                 tier={post.tier || 'public'}
@@ -529,6 +529,20 @@ export const VideoWatch: React.FC = () => {
                 ppvPrice={post.ppv_price}
                 ppvCurrency={post.ppv_currency || 'GHS'}
               />
+              
+              {/* PPV Price Badge */}
+              {post.is_ppv_enabled && post.ppv_price && (
+                <div className="absolute top-2 right-2 z-30 pointer-events-none">
+                  <Badge 
+                    variant="secondary" 
+                    className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
+                    data-testid={`text-ppv-price-${post.id}`}
+                  >
+                    <DollarSign className="w-3 h-3" />
+                    {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(0)}
+                  </Badge>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -755,40 +769,59 @@ export const VideoWatch: React.FC = () => {
                               )}
                             </>
                           ) : (
-                            <LockedContentOverlay
-                              thumbnail={thumbnailUrl}
-                              tier={video.tier || 'public'}
-                              isVideo={true}
-                              onUnlockClick={async (e) => {
-                                e.stopPropagation();
-                                if (!user) {
-                                  window.location.href = `/login?redirect=/video/${video.id}`;
-                                } else {
-                                  try {
-                                    const [userResponse, tiersResponse] = await Promise.all([
-                                      fetch(`/api/users/${video.creator_id}`),
-                                      fetch(`/api/creators/${video.creator_id}/tiers`)
-                                    ]);
-                                    
-                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
-                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-                                    
-                                    if (creatorData) {
-                                      setSelectedCreatorForSubscription({
-                                        id: creatorData.id,
-                                        username: creatorData.username,
-                                        display_name: creatorData.display_name || creatorData.username,
-                                        avatar: creatorData.avatar || '',
-                                        tiers: tiersData
-                                      });
-                                      setSubscriptionTierModalOpen(true);
+                            <>
+                              <LockedContentOverlay
+                                thumbnail={thumbnailUrl}
+                                tier={video.tier || 'public'}
+                                isVideo={true}
+                                onUnlockClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (!user) {
+                                    window.location.href = `/login?redirect=/video/${video.id}`;
+                                  } else {
+                                    try {
+                                      const [userResponse, tiersResponse] = await Promise.all([
+                                        fetch(`/api/users/${video.creator_id}`),
+                                        fetch(`/api/creators/${video.creator_id}/tiers`)
+                                      ]);
+                                      
+                                      const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                      const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                                      
+                                      if (creatorData) {
+                                        setSelectedCreatorForSubscription({
+                                          id: creatorData.id,
+                                          username: creatorData.username,
+                                          display_name: creatorData.display_name || creatorData.username,
+                                          avatar: creatorData.avatar || '',
+                                          tiers: tiersData
+                                        });
+                                        setSubscriptionTierModalOpen(true);
+                                      }
+                                    } catch (error) {
+                                      console.error('Error fetching creator data:', error);
                                     }
-                                  } catch (error) {
-                                    console.error('Error fetching creator data:', error);
                                   }
-                                }
-                              }}
-                            />
+                                }}
+                                ppvEnabled={video.is_ppv_enabled}
+                                ppvPrice={video.ppv_price}
+                                ppvCurrency={video.ppv_currency || 'GHS'}
+                              />
+                              
+                              {/* PPV Price Badge */}
+                              {video.is_ppv_enabled && video.ppv_price && (
+                                <div className="absolute top-2 right-2 z-30 pointer-events-none">
+                                  <Badge 
+                                    variant="secondary" 
+                                    className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
+                                    data-testid={`text-ppv-price-${video.id}`}
+                                  >
+                                    <DollarSign className="w-3 h-3" />
+                                    {video.ppv_currency || 'GHS'} {parseFloat(video.ppv_price).toFixed(0)}
+                                  </Badge>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
 
@@ -899,7 +932,7 @@ export const VideoWatch: React.FC = () => {
                     />
                   )
                 ) : (
-                  <div className="w-full aspect-video">
+                  <div className="w-full aspect-video relative">
                     <LockedContentOverlay
                       thumbnail={mediaUrl}
                       tier={post.tier || 'public'}
@@ -909,6 +942,20 @@ export const VideoWatch: React.FC = () => {
                       ppvPrice={post.ppv_price}
                       ppvCurrency={post.ppv_currency || 'GHS'}
                     />
+                    
+                    {/* PPV Price Badge */}
+                    {post.is_ppv_enabled && post.ppv_price && (
+                      <div className="absolute top-2 right-2 z-30 pointer-events-none">
+                        <Badge 
+                          variant="secondary" 
+                          className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
+                          data-testid={`text-ppv-price-${post.id}`}
+                        >
+                          <DollarSign className="w-3 h-3" />
+                          {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(0)}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1112,24 +1159,25 @@ export const VideoWatch: React.FC = () => {
                               )}
                             </>
                           ) : (
-                            <LockedContentOverlay
-                              thumbnail={thumbnailUrl}
-                              tier={video.tier || 'public'}
-                              isVideo={true}
-                              showButton={false}
-                              onUnlockClick={async (e) => {
-                                e.stopPropagation();
-                                if (!user) {
-                                  window.location.href = `/login?redirect=/video/${video.id}`;
-                                } else {
-                                  try {
-                                    const [userResponse, tiersResponse] = await Promise.all([
-                                      fetch(`/api/users/${video.creator_id}`),
-                                      fetch(`/api/creators/${video.creator_id}/tiers`)
-                                    ]);
-                                    
-                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
-                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                            <>
+                              <LockedContentOverlay
+                                thumbnail={thumbnailUrl}
+                                tier={video.tier || 'public'}
+                                isVideo={true}
+                                showButton={false}
+                                onUnlockClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (!user) {
+                                    window.location.href = `/login?redirect=/video/${video.id}`;
+                                  } else {
+                                    try {
+                                      const [userResponse, tiersResponse] = await Promise.all([
+                                        fetch(`/api/users/${video.creator_id}`),
+                                        fetch(`/api/creators/${video.creator_id}/tiers`)
+                                      ]);
+                                      
+                                      const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                      const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
                                     
                                     if (creatorData) {
                                       setSelectedCreatorForSubscription({
@@ -1146,7 +1194,25 @@ export const VideoWatch: React.FC = () => {
                                   }
                                 }
                               }}
-                            />
+                                ppvEnabled={video.is_ppv_enabled}
+                                ppvPrice={video.ppv_price}
+                                ppvCurrency={video.ppv_currency || 'GHS'}
+                              />
+                              
+                              {/* PPV Price Badge */}
+                              {video.is_ppv_enabled && video.ppv_price && (
+                                <div className="absolute top-2 right-2 z-30 pointer-events-none">
+                                  <Badge 
+                                    variant="secondary" 
+                                    className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
+                                    data-testid={`text-ppv-price-${video.id}`}
+                                  >
+                                    <DollarSign className="w-3 h-3" />
+                                    {video.ppv_currency || 'GHS'} {parseFloat(video.ppv_price).toFixed(0)}
+                                  </Badge>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
 

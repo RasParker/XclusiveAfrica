@@ -2364,7 +2364,7 @@ export const CreatorProfile: React.FC = () => {
                       }}
                     >
                       {(() => {
-                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.ppv_purchases?.some(p => p.user_id === user?.id));
+                        const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.ppv_purchases?.some((p: any) => p.user_id === user?.id));
 
                         return !hasAccess ? (
                           <LockedContentOverlay
