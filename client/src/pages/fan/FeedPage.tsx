@@ -903,8 +903,8 @@ export const FeedPage: React.FC = () => {
                         {/* Lock icon and CTA */}
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="text-center p-6 space-y-4">
-                            <div className="w-16 h-16 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
-                              <svg className="w-8 h-8 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="w-10 h-10 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
+                              <svg className="w-5 h-5 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                               </svg>
                             </div>
@@ -916,7 +916,7 @@ export const FeedPage: React.FC = () => {
                                 </svg>
                                 {post.tier === 'public' ? 'Free' : post.tier === 'ppv' ? 'Pay Per View Tier' : `${post.tier} Tier`}
                               </div>
-                              
+
                               {/* PPV Price hint */}
                               {post.is_ppv_enabled && post.ppv_price && (
                                 <p className="text-xs text-white/70 font-medium">
@@ -1273,7 +1273,7 @@ export const FeedPage: React.FC = () => {
                                 </svg>
                                 {post.tier.toLowerCase() === 'ppv' ? 'Pay Per View' : post.tier} Tier
                               </div>
-                              
+
                               {/* PPV Price hint */}
                               {post.is_ppv_enabled && post.ppv_price && (
                                 <p className="text-xs text-white/70 font-medium">
@@ -1475,7 +1475,7 @@ export const FeedPage: React.FC = () => {
                                 </svg>
                                 {post.tier === 'public' ? 'Free' : post.tier === 'ppv' ? 'Pay Per View Tier' : `${post.tier} Tier`}
                               </div>
-                              
+
                               {/* PPV Price hint */}
                               {post.is_ppv_enabled && post.ppv_price && (
                                 <p className="text-xs text-white/70 font-medium">
