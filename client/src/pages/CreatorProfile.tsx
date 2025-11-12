@@ -973,7 +973,19 @@ export const CreatorProfile: React.FC = () => {
   };
 
   const handleContentClick = (post: any) => {
-    // Check access control first
+    // Check if this is PPV content
+    if (post.is_ppv_enabled) {
+      // Check if user has already purchased this PPV content
+      const hasPurchased = post.ppv_purchases?.some((p: any) => p.user_id === user?.id);
+      if (!hasPurchased) {
+        console.log('PPV content not purchased, opening PPV modal');
+        handlePPVPurchase(post);
+        return;
+      }
+      // If purchased, continue to display the content
+    }
+    
+    // Check access control for tier-based content
     if (!hasAccessToTier(post.tier)) {
       console.log('Access denied for post tier:', post.tier);
       // Open subscription tier modal instead of scrolling
@@ -2377,6 +2389,8 @@ export const CreatorProfile: React.FC = () => {
                                       e.stopPropagation();
                                       if (!user) {
                                         window.location.href = `/login?redirect=/creator/${username}`;
+                                      } else if (post.is_ppv_enabled) {
+                                        handlePPVPurchase(post);
                                       } else if (creator && creator.tiers && creator.tiers.length > 0) {
                                         setSubscriptionTierModalOpen(true);
                                       } else {
