@@ -78,7 +78,7 @@ const MOCK_CREATORS = {
     username: 'artisticmia',
     display_name: 'Artistic Mia',
     avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5fd?w=150&h=150&fit=crop&crop=face',
-    cover: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=300&fit=crop',
+    cover: 'https://images.unsplash.com/photo-1541961017774-22349c2?w=800&h=300&fit=crop',
     bio: 'Digital artist creating stunning fantasy worlds and characters. Join me for exclusive art tutorials, behind-the-scenes content, and early access to my latest creations.',
     subscribers: 2840,
     verified: true,
@@ -113,7 +113,7 @@ const MOCK_CREATORS = {
         mediaType: 'image',
         tier: 'Fan',
         createdAt: '2024-02-19T10:30:00',
-        thumbnail: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop',
+        thumbnail: 'https://images.unsplash.com/photo-1541961017774-22349c2?w=400&h=300&fit=crop',
         likes: 24,
         comments: [
           {
@@ -155,7 +155,7 @@ const MOCK_CREATORS = {
     username: 'original badman',
     display_name: 'Original Badman',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    cover: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=800&h=300&fit=crop',
+    cover: 'https://images.unsplash.com/photo-1541961017774-22349c2?w=800&h=300&fit=crop',
     bio: 'Welcome to my creative space! I\'m just getting started on this amazing platform. Stay tuned for exciting content coming your way!',
     subscribers: 0,
     verified: false,
@@ -2352,8 +2352,7 @@ export const CreatorProfile: React.FC = () => {
 
                               {/* Lock icon and CTA */}
                               <div className="absolute inset-0 flex items-center justify-center">
-                                <div className="text-center p-4 space-y-3">
-                                  {/* Animated lock icon */}
+                                <div className="text-center p-6 space-y-4">
                                   <div className="w-10 h-10 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
                                     <svg className="w-5 h-5 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
