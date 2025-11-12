@@ -301,7 +301,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Fetch fresh user data from database
       const user = await storage.getUser(req.session.userId);
-      
+
       if (!user) {
         // User was deleted or doesn't exist - clear session
         req.session.destroy(() => {});
@@ -678,7 +678,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           accessReason = 'ppv_purchase';
         }
       }
-      
+
       // 4. Check subscription (existing logic)
       if (!hasAccess && userId && postData.tier !== 'public') {
         const subscription = await storage.getUserSubscriptionToCreator(userId, postData.creator_id);
@@ -725,45 +725,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create post
   app.post('/api/posts', async (req, res) => {
     try {
-      const { creator_id, title, content, media_type, media_urls, tier, status, scheduled_for, thumbnail, duration } = req.body;
+      const postData = {
+        creator_id: req.body.creator_id,
+        title: req.body.title || req.body.content?.substring(0, 100),
+        content: req.body.content,
+        media_type: req.body.media_type,
+        media_urls: req.body.media_urls,
+        tier: req.body.tier,
+        status: req.body.status || 'published',
+        scheduled_for: req.body.scheduled_for || null,
+        is_ppv_enabled: req.body.is_ppv_enabled || false,
+        ppv_price: req.body.ppv_price || null,
+        ppv_currency: req.body.ppv_currency || 'GHS',
+      };
 
-      console.log('Creating post with data:', { creator_id, content, media_type, media_urls, tier, status });
+      console.log('Creating post with data:', postData);
+      const post = await storage.createPost(postData);
 
       // Validate required fields
-      if (!creator_id) {
+      if (!postData.creator_id) {
         return res.status(400).json({ error: 'Creator ID is required' });
       }
 
-      if (!content && (!media_urls || media_urls.length === 0)) {
+      if (!postData.content && (!postData.media_urls || postData.media_urls.length === 0)) {
         return res.status(400).json({ error: 'Post must have content or media' });
       }
 
-      if (!tier) {
+      if (!postData.tier) {
         return res.status(400).json({ error: 'Access tier is required' });
-      }
-
-      const postData: any = {
-        creator_id: parseInt(creator_id),
-        title: title || 'Untitled Post',
-        content: content || '',
-        media_type: media_type || 'text',
-        media_urls: Array.isArray(media_urls) ? media_urls : (media_urls ? [media_urls] : []),
-        thumbnail: thumbnail || null,
-        duration: duration || null,
-        tier,
-        status: status || 'published',
-        created_at: new Date(),
-        updated_at: new Date(),
-        views_count: 0, // Initialize view count to 0
-      };
-
-      // Only add scheduled_for if it's provided and status is scheduled
-      if (scheduled_for && status === 'scheduled') {
-        const scheduledDate = new Date(scheduled_for);
-        if (scheduledDate <= new Date()) {
-          return res.status(400).json({ error: 'Scheduled date must be in the future' });
-        }
-        postData.scheduled_for = scheduledDate;
       }
 
       const newPost = await db.insert(posts).values(postData).returning();
@@ -778,7 +767,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .select({ fan_id: subscriptions.fan_id })
             .from(subscriptions)
             .where(and(
-              eq(subscriptions.creator_id, parseInt(creator_id)),
+              eq(subscriptions.creator_id, parseInt(postData.creator_id)),
               eq(subscriptions.status, 'active')
             ));
 
@@ -786,7 +775,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           if (subscriberIds.length > 0) {
             await NotificationService.notifyNewPost(
-              parseInt(creator_id),
+              parseInt(postData.creator_id),
               subscriberIds,
               newPost[0].title,
               newPost[0].id

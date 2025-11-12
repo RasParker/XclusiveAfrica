@@ -87,7 +87,8 @@ export const ManageContent: React.FC = () => {
                 caption: post.content || post.title,
                 type: post.media_type === 'image' ? 'Image' as const :
                       post.media_type === 'video' ? 'Video' as const : 'Text' as const,
-                tier: post.tier === 'public' ? 'Free' : 
+                tier: post.is_ppv_enabled ? `PPV (${post.ppv_currency || 'GHS'} ${parseFloat(post.ppv_price || '0').toFixed(2)})` :
+                      post.tier === 'public' ? 'Free' : 
                       post.tier.toLowerCase() === 'starter pump' ? 'Starter Pump' :
                       post.tier.toLowerCase() === 'power gains' ? 'Power Gains' :
                       post.tier.toLowerCase() === 'elite beast mode' ? 'Elite Beast Mode' :

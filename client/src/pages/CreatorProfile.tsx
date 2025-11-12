@@ -947,11 +947,11 @@ export const CreatorProfile: React.FC = () => {
 
     switch (activeTab) {
       case 'public':
-        return userPosts.filter(post => post.tier?.toLowerCase() === 'public' && !post.is_ppv_enabled);
+        return userPosts.filter(post => post.tier?.toLowerCase() === 'public' && post.is_ppv_enabled !== true);
       case 'subscription':
-        return userPosts.filter(post => post.tier?.toLowerCase() !== 'public' && !post.is_ppv_enabled);
+        return userPosts.filter(post => post.tier?.toLowerCase() !== 'public' && post.is_ppv_enabled !== true);
       case 'ppv':
-        return userPosts.filter(post => post.is_ppv_enabled);
+        return userPosts.filter(post => post.is_ppv_enabled === true);
       case 'all':
       default:
         return userPosts;
@@ -964,9 +964,9 @@ export const CreatorProfile: React.FC = () => {
 
     return {
       all: userPosts.length,
-      subscription: userPosts.filter(post => post.tier?.toLowerCase() !== 'public' && !post.is_ppv_enabled).length,
-      public: userPosts.filter(post => post.tier?.toLowerCase() === 'public' && !post.is_ppv_enabled).length,
-      ppv: userPosts.filter(post => post.is_ppv_enabled).length
+      subscription: userPosts.filter(post => post.tier?.toLowerCase() !== 'public' && post.is_ppv_enabled !== true).length,
+      public: userPosts.filter(post => post.tier?.toLowerCase() === 'public' && post.is_ppv_enabled !== true).length,
+      ppv: userPosts.filter(post => post.is_ppv_enabled === true).length
     };
   };
 
