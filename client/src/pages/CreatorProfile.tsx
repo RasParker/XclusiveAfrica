@@ -2404,11 +2404,17 @@ export const CreatorProfile: React.FC = () => {
                         );
                       })()}
 
-                      {post.media_type && (
-                        <div className="absolute bottom-2 right-2">
-                          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-black/60 backdrop-blur-sm">
-                            {getMediaOverlayIcon(post.media_type)}
-                          </div>
+                      {/* PPV Price Badge - only show on locked PPV content */}
+                      {!hasAccessToTier(post.tier) && !(post.is_ppv_enabled && post.ppv_purchases?.some(p => p.user_id === user?.id)) && post.is_ppv_enabled && post.ppv_price && (
+                        <div className="absolute top-2 right-2 z-30 pointer-events-none">
+                          <Badge 
+                            variant="secondary" 
+                            className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
+                            data-testid={`text-ppv-price-${post.id}`}
+                          >
+                            <DollarSign className="w-3 h-3" />
+                            {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(0)}
+                          </Badge>
                         </div>
                       )}
                     </div>

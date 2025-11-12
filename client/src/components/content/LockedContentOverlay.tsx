@@ -72,9 +72,9 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
             <div className="space-y-3">
               {/* Single Unlock Button */}
               <Button 
+                variant="default"
                 size="default"
                 onClick={onUnlockClick}
-                className="bg-primary text-primary-foreground shadow-lg shadow-primary/20 backdrop-blur-sm border border-primary/20"
                 data-testid="button-unlock"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,13 +82,6 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
                 </svg>
                 {user ? 'Unlock Full Access' : 'Login to Unlock'}
               </Button>
-
-              {/* Subtle hint text for PPV option */}
-              {ppvEnabled && ppvPrice && user && (
-                <p className="text-xs text-white/70 px-2">
-                  Unlock for {ppvCurrency} {parseFloat(ppvPrice).toFixed(0)}
-                </p>
-              )}
             </div>
           )}
         </div>
