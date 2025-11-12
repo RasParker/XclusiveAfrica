@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
 import { PaymentModal } from '@/components/payment/PaymentModal';
+import { PPVPaymentModal } from '@/components/payment/PPVPaymentModal';
 
 // Helper function to construct proper image URLs
 const getImageUrl = (imageUrl: string | null | undefined): string | undefined => {
@@ -351,6 +352,8 @@ export const FeedPage: React.FC = () => {
   const [selectedCreatorForSubscription, setSelectedCreatorForSubscription] = useState<any>(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<any>(null);
+  const [ppvPaymentModalOpen, setPpvPaymentModalOpen] = useState(false);
+  const [selectedPpvPost, setSelectedPpvPost] = useState<any>(null);
 
   // Fetch real posts from API with subscription filtering
   useEffect(() => {
@@ -902,46 +905,60 @@ export const FeedPage: React.FC = () => {
                                 if (!user) {
                                   window.location.href = `/login?redirect=/creator/${post.creator.username}`;
                                 } else {
-                                  // Open subscription modal instead of navigating
-                                  try {
-                                    const [userResponse, tiersResponse] = await Promise.all([
-                                      fetch(`/api/users/${post.creator.id}`),
-                                      fetch(`/api/creators/${post.creator.id}/tiers`)
-                                    ]);
-                                    
-                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
-                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-                                    
-                                    if (creatorData) {
-                                      setSelectedCreatorForSubscription({
-                                        id: creatorData.id,
-                                        username: creatorData.username,
-                                        display_name: creatorData.display_name || creatorData.username,
-                                        avatar: creatorData.avatar || '',
-                                        tiers: tiersData
-                                      });
-                                      setSubscriptionTierModalOpen(true);
-                                    } else {
-                                      // Fallback to basic info with tiers if available
+                                  // Check if this is a PPV post
+                                  if (post.is_ppv_enabled && post.ppv_price) {
+                                    // Open PPV payment modal
+                                    setSelectedPpvPost({
+                                      id: post.id,
+                                      title: post.title || post.content || 'Untitled Post',
+                                      ppv_price: post.ppv_price,
+                                      ppv_currency: post.ppv_currency || 'GHS',
+                                      creator_display_name: post.creator.display_name || post.creator.username,
+                                      media_urls: post.media_urls || []
+                                    });
+                                    setPpvPaymentModalOpen(true);
+                                  } else {
+                                    // Open subscription modal instead of navigating
+                                    try {
+                                      const [userResponse, tiersResponse] = await Promise.all([
+                                        fetch(`/api/users/${post.creator.id}`),
+                                        fetch(`/api/creators/${post.creator.id}/tiers`)
+                                      ]);
+                                      
+                                      const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                      const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                                      
+                                      if (creatorData) {
+                                        setSelectedCreatorForSubscription({
+                                          id: creatorData.id,
+                                          username: creatorData.username,
+                                          display_name: creatorData.display_name || creatorData.username,
+                                          avatar: creatorData.avatar || '',
+                                          tiers: tiersData
+                                        });
+                                        setSubscriptionTierModalOpen(true);
+                                      } else {
+                                        // Fallback to basic info with tiers if available
+                                        setSelectedCreatorForSubscription({
+                                          id: post.creator.id,
+                                          username: post.creator.username,
+                                          display_name: post.creator.display_name || post.creator.username,
+                                          avatar: post.creator.avatar || '',
+                                          tiers: tiersData
+                                        });
+                                        setSubscriptionTierModalOpen(true);
+                                      }
+                                    } catch (error) {
+                                      console.error('Error fetching creator data:', error);
                                       setSelectedCreatorForSubscription({
                                         id: post.creator.id,
                                         username: post.creator.username,
                                         display_name: post.creator.display_name || post.creator.username,
                                         avatar: post.creator.avatar || '',
-                                        tiers: tiersData
+                                        tiers: []
                                       });
                                       setSubscriptionTierModalOpen(true);
                                     }
-                                  } catch (error) {
-                                    console.error('Error fetching creator data:', error);
-                                    setSelectedCreatorForSubscription({
-                                      id: post.creator.id,
-                                      username: post.creator.username,
-                                      display_name: post.creator.display_name || post.creator.username,
-                                      avatar: post.creator.avatar || '',
-                                      tiers: []
-                                    });
-                                    setSubscriptionTierModalOpen(true);
                                   }
                                 }
                               }}
@@ -1433,46 +1450,60 @@ export const FeedPage: React.FC = () => {
                                 if (!user) {
                                   window.location.href = `/login?redirect=/creator/${post.creator.username}`;
                                 } else {
-                                  // Open subscription modal instead of navigating
-                                  try {
-                                    const [userResponse, tiersResponse] = await Promise.all([
-                                      fetch(`/api/users/${post.creator.id}`),
-                                      fetch(`/api/creators/${post.creator.id}/tiers`)
-                                    ]);
-                                    
-                                    const creatorData = userResponse.ok ? await userResponse.json() : null;
-                                    const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-                                    
-                                    if (creatorData) {
-                                      setSelectedCreatorForSubscription({
-                                        id: creatorData.id,
-                                        username: creatorData.username,
-                                        display_name: creatorData.display_name || creatorData.username,
-                                        avatar: creatorData.avatar || '',
-                                        tiers: tiersData
-                                      });
-                                      setSubscriptionTierModalOpen(true);
-                                    } else {
-                                      // Fallback to basic info with tiers if available
+                                  // Check if this is a PPV post
+                                  if (post.is_ppv_enabled && post.ppv_price) {
+                                    // Open PPV payment modal
+                                    setSelectedPpvPost({
+                                      id: post.id,
+                                      title: post.title || post.content || 'Untitled Post',
+                                      ppv_price: post.ppv_price,
+                                      ppv_currency: post.ppv_currency || 'GHS',
+                                      creator_display_name: post.creator.display_name || post.creator.username,
+                                      media_urls: post.media_urls || []
+                                    });
+                                    setPpvPaymentModalOpen(true);
+                                  } else {
+                                    // Open subscription modal instead of navigating
+                                    try {
+                                      const [userResponse, tiersResponse] = await Promise.all([
+                                        fetch(`/api/users/${post.creator.id}`),
+                                        fetch(`/api/creators/${post.creator.id}/tiers`)
+                                      ]);
+                                      
+                                      const creatorData = userResponse.ok ? await userResponse.json() : null;
+                                      const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+                                      
+                                      if (creatorData) {
+                                        setSelectedCreatorForSubscription({
+                                          id: creatorData.id,
+                                          username: creatorData.username,
+                                          display_name: creatorData.display_name || creatorData.username,
+                                          avatar: creatorData.avatar || '',
+                                          tiers: tiersData
+                                        });
+                                        setSubscriptionTierModalOpen(true);
+                                      } else {
+                                        // Fallback to basic info with tiers if available
+                                        setSelectedCreatorForSubscription({
+                                          id: post.creator.id,
+                                          username: post.creator.username,
+                                          display_name: post.creator.display_name || post.creator.username,
+                                          avatar: post.creator.avatar || '',
+                                          tiers: tiersData
+                                        });
+                                        setSubscriptionTierModalOpen(true);
+                                      }
+                                    } catch (error) {
+                                      console.error('Error fetching creator data:', error);
                                       setSelectedCreatorForSubscription({
                                         id: post.creator.id,
                                         username: post.creator.username,
                                         display_name: post.creator.display_name || post.creator.username,
                                         avatar: post.creator.avatar || '',
-                                        tiers: tiersData
+                                        tiers: []
                                       });
                                       setSubscriptionTierModalOpen(true);
                                     }
-                                  } catch (error) {
-                                    console.error('Error fetching creator data:', error);
-                                    setSelectedCreatorForSubscription({
-                                      id: post.creator.id,
-                                      username: post.creator.username,
-                                      display_name: post.creator.display_name || post.creator.username,
-                                      avatar: post.creator.avatar || '',
-                                      tiers: []
-                                    });
-                                    setSubscriptionTierModalOpen(true);
                                   }
                                 }
                               }}
@@ -2030,6 +2061,25 @@ export const FeedPage: React.FC = () => {
           }}
           tier={selectedTier}
           creatorName={selectedCreatorForSubscription.display_name}
+        />
+      )}
+
+      {/* PPV Payment Modal */}
+      {selectedPpvPost && user && (
+        <PPVPaymentModal
+          isOpen={ppvPaymentModalOpen}
+          onClose={() => {
+            setPpvPaymentModalOpen(false);
+            setSelectedPpvPost(null);
+          }}
+          post={selectedPpvPost}
+          userId={user.id}
+          onSuccess={() => {
+            setPpvPaymentModalOpen(false);
+            setSelectedPpvPost(null);
+            // Refresh the feed to show the unlocked content
+            window.location.reload();
+          }}
         />
       )}
         </EdgeToEdgeContainer>

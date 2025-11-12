@@ -12,6 +12,7 @@ import { PostActions } from '@/components/creator/PostActions';
 import { PostCardLayout } from '@/components/creator/PostCardLayout';
 import { CommentSection } from '@/components/fan/CommentSection';
 import { PaymentModal } from '@/components/payment/PaymentModal';
+import { PPVPaymentModal } from '@/components/payment/PPVPaymentModal';
 import { TierDetailsModal } from '@/components/subscription/TierDetailsModal';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
 import { LockedContentOverlay } from '@/components/content/LockedContentOverlay';
@@ -194,6 +195,7 @@ export const CreatorProfile: React.FC = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedTier, setSelectedTier] = useState<any>(null);
   const [selectedPPVPost, setSelectedPPVPost] = useState<any>(null);
+  const [ppvPaymentModalOpen, setPpvPaymentModalOpen] = useState(false);
   const [isSubscriptionTiersExpanded, setIsSubscriptionTiersExpanded] = useState(false);
   const [tierDetailsModalOpen, setTierDetailsModalOpen] = useState(false);
   const [subscriptionTierModalOpen, setSubscriptionTierModalOpen] = useState(false);
@@ -1123,8 +1125,15 @@ export const CreatorProfile: React.FC = () => {
       return;
     }
 
-    setSelectedPPVPost(post);
-    setPaymentModalOpen(true);
+    setSelectedPPVPost({
+      id: post.id,
+      title: post.title || post.content || 'Untitled Post',
+      ppv_price: post.ppv_price,
+      ppv_currency: post.ppv_currency || 'GHS',
+      creator_display_name: creator?.display_name || creator?.username,
+      media_urls: post.media_urls || []
+    });
+    setPpvPaymentModalOpen(true);
   };
 
   // Chat initiation functionality
@@ -2753,18 +2762,35 @@ export const CreatorProfile: React.FC = () => {
         </Dialog>
       )}
 
-      {/* Payment Modal */}
-      {(selectedTier || selectedPPVPost) && creator && (
+      {/* Payment Modal (Subscription only) */}
+      {selectedTier && creator && (
         <PaymentModal 
           isOpen={paymentModalOpen} 
           onClose={() => {
             setPaymentModalOpen(false);
             setSelectedTier(null);
-            setSelectedPPVPost(null);
           }} 
           tier={selectedTier} 
-          ppvPost={selectedPPVPost}
           creatorName={creator.display_name || creator.username}
+        />
+      )}
+
+      {/* PPV Payment Modal (Dedicated for PPV purchases) */}
+      {selectedPPVPost && user && (
+        <PPVPaymentModal
+          isOpen={ppvPaymentModalOpen}
+          onClose={() => {
+            setPpvPaymentModalOpen(false);
+            setSelectedPPVPost(null);
+          }}
+          post={selectedPPVPost}
+          userId={user.id}
+          onSuccess={() => {
+            setPpvPaymentModalOpen(false);
+            setSelectedPPVPost(null);
+            // Refresh the page to show the unlocked content
+            window.location.reload();
+          }}
         />
       )}
 
