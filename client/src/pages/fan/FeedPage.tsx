@@ -579,48 +579,62 @@ export const FeedPage: React.FC = () => {
   const handleThumbnailClick = async (post: any) => {
     // Check if user has access to this content
     if (!post.hasAccess) {
-      // Fetch creator data and tiers, then open subscription tier modal
-      try {
-        const [userResponse, tiersResponse] = await Promise.all([
-          fetch(`/api/users/${post.creator.id}`),
-          fetch(`/api/creators/${post.creator.id}/tiers`)
-        ]);
+      // Check if this is a PPV post
+      if (post.is_ppv_enabled && post.ppv_price) {
+        // Open PPV payment modal directly
+        setSelectedPpvPost({
+          id: post.id,
+          title: post.title || post.content || 'Untitled Post',
+          ppv_price: post.ppv_price,
+          ppv_currency: post.ppv_currency || 'GHS',
+          creator_display_name: post.creator.display_name || post.creator.username,
+          media_urls: post.media_urls || []
+        });
+        setPpvPaymentModalOpen(true);
+      } else {
+        // Fetch creator data and tiers, then open subscription tier modal
+        try {
+          const [userResponse, tiersResponse] = await Promise.all([
+            fetch(`/api/users/${post.creator.id}`),
+            fetch(`/api/creators/${post.creator.id}/tiers`)
+          ]);
 
-        const creatorData = userResponse.ok ? await userResponse.json() : null;
-        const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
+          const creatorData = userResponse.ok ? await userResponse.json() : null;
+          const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
 
-        if (creatorData) {
-          setSelectedCreatorForSubscription({
-            id: creatorData.id,
-            username: creatorData.username,
-            display_name: creatorData.display_name || creatorData.username,
-            avatar: creatorData.avatar || '',
-            tiers: tiersData
-          });
-          setSubscriptionTierModalOpen(true);
-        } else {
-          // If creator data can't be loaded, still try to open the modal
-          // Use the basic creator info from the post
+          if (creatorData) {
+            setSelectedCreatorForSubscription({
+              id: creatorData.id,
+              username: creatorData.username,
+              display_name: creatorData.display_name || creatorData.username,
+              avatar: creatorData.avatar || '',
+              tiers: tiersData
+            });
+            setSubscriptionTierModalOpen(true);
+          } else {
+            // If creator data can't be loaded, still try to open the modal
+            // Use the basic creator info from the post
+            setSelectedCreatorForSubscription({
+              id: post.creator.id,
+              username: post.creator.username,
+              display_name: post.creator.display_name || post.creator.username,
+              avatar: post.creator.avatar || '',
+              tiers: tiersData
+            });
+            setSubscriptionTierModalOpen(true);
+          }
+        } catch (error) {
+          console.error('Error fetching creator data:', error);
+          // Still try to open the modal with basic creator info
           setSelectedCreatorForSubscription({
             id: post.creator.id,
             username: post.creator.username,
             display_name: post.creator.display_name || post.creator.username,
             avatar: post.creator.avatar || '',
-            tiers: tiersData
+            tiers: []
           });
           setSubscriptionTierModalOpen(true);
         }
-      } catch (error) {
-        console.error('Error fetching creator data:', error);
-        // Still try to open the modal with basic creator info
-        setSelectedCreatorForSubscription({
-          id: post.creator.id,
-          username: post.creator.username,
-          display_name: post.creator.display_name || post.creator.username,
-          avatar: post.creator.avatar || '',
-          tiers: []
-        });
-        setSubscriptionTierModalOpen(true);
       }
       return;
     }

@@ -306,9 +306,9 @@ export const VideoWatch: React.FC = () => {
 
     if (!post) return;
 
-    // If PPV is enabled, show options modal
-    if (post.is_ppv_enabled) {
-      setUnlockOptionsModalOpen(true);
+    // If PPV is enabled, open PPV payment modal directly
+    if (post.is_ppv_enabled && post.ppv_price) {
+      setPPVPaymentModalOpen(true);
     } else {
       // If no PPV, go straight to subscription
       handleSubscribeClick();
