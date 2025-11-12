@@ -93,7 +93,7 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
               {/* Subtle hint text for PPV option */}
               {ppvEnabled && ppvPrice && user && (
                 <p className="text-xs text-white/70 px-2">
-                  Subscribe or unlock from {ppvCurrency} {parseFloat(ppvPrice).toFixed(0)}
+                  Unlock for {ppvCurrency} {parseFloat(ppvPrice).toFixed(0)}
                 </p>
               )}
             </div>
