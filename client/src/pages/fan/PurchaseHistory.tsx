@@ -100,15 +100,19 @@ export default function PurchaseHistory() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {purchases.map((purchase) => {
             const getVideoThumbnail = (url: string) => {
-              if (url.includes('cloudinary.com') && url.includes('/video/upload/')) {
-                return url.replace('/video/upload/', '/video/upload/so_0,w_400,h_225,c_fill,q_auto/');
+              if (url.includes('cloudinary.com')) {
+                if (url.includes('/video/upload/')) {
+                  // Convert video URL to thumbnail by replacing /upload/ with transformation parameters
+                  return url.replace('/video/upload/', '/video/upload/so_0,w_800,h_450,c_fill,f_jpg/').replace('.mp4', '.jpg');
+                }
               }
               return url;
             };
 
-            const thumbnailUrl = purchase.post?.media_type === 'video' && purchase.post?.media_urls?.[0]
-              ? getVideoThumbnail(purchase.post.media_urls[0])
-              : purchase.post?.media_urls?.[0];
+            const mediaUrl = purchase.post?.media_urls?.[0];
+            const thumbnailUrl = purchase.post?.media_type === 'video' && mediaUrl
+              ? getVideoThumbnail(mediaUrl)
+              : mediaUrl;
 
             return (
               <Card key={purchase.id} className="overflow-hidden group" data-testid={`card-purchase-${purchase.id}`}>
@@ -119,6 +123,14 @@ export default function PurchaseHistory() {
                         src={thumbnailUrl}
                         alt={purchase.post?.title || 'Content thumbnail'}
                         className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        onError={(e) => {
+                          console.error('Thumbnail load error:', thumbnailUrl);
+                          // If thumbnail fails, try the original video URL
+                          if (purchase.post?.media_type === 'video' && mediaUrl) {
+                            const target = e.target as HTMLImageElement;
+                            target.src = mediaUrl;
+                          }
+                        }}
                       />
                       {purchase.post?.media_type === 'video' && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/50 transition-colors">
