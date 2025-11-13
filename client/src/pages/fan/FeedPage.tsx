@@ -1885,7 +1885,6 @@ export const FeedPage: React.FC = () => {
                   <div className="relative w-full h-full max-w-md mx-auto">
                   {selectedContent.thumbnail ? (
                       selectedContent.type === 'video' ? (
-                        <div className="w-full h-full bg-black flex items-center justify-center">
                         <video 
                           key={selectedContent.id}
                           src={selectedContent.thumbnail}
@@ -1909,7 +1908,6 @@ export const FeedPage: React.FC = () => {
                             }
                           }}
                         />
-                        </div>
                       ) : (
                         <img 
                           src={selectedContent.thumbnail} 
