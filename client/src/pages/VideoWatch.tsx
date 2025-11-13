@@ -529,20 +529,6 @@ export const VideoWatch: React.FC = () => {
                 ppvPrice={post.ppv_price}
                 ppvCurrency={post.ppv_currency || 'GHS'}
               />
-              
-              {/* PPV Price Badge */}
-              {post.is_ppv_enabled && post.ppv_price && (
-                <div className="absolute top-2 right-2 z-30 pointer-events-none">
-                  <Badge 
-                    variant="secondary" 
-                    className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
-                    data-testid={`text-ppv-price-${post.id}`}
-                  >
-                    <DollarSign className="w-3 h-3" />
-                    {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(0)}
-                  </Badge>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -807,20 +793,6 @@ export const VideoWatch: React.FC = () => {
                                 ppvPrice={video.ppv_price}
                                 ppvCurrency={video.ppv_currency || 'GHS'}
                               />
-                              
-                              {/* PPV Price Badge */}
-                              {video.is_ppv_enabled && video.ppv_price && (
-                                <div className="absolute top-2 right-2 z-30 pointer-events-none">
-                                  <Badge 
-                                    variant="secondary" 
-                                    className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
-                                    data-testid={`text-ppv-price-${video.id}`}
-                                  >
-                                    <DollarSign className="w-3 h-3" />
-                                    {video.ppv_currency || 'GHS'} {parseFloat(video.ppv_price).toFixed(0)}
-                                  </Badge>
-                                </div>
-                              )}
                             </>
                           )}
                         </div>
@@ -942,20 +914,6 @@ export const VideoWatch: React.FC = () => {
                       ppvPrice={post.ppv_price}
                       ppvCurrency={post.ppv_currency || 'GHS'}
                     />
-                    
-                    {/* PPV Price Badge */}
-                    {post.is_ppv_enabled && post.ppv_price && (
-                      <div className="absolute top-2 right-2 z-30 pointer-events-none">
-                        <Badge 
-                          variant="secondary" 
-                          className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
-                          data-testid={`text-ppv-price-${post.id}`}
-                        >
-                          <DollarSign className="w-3 h-3" />
-                          {post.ppv_currency || 'GHS'} {parseFloat(post.ppv_price).toFixed(0)}
-                        </Badge>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -1198,20 +1156,6 @@ export const VideoWatch: React.FC = () => {
                                 ppvPrice={video.ppv_price}
                                 ppvCurrency={video.ppv_currency || 'GHS'}
                               />
-                              
-                              {/* PPV Price Badge */}
-                              {video.is_ppv_enabled && video.ppv_price && (
-                                <div className="absolute top-2 right-2 z-30 pointer-events-none">
-                                  <Badge 
-                                    variant="secondary" 
-                                    className="flex items-center gap-1 bg-primary/90 text-primary-foreground backdrop-blur-sm shadow-lg"
-                                    data-testid={`text-ppv-price-${video.id}`}
-                                  >
-                                    <DollarSign className="w-3 h-3" />
-                                    {video.ppv_currency || 'GHS'} {parseFloat(video.ppv_price).toFixed(0)}
-                                  </Badge>
-                                </div>
-                              )}
                             </>
                           )}
                         </div>
