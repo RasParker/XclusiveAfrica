@@ -74,7 +74,7 @@ export const VideoWatch: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`/api/payment/ppv-access/${user.id}/${post.id}`);
+        const response = await fetch(`/api/payments/ppv-access/${user.id}/${post.id}`);
         if (response.ok) {
           const data = await response.json();
           setHasPPVAccess(data.has_access);

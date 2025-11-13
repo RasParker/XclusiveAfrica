@@ -31,9 +31,9 @@ export default function PurchaseHistory() {
   const { user } = useAuth();
 
   const { data, isLoading, error } = useQuery<PurchasesResponse>({
-    queryKey: ['/api/payment/ppv-purchases', user?.id],
+    queryKey: ['/api/payments/ppv-purchases', user?.id],
     queryFn: async () => {
-      const response = await fetch(`/api/payment/ppv-purchases/${user?.id}`);
+      const response = await fetch(`/api/payments/ppv-purchases/${user?.id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch purchases');
       }

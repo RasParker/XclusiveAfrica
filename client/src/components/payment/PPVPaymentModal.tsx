@@ -29,7 +29,7 @@ export function PPVPaymentModal({ isOpen, onClose, post, userId, onSuccess }: PP
 
     try {
       // Initialize PPV payment
-      const response = await fetch('/api/payment/initialize-ppv', {
+      const response = await fetch('/api/payments/initialize-ppv', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

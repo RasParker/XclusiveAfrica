@@ -34,15 +34,25 @@ export const PaymentCallback: React.FC = () => {
       const response = await fetch(`/api/payments/verify/${reference}`);
       const data = await response.json();
       
-      const isSuccess = data.success && data.data.status === 'success';
+      const isSuccess = data.success;
+      const isPPV = data.data?.payment_type === 'ppv';
       
       setPaymentStatus({
         success: isSuccess,
         message: isSuccess 
-          ? 'Payment completed successfully!' 
-          : data.data.gateway_response || 'Payment failed',
+          ? (isPPV ? 'Content unlocked successfully!' : 'Payment completed successfully!')
+          : data.message || 'Payment failed',
         data: data.data
       });
+
+      // For PPV payments, redirect to the video immediately after verification
+      if (isSuccess && isPPV && data.data?.purchase?.post_id) {
+        console.log('🎬 PPV payment verified, redirecting to video:', data.data.purchase.post_id);
+        setTimeout(() => {
+          navigate(`/video/${data.data.purchase.post_id}`);
+        }, 2000);
+        return;
+      }
 
       // Dispatch custom event to notify components about successful subscription
       if (isSuccess) {
