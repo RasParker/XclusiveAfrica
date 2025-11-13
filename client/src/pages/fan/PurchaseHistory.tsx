@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
-import { Play, ShoppingBag, Loader2, AlertCircle } from 'lucide-react';
+import { ShoppingBag, Loader2, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Purchase {
@@ -132,13 +132,6 @@ export default function PurchaseHistory() {
                           }
                         }}
                       />
-                      {purchase.post?.media_type === 'video' && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/50 transition-colors">
-                          <div className="w-14 h-14 rounded-full bg-primary/90 group-hover:bg-primary flex items-center justify-center transition-all group-hover:scale-110">
-                            <Play className="w-7 h-7 text-primary-foreground ml-1" fill="currentColor" />
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                   
