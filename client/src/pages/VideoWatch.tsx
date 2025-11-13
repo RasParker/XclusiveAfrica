@@ -446,7 +446,7 @@ export const VideoWatch: React.FC = () => {
       {/* Mobile Layout */}
       <div className="md:hidden">
         {/* Video Player Wrapper - YouTube style for mobile - Sticky */}
-        <div className={`video-player-wrapper sticky top-0 z-20 relative bg-black w-full ${videoAspectRatio === 'landscape' ? 'aspect-video' : 'min-h-[450px]'}`}>
+        <div className="video-player-wrapper sticky top-0 z-20 relative bg-black w-full">
           {/* Back Button */}
           {!isImmersive && (
             <Button
