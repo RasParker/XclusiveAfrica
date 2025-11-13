@@ -998,9 +998,6 @@ export const FeedPage: React.FC = () => {
                         </div>
                       </div>
                     )}
-
-                    {/* PPV Price Badge */}
-                    {renderPpvBadge(post)}
                   </div>
 
                   {/* Enhanced bottom section with better spacing */}
