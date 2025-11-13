@@ -982,26 +982,27 @@ export const CreatorProfile: React.FC = () => {
         handlePPVPurchase(post);
         return;
       }
-      // If purchased, continue to display the content
-    }
-
-    // Check access control for tier-based content
-    if (!hasAccessToTier(post.tier)) {
-      console.log('Access denied for post tier:', post.tier);
-      // Open subscription tier modal instead of scrolling
-      if (creator && creator.tiers && creator.tiers.length > 0) {
-        setSubscriptionTierModalOpen(true);
-      } else {
-        // Fallback to scrolling if no tiers available
-        const tiersSection = document.getElementById('subscription-tiers');
-        if (tiersSection) {
-          tiersSection.scrollIntoView({ behavior: 'smooth' });
-          if (!isSubscriptionTiersExpanded) {
-            setIsSubscriptionTiersExpanded(true);
+      // If purchased, skip tier access check and continue to display the content
+      console.log('PPV content purchased, opening content');
+    } else {
+      // Check access control for tier-based content (only for non-PPV posts)
+      if (!hasAccessToTier(post.tier)) {
+        console.log('Access denied for post tier:', post.tier);
+        // Open subscription tier modal instead of scrolling
+        if (creator && creator.tiers && creator.tiers.length > 0) {
+          setSubscriptionTierModalOpen(true);
+        } else {
+          // Fallback to scrolling if no tiers available
+          const tiersSection = document.getElementById('subscription-tiers');
+          if (tiersSection) {
+            tiersSection.scrollIntoView({ behavior: 'smooth' });
+            if (!isSubscriptionTiersExpanded) {
+              setIsSubscriptionTiersExpanded(true);
+            }
           }
         }
+        return;
       }
-      return;
     }
 
     // For video content, check aspect ratio to determine navigation behavior
