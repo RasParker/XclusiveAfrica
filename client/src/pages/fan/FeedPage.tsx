@@ -1371,13 +1371,6 @@ export const FeedPage: React.FC = () => {
                                 target.src = `https://placehold.co/1280x720/1f2937/FFFFFF?text=Video+${post.id}`;
                               }}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M8 5v14l11-7z"/>
-                                </svg>
-                              </div>
-                            </div>
                           </div>
                         ) : (
                           <img 
