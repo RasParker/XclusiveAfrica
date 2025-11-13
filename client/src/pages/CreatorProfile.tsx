@@ -984,7 +984,7 @@ export const CreatorProfile: React.FC = () => {
       }
       // If purchased, continue to display the content
     }
-    
+
     // Check access control for tier-based content
     if (!hasAccessToTier(post.tier)) {
       console.log('Access denied for post tier:', post.tier);
@@ -1983,13 +1983,6 @@ export const CreatorProfile: React.FC = () => {
                                   target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`;
                                 }}
                               />
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                  <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                  </svg>
-                                </div>
-                              </div>
                             </div>
                           ) : (
                             <img 
@@ -2123,13 +2116,6 @@ export const CreatorProfile: React.FC = () => {
                                   target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`;
                                 }}
                               />
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                  <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                  </svg>
-                                </div>
-                              </div>
                             </div>
                           ) : (
                             <img 
@@ -2435,13 +2421,6 @@ export const CreatorProfile: React.FC = () => {
                                   target.src = `https://placehold.co/800x800/1f2937/FFFFFF?text=Video+${post.id}`;
                                 }}
                               />
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                  <svg className="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                  </svg>
-                                </div>
-                              </div>
                             </div>
                           ) : (
                             <img 
