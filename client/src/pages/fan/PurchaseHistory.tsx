@@ -97,61 +97,64 @@ export default function PurchaseHistory() {
           </Link>
         </Card>
       ) : (
-        <div className="space-y-4">
-          {purchases.map((purchase) => (
-            <Card key={purchase.id} className="overflow-hidden" data-testid={`card-purchase-${purchase.id}`}>
-              <div className="flex gap-4 p-4">
-                {purchase.post?.media_urls?.[0] && (
-                  <div className="relative w-40 h-24 flex-shrink-0 rounded-md overflow-hidden bg-muted">
-                    <img
-                      src={purchase.post.media_urls[0]}
-                      alt={purchase.post.title}
-                      className="w-full h-full object-cover"
-                    />
-                    {purchase.post.media_type === 'video' && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center">
-                          <Play className="w-5 h-5 text-primary-foreground ml-0.5" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {purchases.map((purchase) => {
+            const getVideoThumbnail = (url: string) => {
+              if (url.includes('cloudinary.com') && url.includes('/video/upload/')) {
+                return url.replace('/video/upload/', '/video/upload/so_0,w_400,h_225,c_fill,q_auto/');
+              }
+              return url;
+            };
+
+            const thumbnailUrl = purchase.post?.media_type === 'video' && purchase.post?.media_urls?.[0]
+              ? getVideoThumbnail(purchase.post.media_urls[0])
+              : purchase.post?.media_urls?.[0];
+
+            return (
+              <Card key={purchase.id} className="overflow-hidden group" data-testid={`card-purchase-${purchase.id}`}>
+                <Link to={`/video/${purchase.post_id}`} className="block">
+                  {thumbnailUrl && (
+                    <div className="relative w-full aspect-video bg-muted overflow-hidden">
+                      <img
+                        src={thumbnailUrl}
+                        alt={purchase.post?.title || 'Content thumbnail'}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                      />
+                      {purchase.post?.media_type === 'video' && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/50 transition-colors">
+                          <div className="w-14 h-14 rounded-full bg-primary/90 group-hover:bg-primary flex items-center justify-center transition-all group-hover:scale-110">
+                            <Play className="w-7 h-7 text-primary-foreground ml-1" fill="currentColor" />
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                <div className="flex-1 min-w-0 space-y-2">
-                  <h3 className="font-semibold text-lg line-clamp-2" data-testid={`text-title-${purchase.id}`}>
-                    {purchase.post?.title || 'Untitled Content'}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-                    <span data-testid={`text-date-${purchase.id}`}>
-                      Purchased {formatDistanceToNow(new Date(purchase.purchased_at), { addSuffix: true })}
-                    </span>
-                    <span>•</span>
-                    <span className="font-medium" data-testid={`text-amount-${purchase.id}`}>
-                      {purchase.currency} {parseFloat(purchase.amount).toFixed(2)}
-                    </span>
-                    {purchase.payment_method && (
-                      <>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="p-4 space-y-3">
+                    <h3 className="font-semibold text-base line-clamp-2 group-hover:text-primary transition-colors" data-testid={`text-title-${purchase.id}`}>
+                      {purchase.post?.title || 'Untitled Content'}
+                    </h3>
+                    
+                    <div className="space-y-1.5 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span className="font-semibold text-foreground" data-testid={`text-amount-${purchase.id}`}>
+                          {purchase.currency} {parseFloat(purchase.amount).toFixed(2)}
+                        </span>
                         <span>•</span>
                         <span className="capitalize" data-testid={`text-payment-method-${purchase.id}`}>
                           {purchase.payment_method.replace('_', ' ')}
                         </span>
-                      </>
-                    )}
+                      </div>
+                      
+                      <p className="text-muted-foreground text-xs" data-testid={`text-date-${purchase.id}`}>
+                        Purchased {formatDistanceToNow(new Date(purchase.purchased_at), { addSuffix: true })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-center">
-                  <Link to={`/video/${purchase.post_id}`}>
-                    <Button variant="default" data-testid={`button-watch-${purchase.post_id}`}>
-                      <Play className="w-4 h-4 mr-2" />
-                      Watch
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </Card>
-          ))}
+                </Link>
+              </Card>
+            );
+          })}
         </div>
       )}
 
