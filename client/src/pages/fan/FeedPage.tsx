@@ -1022,13 +1022,13 @@ export const FeedPage: React.FC = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0 space-y-2">
-                        <h4 className="text-base font-semibold text-foreground line-clamp-1 leading-tight">
+                        <h4 className="text-base font-medium text-foreground line-clamp-2 leading-snug">
                           {post.title || post.content || 'Untitled Post'}
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching desktop view */}
                         <div className="flex items-center justify-between gap-2">
                           <p 
-                            className="text-sm text-muted-foreground font-medium truncate cursor-pointer hover:text-foreground transition-colors"
+                            className="text-sm text-muted-foreground truncate cursor-pointer hover:text-foreground transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/creator/${encodeURIComponent(post.creator.username)}`);
@@ -1037,7 +1037,7 @@ export const FeedPage: React.FC = () => {
                             {post.creator.display_name || post.creator.username}
                           </p>
                           {/* Updated stats display format for mobile */}
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground flex-shrink-0">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
                             <span>{(post.likes_count || post.views || 0).toLocaleString()} views</span>
                             <span>•</span>
                             <span>{getTimeAgo(post.posted)}</span>
@@ -1296,7 +1296,7 @@ export const FeedPage: React.FC = () => {
 
                       <div className="flex-1 min-w-0 space-y-1">
                         {/* Enhanced typography hierarchy */}
-                        <h3 className="text-sm font-medium text-foreground line-clamp-1 leading-snug">
+                        <h3 className="text-sm font-medium text-foreground line-clamp-2 leading-snug">
                           {post.title || post.content || 'Untitled Post'}
                         </h3>
 
@@ -1564,7 +1564,7 @@ export const FeedPage: React.FC = () => {
                         <AvatarFallback>{(post.creator.display_name || post.creator.username || 'U').charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0 space-y-2">
-                        <h4 className="text-lg font-medium text-foreground line-clamp-2 leading-tight">
+                        <h4 className="text-base font-medium text-foreground line-clamp-2 leading-snug">
                           {post.title || post.content || 'Untitled Post'}
                         </h4>
                         {/* Creator name with view count and timestamp on same row - matching grid view */}
@@ -1579,7 +1579,7 @@ export const FeedPage: React.FC = () => {
                             {post.creator.display_name || post.creator.username}
                           </p>
                           {/* Updated stats display format for desktop single view */}
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground flex-shrink-0">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
                             <span>{(post.likes_count || post.views || 0).toLocaleString()} views</span>
                             <span>•</span>
                             <span>{getTimeAgo(post.posted)}</span>
