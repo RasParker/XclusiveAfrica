@@ -394,8 +394,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/posts", async (req, res) => {
     try {
       const { status, creatorId, includeAll } = req.query;
+      
+      // Get authenticated user ID from session if available
+      const authenticatedUserId = (req as any).session?.user?.id;
 
-      console.log('Fetching posts with params:', { status, creatorId, includeAll });
+      console.log('Fetching posts with params:', { status, creatorId, includeAll, authenticatedUserId });
 
       let query = `
         SELECT 
@@ -408,9 +411,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             'username', users.username,
             'display_name', users.display_name,
             'avatar', users.avatar
-          ) as creator
+          ) as creator,
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'user_id', ppv_purchases.user_id,
+                'status', ppv_purchases.status,
+                'purchased_at', ppv_purchases.purchased_at
+              )
+            ) FILTER (WHERE ppv_purchases.id IS NOT NULL), 
+            '[]'
+          ) as ppv_purchases
         FROM posts 
         LEFT JOIN users ON posts.creator_id = users.id
+        LEFT JOIN ppv_purchases ON ppv_purchases.post_id = posts.id 
+          AND ppv_purchases.status = 'completed'
+          ${authenticatedUserId ? `AND ppv_purchases.user_id = ${parseInt(authenticatedUserId)}` : 'AND 1=0'}
         WHERE 1=1
       `;
       const params: any[] = [];
@@ -431,7 +447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         params.push(parseInt(creatorId as string));
       }
 
-      query += ` ORDER BY posts.created_at DESC`;
+      query += ` GROUP BY posts.id, users.id ORDER BY posts.created_at DESC`;
 
       // postgres-js requires .unsafe() for dynamic queries with parameters
       const rows = await pool.unsafe(query, params);
