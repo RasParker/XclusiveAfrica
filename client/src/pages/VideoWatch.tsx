@@ -745,9 +745,6 @@ export const VideoWatch: React.FC = () => {
                                   target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
                                 }}
                               />
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Play className="w-6 h-6 text-white" fill="white" />
-                              </div>
                               {video.duration && (
                                 <div className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
                                   {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
@@ -1107,9 +1104,6 @@ export const VideoWatch: React.FC = () => {
                                   target.src = `https://placehold.co/640x360/1f2937/FFFFFF?text=Video+${video.id}`;
                                 }}
                               />
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Play className="w-4 h-4 text-white" fill="white" />
-                              </div>
                               {video.duration && (
                                 <div className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
                                   {Math.floor(video.duration / 60)}:{(video.duration % 60).toString().padStart(2, '0')}
