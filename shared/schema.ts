@@ -754,6 +754,9 @@ export type InsertPaymentTransaction = z.infer<typeof insertPaymentTransactionSc
 export type PaymentTransaction = typeof payment_transactions.$inferSelect;
 export type InsertPPVPurchase = z.infer<typeof insertPPVPurchaseSchema>;
 export type PPVPurchase = typeof ppv_purchases.$inferSelect;
+export type PPVPurchaseWithPost = PPVPurchase & {
+  post: Pick<Post, 'id' | 'title' | 'media_urls' | 'media_type'> | null;
+};
 export type InsertReport = z.infer<typeof insertReportSchema>;
 export type Report = typeof reports.$inferSelect;
 export type CreatorPayout = typeof creator_payouts.$inferSelect;

@@ -46,6 +46,7 @@ import {
   type InsertPaymentTransaction,
   type PPVPurchase,
   type InsertPPVPurchase,
+  type PPVPurchaseWithPost,
   type CreatorPayoutSettings,
   type InsertCreatorPayoutSettings,
   type Conversation,
@@ -220,7 +221,7 @@ export interface IStorage {
   getPPVPurchaseByUserAndPost(userId: number, postId: number): Promise<PPVPurchase | undefined>;
   updatePPVPurchase(id: number, updates: Partial<PPVPurchase>): Promise<PPVPurchase | undefined>;
   hasPurchasedPost(userId: number, postId: number): Promise<boolean>;
-  getPPVPurchasesByUser(userId: number, limit?: number, offset?: number): Promise<PPVPurchase[]>;
+  getPPVPurchasesByUser(userId: number, limit?: number, offset?: number): Promise<PPVPurchaseWithPost[]>;
   getPPVPurchasesByPost(postId: number, limit?: number, offset?: number): Promise<PPVPurchase[]>;
   getCreatorPPVRevenue(creatorId: number, startDate?: Date, endDate?: Date): Promise<number>;
   incrementPPVSalesCount(postId: number): Promise<void>;
@@ -1151,16 +1152,28 @@ export class DatabaseStorage implements IStorage {
     return !!purchase;
   }
 
-  async getPPVPurchasesByUser(userId: number, limit: number = 50, offset: number = 0): Promise<PPVPurchase[]> {
-    const purchases = await db
-      .select()
+  async getPPVPurchasesByUser(userId: number, limit: number = 50, offset: number = 0): Promise<PPVPurchaseWithPost[]> {
+    const results = await db
+      .select({
+        purchase: ppv_purchases,
+        post: {
+          id: posts.id,
+          title: posts.title,
+          media_urls: posts.media_urls,
+          media_type: posts.media_type,
+        }
+      })
       .from(ppv_purchases)
+      .leftJoin(posts, eq(ppv_purchases.post_id, posts.id))
       .where(eq(ppv_purchases.user_id, userId))
       .orderBy(desc(ppv_purchases.purchased_at))
       .limit(limit)
       .offset(offset);
     
-    return purchases;
+    return results.map(row => ({
+      ...row.purchase,
+      post: row.post && row.post.id ? row.post : null
+    }));
   }
 
   async getPPVPurchasesByPost(postId: number, limit: number = 50, offset: number = 0): Promise<PPVPurchase[]> {
