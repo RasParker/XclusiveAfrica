@@ -34,20 +34,8 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
 
   return (
     <div>
-      <div className="flex gap-3 p-3 pb-2">
-        <Avatar
-          className="h-12 w-12 flex-shrink-0 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200 cursor-pointer"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/creator/${encodeURIComponent(creator.username)}`);
-          }}
-        >
-          <AvatarImage src={getImageUrl(creator.avatar)} alt={creator.username} />
-          <AvatarFallback className="text-sm bg-muted text-muted-foreground">
-            {(creator?.display_name || creator?.username || 'U').charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0 space-y-2">
+      <div className="p-3 pb-2">
+        <div className="space-y-2">
           <h4 className="text-sm font-medium text-foreground line-clamp-2 leading-tight">
             {post.content || post.title || 'Untitled Post'}
           </h4>
