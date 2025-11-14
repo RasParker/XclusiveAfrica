@@ -26,6 +26,17 @@ const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/mov'];
 const formSchema = z.object({
   caption: z.string().min(1, "Caption is required").refine(val => val.trim().length > 0, "Caption cannot be empty"),
   accessTier: z.string().min(1, "Please select who can see this post"),
+  ppvPrice: z.coerce.number().positive("Price must be a positive number").optional().or(z.literal(undefined)),
+  ppvCurrency: z.string().default('GHS'),
+}).refine((data) => {
+  // If accessTier is PPV, price is required and must be positive
+  if (data.accessTier === 'ppv' && (!data.ppvPrice || data.ppvPrice <= 0)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "PPV price is required when Pay Per View is selected",
+  path: ["ppvPrice"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -66,6 +77,8 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
     defaultValues: {
       caption: '',
       accessTier: '',
+      ppvPrice: undefined,
+      ppvCurrency: 'GHS',
     },
     mode: 'onChange', // Enable real-time validation
   });
@@ -73,6 +86,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
   // Watch form changes and validate
   const caption = form.watch('caption');
   const accessTier = form.watch('accessTier');
+  const ppvPrice = form.watch('ppvPrice');
 
   useEffect(() => {
     const errors: string[] = [];
@@ -87,9 +101,14 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
       errors.push('Select who can see this post');
     }
 
+    // Check if PPV price is set when PPV is selected
+    if (accessTier === 'ppv' && (!ppvPrice || ppvPrice <= 0)) {
+      errors.push('Set a price for Pay Per View content');
+    }
+
     setValidationErrors(errors);
     setIsFormComplete(errors.length === 0);
-  }, [caption, accessTier, mediaFile]);
+  }, [caption, accessTier, ppvPrice, mediaFile]);
 
   // Fetch creator's subscription tiers
   useEffect(() => {
@@ -214,15 +233,19 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
       }
 
       // Prepare post data for API
+      const isPPV = data.accessTier === 'ppv';
       const postData = {
         creator_id: parseInt(user.id.toString()),
         title: data.caption?.substring(0, 50) || 'Quick Post',
         content: data.caption || '',
         media_type: mediaType || 'text',
         media_urls: uploadedMediaUrls,
-        tier: data.accessTier === 'free' ? 'public' : data.accessTier,
+        tier: isPPV ? 'ppv' : (data.accessTier === 'free' ? 'public' : data.accessTier),
         status: 'published',
-        scheduled_for: null
+        scheduled_for: null,
+        is_ppv_enabled: isPPV,
+        ppv_price: isPPV && data.ppvPrice ? data.ppvPrice : null,
+        ppv_currency: isPPV && data.ppvCurrency ? data.ppvCurrency : null
       };
 
       // Create the post via API
@@ -411,6 +434,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="free">Free for all followers</SelectItem>
+                        <SelectItem value="ppv">Pay Per View (PPV)</SelectItem>
                         {tiers.length === 0 && (
                           <SelectItem value="create_new_tier" className="text-primary font-medium">
                             + Create new tier
@@ -427,6 +451,76 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                   </FormItem>
                 )}
               />
+
+              {/* PPV Settings - Only show when PPV is selected */}
+              {form.watch('accessTier') === 'ppv' && (
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-sm font-medium">
+                      Pay Per View Settings
+                    </FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Set a one-time price for this content
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* PPV Price */}
+                    <FormField
+                      control={form.control}
+                      name="ppvPrice"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Price</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <span className="absolute left-3 top-3 text-xs text-muted-foreground">
+                                {form.watch('ppvCurrency')}
+                              </span>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                placeholder="0.00"
+                                className="pl-14"
+                                value={field.value ?? ''}
+                                onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                data-testid="input-ppv-price"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* PPV Currency */}
+                    <FormField
+                      control={form.control}
+                      name="ppvCurrency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Currency</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Currency" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="GHS">GHS</SelectItem>
+                              <SelectItem value="USD">USD</SelectItem>
+                              <SelectItem value="EUR">EUR</SelectItem>
+                              <SelectItem value="GBP">GBP</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </form>

@@ -35,8 +35,19 @@ const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
 const formSchema = z.object({
   caption: z.string().min(1, "Caption is required").max(2000, "Caption must be less than 2000 characters"),
   accessTier: z.string().min(1, "Please select an access tier"),
+  ppvPrice: z.coerce.number().positive("Price must be a positive number").optional().or(z.literal(undefined)),
+  ppvCurrency: z.string().default('GHS'),
   scheduledDate: z.date().optional(),
   scheduledTime: z.string().optional(),
+}).refine((data) => {
+  // If accessTier is PPV, price is required and must be positive
+  if (data.accessTier === 'ppv' && (!data.ppvPrice || data.ppvPrice <= 0)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "PPV price is required when Pay Per View is selected",
+  path: ["ppvPrice"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -71,6 +82,8 @@ export const EditPost: React.FC = () => {
     defaultValues: {
       caption: '',
       accessTier: 'free',
+      ppvPrice: undefined,
+      ppvCurrency: 'GHS',
       scheduledDate: undefined,
       scheduledTime: '',
     },
@@ -135,9 +148,14 @@ export const EditPost: React.FC = () => {
           // Pre-populate form with existing post data - handle case mismatch
           let accessTier = postData.tier === 'public' ? 'free' : postData.tier;
 
+          // Check if this is a PPV post
+          if (postData.is_ppv_enabled || postData.tier === 'ppv') {
+            accessTier = 'ppv';
+          }
+
           // Fix case sensitivity issues by finding matching tier
-          if (accessTier !== 'free' && tiersData.length > 0) {
-            const matchingTier = tiersData.find(tier => 
+          if (accessTier !== 'free' && accessTier !== 'ppv' && tiersData.length > 0) {
+            const matchingTier = tiersData.find((tier: SubscriptionTier) => 
               tier.name.toLowerCase() === accessTier.toLowerCase()
             );
             if (matchingTier) {
@@ -162,6 +180,8 @@ export const EditPost: React.FC = () => {
           const formDataObj = {
             caption: postData.content || '',
             accessTier: accessTier,
+            ppvPrice: postData.ppv_price || undefined,
+            ppvCurrency: postData.ppv_currency || 'GHS',
             scheduledDate: scheduledDate,
             scheduledTime: scheduledTime,
           };
@@ -171,6 +191,12 @@ export const EditPost: React.FC = () => {
           // Use setValue instead of reset for better control
           form.setValue('caption', formDataObj.caption);
           form.setValue('accessTier', formDataObj.accessTier);
+          if (formDataObj.ppvPrice) {
+            form.setValue('ppvPrice', formDataObj.ppvPrice);
+          }
+          if (formDataObj.ppvCurrency) {
+            form.setValue('ppvCurrency', formDataObj.ppvCurrency);
+          }
           if (formDataObj.scheduledDate) {
             form.setValue('scheduledDate', formDataObj.scheduledDate);
           }
@@ -298,14 +324,18 @@ export const EditPost: React.FC = () => {
       }
 
       // Prepare updated post data
+      const isPPV = data.accessTier === 'ppv';
       const updatedPostData = {
         title: data.caption?.substring(0, 50) || originalPost.title,
         content: data.caption || originalPost.content,
         media_type: mediaType || originalPost.media_type,
         media_urls: uploadedMediaUrls,
-        tier: data.accessTier === 'free' ? 'public' : data.accessTier,
+        tier: isPPV ? 'ppv' : (data.accessTier === 'free' ? 'public' : data.accessTier),
         scheduled_for: scheduled_for,
         status: scheduled_for ? 'scheduled' : originalPost.status,
+        is_ppv_enabled: isPPV,
+        ppv_price: isPPV && data.ppvPrice ? data.ppvPrice : null,
+        ppv_currency: isPPV && data.ppvCurrency ? data.ppvCurrency : null
       };
 
       console.log('Updating post with data:', updatedPostData);
@@ -520,6 +550,7 @@ export const EditPost: React.FC = () => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="free">Free for all followers</SelectItem>
+                          <SelectItem value="ppv">Pay Per View (PPV)</SelectItem>
                           {tiers.map((tier) => (
                             <SelectItem key={tier.id} value={tier.name}>
                               {tier.name} (GHS {tier.price}/month)
@@ -531,6 +562,81 @@ export const EditPost: React.FC = () => {
                     </FormItem>
                   )}
                 />
+
+                {/* PPV Settings - Only show when PPV is selected */}
+                {form.watch('accessTier') === 'ppv' && (
+                  <div className="space-y-4 border-t border-border pt-6">
+                    <div className="rounded-lg border border-border p-4 bg-muted/50">
+                      <div className="space-y-0.5 mb-4">
+                        <FormLabel className="text-base">
+                          Pay Per View Settings
+                        </FormLabel>
+                        <FormDescription>
+                          Set a one-time price for fans to purchase permanent access to this content without subscribing
+                        </FormDescription>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {/* PPV Price */}
+                        <FormField
+                          control={form.control}
+                          name="ppvPrice"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Price</FormLabel>
+                              <FormControl>
+                                <div className="relative">
+                                  <span className="absolute left-3 top-3 text-muted-foreground">
+                                    {form.watch('ppvCurrency') === 'GHS' ? 'GHS' : form.watch('ppvCurrency')}
+                                  </span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0.01"
+                                    placeholder="0.00"
+                                    className="pl-14"
+                                    value={field.value ?? ''}
+                                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                                    data-testid="input-ppv-price"
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                One-time payment for permanent access
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* PPV Currency */}
+                        <FormField
+                          control={form.control}
+                          name="ppvCurrency"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Currency</FormLabel>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select currency" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="GHS">GHS (Ghanaian Cedi)</SelectItem>
+                                  <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                                  <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                                  <SelectItem value="GBP">GBP (British Pound)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
