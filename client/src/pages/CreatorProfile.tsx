@@ -164,6 +164,233 @@ const MOCK_CREATORS = {
   }
 };
 
+// PostGridCard Component for displaying posts in grid layout
+interface PostGridCardProps {
+  post: any;
+  creator: any;
+  user: any;
+  username: string | undefined;
+  postLikes: Record<string, { liked: boolean; count: number }>;
+  isOwnProfile: boolean;
+  getImageUrl: (url: string | null | undefined) => string | undefined;
+  getTimeAgo: (date: string) => string;
+  getMediaOverlayIcon: (mediaType: string) => React.ReactNode;
+  hasAccessToTier: (tier: string) => boolean;
+  handleContentClick: (post: any) => void;
+  handleLike: (postId: string) => void;
+  handleCommentClick: (postId: string) => void;
+  handleShare: (postId: string) => void;
+  handleEditPost: (postId: string) => void;
+  handleDeletePost: (postId: string) => void;
+  handlePPVPurchase: (post: any) => void;
+  setSubscriptionTierModalOpen: (open: boolean) => void;
+}
+
+const PostGridCard: React.FC<PostGridCardProps> = ({
+  post,
+  creator,
+  user,
+  username,
+  postLikes,
+  isOwnProfile,
+  getImageUrl,
+  getTimeAgo,
+  getMediaOverlayIcon,
+  hasAccessToTier,
+  handleContentClick,
+  handleLike,
+  handleCommentClick,
+  handleShare,
+  handleEditPost,
+  handleDeletePost,
+  handlePPVPurchase,
+  setSubscriptionTierModalOpen,
+}) => {
+  const hasAccess = hasAccessToTier(post.tier) || (post.is_ppv_enabled && post.ppv_purchases?.some((p: any) => p.user_id === user?.id));
+
+  const getVideoThumbnail = (url: string) => {
+    if (url?.includes('cloudinary.com/') && url.includes('/video/upload/')) {
+      return url.replace('/video/upload/', '/video/upload/so_0,w_800,h_450,c_fill,f_jpg/').replace('.mp4', '.jpg');
+    }
+    return url;
+  };
+
+  const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
+  const mediaUrl = mediaUrls[0];
+  const fullUrl = getImageUrl(mediaUrl);
+  const thumbnailUrl = post.media_type === 'video' && fullUrl ? getVideoThumbnail(fullUrl) : fullUrl;
+
+  return (
+    <Card 
+      className="overflow-hidden group" 
+      data-testid={`card-post-${post.id}`}
+    >
+      <div 
+        className="relative w-full aspect-video bg-black cursor-pointer overflow-hidden"
+        onClick={() => handleContentClick(post)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleContentClick(post);
+          }
+        }}
+        data-testid={`thumbnail-post-${post.id}`}
+      >
+        {!hasAccess ? (
+          <LockedContentOverlay
+            thumbnail={thumbnailUrl}
+            tier={post.tier}
+            isVideo={post.media_type === 'video'}
+            onUnlockClick={(e) => {
+              e.stopPropagation();
+              if (!user) {
+                window.location.href = `/login?redirect=/creator/${username}`;
+              } else if (post.is_ppv_enabled) {
+                handlePPVPurchase(post);
+              } else if (creator && creator.tiers && creator.tiers.length > 0) {
+                setSubscriptionTierModalOpen(true);
+              } else {
+                document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            showButton={true}
+            ppvEnabled={post.is_ppv_enabled}
+            ppvPrice={post.ppv_price}
+            ppvCurrency={post.ppv_currency || 'GHS'}
+          />
+        ) : (
+          <>
+            {thumbnailUrl ? (
+              <img 
+                src={thumbnailUrl}
+                alt={post.title || 'Post thumbnail'}
+                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = `https://placehold.co/800x450/1f2937/FFFFFF?text=Post+${post.id}`;
+                }}
+              />
+            ) : (
+              <img 
+                src={`https://placehold.co/800x450/6366F1/FFFFFF?text=Post+${post.id}`}
+                alt={post.title || 'Post thumbnail'}
+                className="w-full h-full object-cover"
+              />
+            )}
+            
+            {/* Content type overlay */}
+            {post.media_type !== 'video' && (
+              <div className="absolute top-2 left-2">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-black/60 backdrop-blur-sm">
+                  {getMediaOverlayIcon(post.media_type)}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Bottom section - Use PostCardLayout for consistency */}
+      <PostCardLayout
+        post={post}
+        creator={creator}
+        postLikes={postLikes}
+        isOwnProfile={isOwnProfile}
+        getImageUrl={getImageUrl}
+        getTimeAgo={getTimeAgo}
+        handleLike={handleLike}
+        handleCommentClick={handleCommentClick}
+        handleShare={handleShare}
+        handleEditPost={handleEditPost}
+        handleDeletePost={handleDeletePost}
+      />
+    </Card>
+  );
+};
+
+// PostsGrid Component for rendering posts in responsive grid
+interface PostsGridProps {
+  posts: any[];
+  emptyMessage: string;
+  creator: any;
+  user: any;
+  username: string | undefined;
+  postLikes: Record<string, { liked: boolean; count: number }>;
+  isOwnProfile: boolean;
+  getImageUrl: (url: string | null | undefined) => string | undefined;
+  getTimeAgo: (date: string) => string;
+  getMediaOverlayIcon: (mediaType: string) => React.ReactNode;
+  hasAccessToTier: (tier: string) => boolean;
+  handleContentClick: (post: any) => void;
+  handleLike: (postId: string) => void;
+  handleCommentClick: (postId: string) => void;
+  handleShare: (postId: string) => void;
+  handleEditPost: (postId: string) => void;
+  handleDeletePost: (postId: string) => void;
+  handlePPVPurchase: (post: any) => void;
+  setSubscriptionTierModalOpen: (open: boolean) => void;
+}
+
+const PostsGrid: React.FC<PostsGridProps> = ({
+  posts,
+  emptyMessage,
+  creator,
+  user,
+  username,
+  postLikes,
+  isOwnProfile,
+  getImageUrl,
+  getTimeAgo,
+  getMediaOverlayIcon,
+  hasAccessToTier,
+  handleContentClick,
+  handleLike,
+  handleCommentClick,
+  handleShare,
+  handleEditPost,
+  handleDeletePost,
+  handlePPVPurchase,
+  setSubscriptionTierModalOpen,
+}) => {
+  if (posts.length === 0) {
+    return (
+      <div className="text-center py-10">
+        <p className="text-muted-foreground">{emptyMessage}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {posts.map((post) => (
+        <PostGridCard
+          key={post.id}
+          post={post}
+          creator={creator}
+          user={user}
+          username={username}
+          postLikes={postLikes}
+          isOwnProfile={isOwnProfile}
+          getImageUrl={getImageUrl}
+          getTimeAgo={getTimeAgo}
+          getMediaOverlayIcon={getMediaOverlayIcon}
+          hasAccessToTier={hasAccessToTier}
+          handleContentClick={handleContentClick}
+          handleLike={handleLike}
+          handleCommentClick={handleCommentClick}
+          handleShare={handleShare}
+          handleEditPost={handleEditPost}
+          handleDeletePost={handleDeletePost}
+          handlePPVPurchase={handlePPVPurchase}
+          setSubscriptionTierModalOpen={setSubscriptionTierModalOpen}
+        />
+      ))}
+    </div>
+  );
+};
+
 export const CreatorProfile: React.FC = () => {
   const { username } = useParams<{ username: string }>();
   const { user } = useAuth();
