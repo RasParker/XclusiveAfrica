@@ -256,7 +256,7 @@ const PostGridCard: React.FC<PostGridCardProps> = ({
                 document.getElementById('subscription-tiers')?.scrollIntoView({ behavior: 'smooth' });
               }
             }}
-            showButton={true}
+            showButton={false}
             ppvEnabled={post.is_ppv_enabled}
             ppvPrice={post.ppv_price}
             ppvCurrency={post.ppv_currency || 'GHS'}
