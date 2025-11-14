@@ -54,8 +54,8 @@ export const LockedContentOverlay: React.FC<LockedContentOverlayProps> = ({
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="text-center p-4 space-y-3">
           {/* Animated lock icon */}
-          <div className="w-14 h-14 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
-            <svg className="w-7 h-7 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-10 h-10 mx-auto bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20 animate-pulse">
+            <svg className="w-5 h-5 text-accent drop-shadow-lg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
