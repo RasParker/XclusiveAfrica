@@ -41,16 +41,7 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
           </h4>
 
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span
-              className="truncate cursor-pointer hover:text-foreground transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/creator/${encodeURIComponent(creator.username)}`);
-              }}
-            >
-              {creator.display_name}
-            </span>
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1">
               <span>{(post.likes_count || post.views || 0).toLocaleString()} views</span>
               <span>•</span>
               <span>{getTimeAgo(post.created_at || post.createdAt)}</span>
