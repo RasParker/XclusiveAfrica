@@ -731,6 +731,7 @@ export const VideoWatch: React.FC = () => {
                                 thumbnail={thumbnailUrl}
                                 tier={video.tier || 'public'}
                                 isVideo={true}
+                                showButton={false}
                                 onUnlockClick={async (e) => {
                                   e.stopPropagation();
                                   if (!user) {
