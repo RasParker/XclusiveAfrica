@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { BioDisplay } from '@/lib/text-utils';
 import { OnlineStatusIndicator } from '@/components/OnlineStatusIndicator';
+import { getTimeAgo } from '@/lib/timeUtils';
 
 // Add CSS for feed cards to match Fan feed page
 const feedCardStyles = `
@@ -1031,32 +1032,6 @@ export const CreatorProfile: React.FC = () => {
         });
       }
     }
-  };
-
-  const getTimeAgo = (dateString: string) => {
-    // Handle CURRENT_TIMESTAMP literal string
-    if (dateString === "CURRENT_TIMESTAMP") {
-      return 'Just now';
-    }
-
-    const date = new Date(dateString);
-
-    // Check if date is invalid
-    if (isNaN(date.getTime())) {
-      return 'Just now';
-    }
-
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInDays < 7) return `${diffInDays}d ago`;
-    return `${Math.floor(diffInDays / 7)}w ago`;
   };
 
   const getTypeIcon = (type: string) => {

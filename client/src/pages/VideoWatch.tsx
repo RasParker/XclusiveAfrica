@@ -15,6 +15,7 @@ import { PaymentModal } from '@/components/payment/PaymentModal';
 import { LockedContentOverlay } from '@/components/content/LockedContentOverlay';
 import { UnlockOptionsModal } from '@/components/payment/UnlockOptionsModal';
 import { PPVPaymentModal } from '@/components/payment/PPVPaymentModal';
+import { getTimeAgo } from '@/lib/timeUtils';
 
 export const VideoWatch: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,33 +38,6 @@ export const VideoWatch: React.FC = () => {
   const [hasPPVAccess, setHasPPVAccess] = useState(false);
   const [unlockOptionsModalOpen, setUnlockOptionsModalOpen] = useState(false);
   const [ppvPaymentModalOpen, setPPVPaymentModalOpen] = useState(false);
-
-
-  const getTimeAgo = (dateString: string) => {
-    // Handle CURRENT_TIMESTAMP literal string
-    if (dateString === "CURRENT_TIMESTAMP") {
-      return 'Just now';
-    }
-
-    const date = new Date(dateString);
-
-    // Check if date is invalid
-    if (isNaN(date.getTime())) {
-      return 'Just now';
-    }
-
-    const now = new Date();
-    const diffInMs = now.getTime() - date.getTime();
-    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    if (diffInDays < 7) return `${diffInDays}d ago`;
-    return `${Math.floor(diffInDays / 7)}w ago`;
-  };
 
   // Check PPV access
   useEffect(() => {
@@ -240,7 +214,7 @@ export const VideoWatch: React.FC = () => {
               const hasAccessFlag = post.has_access !== undefined 
                 ? post.has_access === true 
                 : postTier === 'public';
-              
+
               return {
                 ...post,
                 creator_display_name: post.creator?.display_name || post.creator?.username || post.display_name || post.username || 'Unknown Creator',
@@ -298,7 +272,7 @@ export const VideoWatch: React.FC = () => {
 
   const handleUnlockClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!user) {
       navigate(`/login?redirect=/video/${id}`);
       return;
@@ -329,7 +303,7 @@ export const VideoWatch: React.FC = () => {
         fetch(`/api/users/${post.creator_id}`),
         fetch(`/api/creators/${post.creator_id}/tiers`)
       ]);
-      
+
       if (!userResponse.ok || !tiersResponse.ok) {
         toast({
           title: "Error",
@@ -341,7 +315,7 @@ export const VideoWatch: React.FC = () => {
 
       const creatorData = await userResponse.json();
       const tiersData = await tiersResponse.json();
-      
+
       // Set creator data and open modal
       setSelectedCreatorForSubscription({
         id: creatorData.id,
@@ -725,7 +699,7 @@ export const VideoWatch: React.FC = () => {
                     : videoFullUrl;
 
                   const videoHasAccess = video.hasAccess !== false;
-                  
+
                   return (
                     <div 
                       key={video.id} 
@@ -767,10 +741,10 @@ export const VideoWatch: React.FC = () => {
                                         fetch(`/api/users/${video.creator_id}`),
                                         fetch(`/api/creators/${video.creator_id}/tiers`)
                                       ]);
-                                      
+
                                       const creatorData = userResponse.ok ? await userResponse.json() : null;
                                       const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-                                      
+
                                       if (creatorData) {
                                         setSelectedCreatorForSubscription({
                                           id: creatorData.id,
@@ -1084,7 +1058,7 @@ export const VideoWatch: React.FC = () => {
                     : videoFullUrl;
 
                   const videoHasAccess = video.hasAccess !== false;
-                  
+
                   return (
                     <div 
                       key={`${video.id}-${index}`} 
@@ -1127,10 +1101,10 @@ export const VideoWatch: React.FC = () => {
                                         fetch(`/api/users/${video.creator_id}`),
                                         fetch(`/api/creators/${video.creator_id}/tiers`)
                                       ]);
-                                      
+
                                       const creatorData = userResponse.ok ? await userResponse.json() : null;
                                       const tiersData = tiersResponse.ok ? await tiersResponse.json() : [];
-                                    
+
                                     if (creatorData) {
                                       setSelectedCreatorForSubscription({
                                         id: creatorData.id,
