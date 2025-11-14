@@ -2092,7 +2092,7 @@ export const CreatorProfile: React.FC = () => {
       )}
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto md:px-6 py-8">
+      <div className="max-w-7xl mx-auto md:px-6 py-8">
         <div className="space-y-6">
           {/* Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
