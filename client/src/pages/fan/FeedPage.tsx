@@ -734,20 +734,6 @@ export const FeedPage: React.FC = () => {
       {/* Desktop Layout - Keep original design */}
       <div className="hidden md:block">
         <EdgeToEdgeContainer>
-      {/* Hero Section - Full Width */}
-      <div className="bg-gradient-to-r from-accent/10 via-primary/5 to-accent/10 border-b border-border">
-        <EdgeToEdgeContainer maxWidth="4xl" enablePadding enableTopPadding>
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Your Feed
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Latest content from creators you follow
-            </p>
-          </div>
-        </EdgeToEdgeContainer>
-      </div>
-
       {/* Feed Content */}
       <EdgeToEdgeContainer maxWidth="7xl" enablePadding className="py-4 sm:py-6">
         {loading ? (
