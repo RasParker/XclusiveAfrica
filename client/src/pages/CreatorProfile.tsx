@@ -2097,17 +2097,17 @@ export const CreatorProfile: React.FC = () => {
           {/* Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Tab Navigation */}
-            <TabsList className="inline-flex h-auto w-full md:w-auto gap-0 bg-transparent p-0 border-b border-border rounded-none overflow-x-auto scrollbar-hide">
-              <TabsTrigger value="all" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none !px-3 md:!px-6 py-2 whitespace-nowrap">
+            <TabsList className="inline-flex h-auto w-full md:w-auto gap-0 bg-transparent p-0 rounded-none overflow-x-auto scrollbar-hide">
+              <TabsTrigger value="all" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 whitespace-nowrap">
                 All ({getPostCounts().all})
               </TabsTrigger>
-              <TabsTrigger value="subscription" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none !px-3 md:!px-6 py-2 whitespace-nowrap">
+              <TabsTrigger value="subscription" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 whitespace-nowrap">
                 Subscription ({getPostCounts().subscription})
               </TabsTrigger>
-              <TabsTrigger value="ppv" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none !px-3 md:!px-6 py-2 whitespace-nowrap">
+              <TabsTrigger value="ppv" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 whitespace-nowrap">
                 Pay-Per-View ({getPostCounts().ppv})
               </TabsTrigger>
-              <TabsTrigger value="public" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none !px-3 md:!px-6 py-2 whitespace-nowrap">
+              <TabsTrigger value="public" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 whitespace-nowrap">
                 Public ({getPostCounts().public})
               </TabsTrigger>
             </TabsList>
