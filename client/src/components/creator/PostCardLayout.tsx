@@ -40,7 +40,12 @@ export const PostCardLayout: React.FC<PostCardLayoutProps> = ({
             {post.content || post.title || 'Untitled Post'}
           </h4>
 
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <span>{(post.likes_count || post.views || 0).toLocaleString()} views</span>
+            <span>•</span>
+            <span>{getTimeAgo(post.created_at || post.createdAt)}</span>
           </div>
+        </div>
       </div>
     </div>
   );
