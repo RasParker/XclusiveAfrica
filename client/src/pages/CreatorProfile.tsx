@@ -1766,7 +1766,7 @@ export const CreatorProfile: React.FC = () => {
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <div className="max-w-4xl mx-auto flex items-end gap-3">
+          <div className="max-w-7xl mx-auto flex items-end gap-3">
             <div className="flex items-end gap-3 md:ml-6">
               <div className="relative flex-shrink-0">
                 <Avatar className="w-24 h-24 border-4 border-background">
@@ -1828,7 +1828,7 @@ export const CreatorProfile: React.FC = () => {
       </div>
 
       {/* Bio Section */}
-      <div className="max-w-4xl mx-auto px-6 py-4">
+      <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             {(() => {
@@ -1956,7 +1956,7 @@ export const CreatorProfile: React.FC = () => {
 
       {/* Compact Subscription Tiers - Show for profiles with tiers (Mobile + Desktop) */}
       {creator?.tiers && creator.tiers.length > 0 && (
-        <div id="subscription-tiers" className="mx-4 mb-6 max-w-4xl md:mx-auto md:px-6">
+        <div id="subscription-tiers" className="mx-4 mb-6 max-w-7xl md:mx-auto md:px-6">
           <div className="border bg-background rounded-lg shadow-lg gap-4 overflow-hidden">
             {!isSubscriptionTiersExpanded ? (
               /* Compact View */
