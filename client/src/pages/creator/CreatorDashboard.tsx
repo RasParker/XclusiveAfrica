@@ -261,22 +261,6 @@ export const CreatorDashboard: React.FC = () => {
 
   return (
     <EdgeToEdgeContainer>
-      {/* Hero Section - Full Width */}
-      <div className="bg-gradient-to-r from-accent/10 via-primary/5 to-accent/10 border-b border-border">
-        <EdgeToEdgeContainer maxWidth="7xl" enablePadding enableTopPadding>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
-                Creator Dashboard
-              </h1>
-            </div>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Welcome back, {user?.username}! Here's your creator overview
-            </p>
-          </div>
-        </EdgeToEdgeContainer>
-      </div>
-
       {/* Main Content */}
       <EdgeToEdgeContainer maxWidth="7xl" enablePadding className="py-6 sm:py-8">
 
