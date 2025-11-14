@@ -363,20 +363,6 @@ export const Explore: React.FC = () => {
 
   return (
     <EdgeToEdgeContainer>
-      {/* Hero Section - Full Width */}
-      <div className="bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 border-b border-border">
-        <EdgeToEdgeContainer maxWidth="7xl" enablePadding enableTopPadding>
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Discover Amazing Creators
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Find creators you love and support their exclusive content with subscriptions
-            </p>
-          </div>
-        </EdgeToEdgeContainer>
-      </div>
-
       {/* Main Content */}
       <EdgeToEdgeContainer maxWidth="7xl" enablePadding className="py-6 sm:py-8">
 
