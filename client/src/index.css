@@ -475,7 +475,7 @@
   }
 
   .tab-trigger:hover {
-    @apply bg-[#1e1e24] text-foreground;
+    @apply text-foreground;
   }
 
   .nav-item {
