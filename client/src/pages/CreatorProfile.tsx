@@ -2097,17 +2097,17 @@ export const CreatorProfile: React.FC = () => {
           {/* Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Tab Navigation */}
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all" className="text-sm">
+            <TabsList className="inline-flex h-auto w-auto gap-0 bg-transparent p-0 border-b border-border rounded-none">
+              <TabsTrigger value="all" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2">
                 All ({getPostCounts().all})
               </TabsTrigger>
-              <TabsTrigger value="subscription" className="text-sm">
+              <TabsTrigger value="subscription" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2">
                 Subscription ({getPostCounts().subscription})
               </TabsTrigger>
-              <TabsTrigger value="ppv" className="text-sm">
+              <TabsTrigger value="ppv" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2">
                 PPV ({getPostCounts().ppv})
               </TabsTrigger>
-              <TabsTrigger value="public" className="text-sm">
+              <TabsTrigger value="public" className="text-sm rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2">
                 Public ({getPostCounts().public})
               </TabsTrigger>
             </TabsList>
