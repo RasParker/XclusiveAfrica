@@ -184,20 +184,6 @@ export const FanDashboard: React.FC = () => {
 
   return (
     <EdgeToEdgeContainer>
-      {/* Hero Section - Full Width */}
-      <div className="bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 border-b border-border">
-        <EdgeToEdgeContainer maxWidth="7xl" enablePadding enableTopPadding>
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-              Welcome back, {user?.username}!
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Here's what's happening with your favorite creators
-            </p>
-          </div>
-        </EdgeToEdgeContainer>
-      </div>
-
       {/* Main Content */}
       <EdgeToEdgeContainer maxWidth="7xl" enablePadding className="py-6 sm:py-8">
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
