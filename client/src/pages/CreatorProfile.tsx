@@ -222,7 +222,7 @@ const PostGridCard: React.FC<PostGridCardProps> = ({
 
   return (
     <Card 
-      className="overflow-hidden group" 
+      className="overflow-hidden group relative" 
       data-testid={`card-post-${post.id}`}
     >
       <div 
@@ -279,18 +279,18 @@ const PostGridCard: React.FC<PostGridCardProps> = ({
                 className="w-full h-full object-cover"
               />
             )}
-            
-            {/* Content type overlay */}
-            {post.media_type !== 'video' && (
-              <div className="absolute top-2 left-2">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-black/60 backdrop-blur-sm">
-                  {getMediaOverlayIcon(post.media_type)}
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
+
+      {/* Content type overlay - positioned relative to Card, outside thumbnail stacking context */}
+      {post.media_type !== 'video' && (
+        <div className="absolute top-2 left-2 z-10 pointer-events-none">
+          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-black/60 backdrop-blur-sm pointer-events-auto">
+            {getMediaOverlayIcon(post.media_type)}
+          </div>
+        </div>
+      )}
 
       {/* Bottom section - Use PostCardLayout for consistency */}
       <PostCardLayout
@@ -356,8 +356,8 @@ const PostsGrid: React.FC<PostsGridProps> = ({
 }) => {
   if (posts.length === 0) {
     return (
-      <div className="text-center py-10">
-        <p className="text-muted-foreground">{emptyMessage}</p>
+      <div className="text-center py-10" data-testid="empty-posts-state">
+        <p className="text-muted-foreground" data-testid="text-empty-message">{emptyMessage}</p>
       </div>
     );
   }
