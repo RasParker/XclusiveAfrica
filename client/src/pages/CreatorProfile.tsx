@@ -2097,7 +2097,7 @@ export const CreatorProfile: React.FC = () => {
           {/* Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             {/* Tab Navigation */}
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="flex w-full justify-start md:justify-start gap-0">
               <TabsTrigger value="all" className="text-sm">
                 All ({getPostCounts().all})
               </TabsTrigger>
