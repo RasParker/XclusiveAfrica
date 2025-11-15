@@ -518,7 +518,6 @@ export const VideoWatch: React.FC = () => {
                       : undefined
                   }
                   className="w-full h-full video-element"
-                  controls
                   playsInline
                   onLoadedMetadata={handleVideoLoad}
                   onPlay={handlePlay}
@@ -917,7 +916,6 @@ export const VideoWatch: React.FC = () => {
                             : undefined
                         }
                         className="w-full aspect-video"
-                        controls
                         playsInline
                         onLoadedMetadata={handleVideoLoad}
                         onPlay={handlePlay}
