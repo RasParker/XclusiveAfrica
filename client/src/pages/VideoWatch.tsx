@@ -38,6 +38,8 @@ export const VideoWatch: React.FC = () => {
   const [hasPPVAccess, setHasPPVAccess] = useState(false);
   const [unlockOptionsModalOpen, setUnlockOptionsModalOpen] = useState(false);
   const [ppvPaymentModalOpen, setPPVPaymentModalOpen] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   // Check PPV access
   useEffect(() => {
@@ -373,6 +375,39 @@ export const VideoWatch: React.FC = () => {
       setVideoAspectRatio('portrait');
       video.setAttribute('data-aspect-ratio', 'portrait');
     }
+
+    // Try to autoplay
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((error) => {
+          console.log('Autoplay blocked:', error);
+          setIsPlaying(false);
+        });
+    }
+  };
+
+  const handleVideoClick = () => {
+    if (!videoRef.current) return;
+    
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
   };
 
   const handleVideoCardClick = (videoId: string) => {
@@ -469,24 +504,38 @@ export const VideoWatch: React.FC = () => {
           {/* Video Element or Locked State */}
           {hasAccess ? (
             post.media_type === 'video' ? (
-              <video
-                src={fullMediaUrl}
-                poster={
-                  mediaUrl?.includes('cloudinary.com/') 
-                    ? mediaUrl.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')
-                    : undefined
-                }
-                className="w-full h-full video-element"
-                controls
-                playsInline
-                autoPlay
-                muted
-                onLoadedMetadata={handleVideoLoad}
-                style={{
-                  objectFit: videoAspectRatio === 'landscape' ? 'contain' : 'contain',
-                  backgroundColor: 'black'
-                }}
-              />
+              <div className="relative w-full h-full" onClick={handleVideoClick}>
+                <video
+                  ref={videoRef}
+                  src={fullMediaUrl}
+                  poster={
+                    mediaUrl?.includes('cloudinary.com/') 
+                      ? mediaUrl.replace('/upload/', '/upload/so_0,w_1280,h_720,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                      : undefined
+                  }
+                  className="w-full h-full video-element"
+                  controls
+                  playsInline
+                  onLoadedMetadata={handleVideoLoad}
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  style={{
+                    objectFit: videoAspectRatio === 'landscape' ? 'contain' : 'contain',
+                    backgroundColor: 'black'
+                  }}
+                  data-testid="video-player"
+                />
+                {!isPlaying && (
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                  >
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                      <Play className="w-12 h-12 text-white" fill="white" />
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <img
                 src={fullMediaUrl}
@@ -855,23 +904,38 @@ export const VideoWatch: React.FC = () => {
               <div className="bg-black rounded-lg overflow-hidden mb-4">
                 {hasAccess ? (
                   post.media_type === 'video' ? (
-                    <video
-                      src={fullMediaUrl}
-                      poster={
-                        mediaUrl?.includes('cloudinary.com/') 
-                          ? mediaUrl.replace('/upload/', '/upload/so_0,w_1920,h_1080,c_fill,f_jpg/').replace('.mp4', '.jpg')
-                          : undefined
-                      }
-                      className="w-full aspect-video"
-                      controls
-                      autoPlay
-                      muted
-                      onLoadedMetadata={handleVideoLoad}
-                      style={{
-                        objectFit: 'contain',
-                        backgroundColor: 'black'
-                      }}
-                    />
+                    <div className="relative w-full aspect-video" onClick={handleVideoClick}>
+                      <video
+                        ref={videoRef}
+                        src={fullMediaUrl}
+                        poster={
+                          mediaUrl?.includes('cloudinary.com/') 
+                            ? mediaUrl.replace('/upload/', '/upload/so_0,w_1920,h_1080,c_fill,f_jpg/').replace('.mp4', '.jpg')
+                            : undefined
+                        }
+                        className="w-full aspect-video"
+                        controls
+                        playsInline
+                        onLoadedMetadata={handleVideoLoad}
+                        onPlay={handlePlay}
+                        onPause={handlePause}
+                        style={{
+                          objectFit: 'contain',
+                          backgroundColor: 'black'
+                        }}
+                        data-testid="video-player"
+                      />
+                      {!isPlaying && (
+                        <div 
+                          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                          style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                        >
+                          <div className="bg-white/20 backdrop-blur-sm rounded-full p-6">
+                            <Play className="w-16 h-16 text-white" fill="white" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <img
                       src={fullMediaUrl}
