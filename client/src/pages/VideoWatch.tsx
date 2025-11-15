@@ -518,6 +518,7 @@ export const VideoWatch: React.FC = () => {
                       : undefined
                   }
                   className="w-full h-full video-element"
+                  controls
                   playsInline
                   onLoadedMetadata={handleVideoLoad}
                   onPlay={handlePlay}
@@ -531,7 +532,7 @@ export const VideoWatch: React.FC = () => {
                 {!isPlaying && (
                   <div 
                     className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                    style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)', paddingBottom: '48px' }}
                   >
                     <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
                       <Play className="w-6 h-6 text-white" fill="white" />
@@ -916,6 +917,7 @@ export const VideoWatch: React.FC = () => {
                             : undefined
                         }
                         className="w-full aspect-video"
+                        controls
                         playsInline
                         onLoadedMetadata={handleVideoLoad}
                         onPlay={handlePlay}
@@ -929,7 +931,7 @@ export const VideoWatch: React.FC = () => {
                       {!isPlaying && (
                         <div 
                           className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                          style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
+                          style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)', paddingBottom: '48px' }}
                         >
                           <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
                             <Play className="w-8 h-8 text-white" fill="white" />
