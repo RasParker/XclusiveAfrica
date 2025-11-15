@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,7 +17,7 @@ import { TierDetailsModal } from '@/components/subscription/TierDetailsModal';
 import { SubscriptionTierModal } from '@/components/subscription/SubscriptionTierModal';
 import { LockedContentOverlay } from '@/components/content/LockedContentOverlay';
 import { useAuth } from '@/contexts/AuthContext';
-import { Star, Users, UserPlus, UserCheck, DollarSign, Settings, Eye, MessageSquare, Heart, Share2, Share, Image, Video, FileText, Edit, Trash2, ArrowLeft, Plus, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { Star, Users, UserPlus, UserCheck, DollarSign, Settings, Eye, MessageSquare, Heart, Share2, Share, Image, Video, FileText, Edit, Trash2, ArrowLeft, Plus, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -428,6 +428,10 @@ export const CreatorProfile: React.FC = () => {
   const [tierDetailsModalOpen, setTierDetailsModalOpen] = useState(false);
   const [subscriptionTierModalOpen, setSubscriptionTierModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+  const tiersScrollRef = useRef<HTMLDivElement>(null);
+  const checkScrollRef = useRef<() => void>(() => {});
   const [isCreatorLiked, setIsCreatorLiked] = useState(false);
   const [isCreatorFavorited, setIsCreatorFavorited] = useState(false);
   const [likingCreator, setLikingCreator] = useState(false);
@@ -826,6 +830,41 @@ export const CreatorProfile: React.FC = () => {
 
     checkCreatorInteractions();
   }, [user, creator, isOwnProfile]);
+
+  // Initialize scroll button visibility when tiers expand
+  useEffect(() => {
+    if (isSubscriptionTiersExpanded && tiersScrollRef.current) {
+      const container = tiersScrollRef.current;
+      
+      const checkScroll = () => {
+        if (!container) return;
+        setShowLeftScroll(container.scrollLeft > 0);
+        setShowRightScroll(
+          container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+        );
+      };
+      
+      // Store function in ref for reuse
+      checkScrollRef.current = checkScroll;
+      
+      // Check on mount and after a brief delay to ensure DOM is ready
+      setTimeout(checkScroll, 100);
+      
+      // Set up ResizeObserver for dynamic container size changes
+      const resizeObserver = new ResizeObserver(() => {
+        checkScroll();
+      });
+      resizeObserver.observe(container);
+      
+      // Also check on window resize
+      window.addEventListener('resize', checkScroll);
+      
+      return () => {
+        window.removeEventListener('resize', checkScroll);
+        resizeObserver.disconnect();
+      };
+    }
+  }, [isSubscriptionTiersExpanded, creator?.tiers]);
 
   // Clear state when username changes (separate effect runs before fetch)
   useEffect(() => {
@@ -2009,65 +2048,172 @@ export const CreatorProfile: React.FC = () => {
                   <button 
                     onClick={() => setIsSubscriptionTiersExpanded(false)}
                     className="p-1 hover:bg-muted/50 rounded-full transition-colors"
+                    data-testid="button-collapse-tiers"
                   >
                     <ChevronUp className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-                  {creator.tiers.map((tier: any, index: number) => (
-                    <div 
-                      key={tier.id} 
-                      className={`flex flex-col h-full p-5 md:p-6 border border-border/40 rounded-xl hover:border-border/60 transition-all duration-200 ease-out ${!isOwnProfile ? 'cursor-pointer hover:shadow-sm hover:-translate-y-0.5' : ''}`}
-                      onClick={!isOwnProfile ? (e) => {
-                        e.stopPropagation();
-                        console.log('Tier clicked:', tier);
-                        setSelectedTier(tier);
-                        // Check if user is logged in
-                        if (!user) {
-                          window.location.href = `/login?redirect=/creator/${username}`;
-                          return;
-                        }
-                        // Open payment modal directly for better UX
-                        setPaymentModalOpen(true);
-                      } : undefined}
-                    >
-                      <div className="flex-1 mb-5">
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                          <h4 className="text-sm md:text-base font-semibold uppercase tracking-wide leading-tight">{tier.name}</h4>
-                          {index === 0 && creator.tiers.length > 1 && (
-                            <Badge className="text-xs px-3 py-1.5 flex-shrink-0 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 border-0">
-                              POPULAR
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="min-h-[3rem] mb-4">
-                          <p className="text-xs md:text-sm text-muted-foreground/90 leading-relaxed">
-                            {tier.description || 'Access to exclusive content and connect directly with the creator'}
-                          </p>
-                        </div>
-                        {tier.benefits && tier.benefits.length > 0 && (
-                          <div className="space-y-2.5">
-                            {tier.benefits.slice(0, 3).map((benefit: string, benefitIndex: number) => (
-                              <div key={benefitIndex} className="flex items-start gap-3">
-                                <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                                <span className="text-sm text-muted-foreground/80 leading-relaxed">{benefit}</span>
-                              </div>
-                            ))}
-                            {tier.benefits.length > 3 && (
-                              <p className="text-xs text-accent/80 font-medium ml-5">+{tier.benefits.length - 3} more benefits</p>
+                <div className="relative">
+                  {/* Mobile: Grid layout */}
+                  <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {creator.tiers.map((tier: any, index: number) => (
+                      <div 
+                        key={tier.id} 
+                        className={`flex flex-col h-full p-5 border border-border/40 rounded-xl hover:border-border/60 transition-all duration-200 ease-out ${!isOwnProfile ? 'cursor-pointer hover:shadow-sm hover:-translate-y-0.5' : ''}`}
+                        onClick={!isOwnProfile ? (e) => {
+                          e.stopPropagation();
+                          console.log('Tier clicked:', tier);
+                          setSelectedTier(tier);
+                          if (!user) {
+                            window.location.href = `/login?redirect=/creator/${username}`;
+                            return;
+                          }
+                          setPaymentModalOpen(true);
+                        } : undefined}
+                        data-testid={`tier-card-${tier.id}`}
+                      >
+                        <div className="flex-1 mb-5">
+                          <div className="flex items-start justify-between gap-3 mb-4">
+                            <h4 className="text-sm font-semibold uppercase tracking-wide leading-tight">{tier.name}</h4>
+                            {index === 0 && creator.tiers.length > 1 && (
+                              <Badge className="text-xs px-3 py-1.5 flex-shrink-0 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 border-0">
+                                POPULAR
+                              </Badge>
                             )}
                           </div>
-                        )}
-                      </div>
-                      <div className="border-t border-border/30 pt-4 mt-auto">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-lg md:text-xl font-bold text-foreground">GHS {tier.price}</span>
-                          <span className="text-xs md:text-sm text-muted-foreground/70 font-medium">/ month</span>
+                          <div className="min-h-[3rem] mb-4">
+                            <p className="text-xs text-muted-foreground/90 leading-relaxed">
+                              {tier.description || 'Access to exclusive content and connect directly with the creator'}
+                            </p>
+                          </div>
+                          {tier.benefits && tier.benefits.length > 0 && (
+                            <div className="space-y-2.5">
+                              {tier.benefits.slice(0, 3).map((benefit: string, benefitIndex: number) => (
+                                <div key={benefitIndex} className="flex items-start gap-3">
+                                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                  <span className="text-sm text-muted-foreground/80 leading-relaxed">{benefit}</span>
+                                </div>
+                              ))}
+                              {tier.benefits.length > 3 && (
+                                <p className="text-xs text-accent/80 font-medium ml-5">+{tier.benefits.length - 3} more benefits</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="border-t border-border/30 pt-4 mt-auto">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-lg font-bold text-foreground">GHS {tier.price}</span>
+                            <span className="text-xs text-muted-foreground/70 font-medium">/ month</span>
+                          </div>
                         </div>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop: Horizontal scroll with navigation buttons */}
+                  <div className="hidden md:block relative">
+                    {showLeftScroll && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (tiersScrollRef.current) {
+                            tiersScrollRef.current.scrollBy({ left: -400, behavior: 'smooth' });
+                            setTimeout(() => checkScrollRef.current(), 400);
+                          }
+                        }}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/95 border border-border rounded-full shadow-lg"
+                        data-testid="button-scroll-left"
+                        aria-label="Scroll to previous subscription tiers"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </Button>
+                    )}
+                    
+                    {showRightScroll && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          if (tiersScrollRef.current) {
+                            tiersScrollRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+                            setTimeout(() => checkScrollRef.current(), 400);
+                          }
+                        }}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/95 border border-border rounded-full shadow-lg"
+                        data-testid="button-scroll-right"
+                        aria-label="Scroll to next subscription tiers"
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </Button>
+                    )}
+
+                    <div 
+                      ref={tiersScrollRef}
+                      className="flex gap-5 overflow-x-auto scrollbar-hide scroll-smooth"
+                      onScroll={() => {
+                        checkScrollRef.current();
+                      }}
+                      role="list"
+                      aria-label="Subscription tiers"
+                      data-testid="tiers-scroll-container"
+                    >
+                      {creator.tiers.map((tier: any, index: number) => (
+                        <div 
+                          key={tier.id} 
+                          role="listitem"
+                          className={`flex flex-col h-full p-6 border border-border/40 rounded-xl hover:border-border/60 transition-all duration-200 ease-out flex-shrink-0 w-[320px] ${!isOwnProfile ? 'cursor-pointer hover:shadow-sm hover:-translate-y-0.5' : ''}`}
+                          onClick={!isOwnProfile ? (e) => {
+                            e.stopPropagation();
+                            console.log('Tier clicked:', tier);
+                            setSelectedTier(tier);
+                            if (!user) {
+                              window.location.href = `/login?redirect=/creator/${username}`;
+                              return;
+                            }
+                            setPaymentModalOpen(true);
+                          } : undefined}
+                          data-testid={`tier-card-${tier.id}`}
+                        >
+                          <div className="flex-1 mb-5">
+                            <div className="flex items-start justify-between gap-3 mb-4">
+                              <h4 className="text-base font-semibold uppercase tracking-wide leading-tight">{tier.name}</h4>
+                              {index === 0 && creator.tiers.length > 1 && (
+                                <Badge className="text-xs px-3 py-1.5 flex-shrink-0 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 border-0">
+                                  POPULAR
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="min-h-[3rem] mb-4">
+                              <p className="text-sm text-muted-foreground/90 leading-relaxed">
+                                {tier.description || 'Access to exclusive content and connect directly with the creator'}
+                              </p>
+                            </div>
+                            {tier.benefits && tier.benefits.length > 0 && (
+                              <div className="space-y-2.5">
+                                {tier.benefits.slice(0, 3).map((benefit: string, benefitIndex: number) => (
+                                  <div key={benefitIndex} className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                    <span className="text-sm text-muted-foreground/80 leading-relaxed">{benefit}</span>
+                                  </div>
+                                ))}
+                                {tier.benefits.length > 3 && (
+                                  <p className="text-xs text-accent/80 font-medium ml-5">+{tier.benefits.length - 3} more benefits</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="border-t border-border/30 pt-4 mt-auto">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-xl font-bold text-foreground">GHS {tier.price}</span>
+                              <span className="text-sm text-muted-foreground/70 font-medium">/ month</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
 
                 {isOwnProfile && (
