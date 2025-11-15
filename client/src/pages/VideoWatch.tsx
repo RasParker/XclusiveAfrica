@@ -39,7 +39,6 @@ export const VideoWatch: React.FC = () => {
   const [unlockOptionsModalOpen, setUnlockOptionsModalOpen] = useState(false);
   const [ppvPaymentModalOpen, setPPVPaymentModalOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   // Check PPV access
   useEffect(() => {
@@ -138,7 +137,8 @@ export const VideoWatch: React.FC = () => {
       if (!id) return;
 
       try {
-        const response = await fetch(`/api/posts/${id}`);
+        const url = user ? `/api/posts/${id}?userId=${user.id}` : `/api/posts/${id}`;
+        const response = await fetch(url);
         if (response.ok) {
           const postData = await response.json();
           // Map the creator data to the expected format
@@ -390,14 +390,19 @@ export const VideoWatch: React.FC = () => {
     }
   };
 
-  const handleVideoClick = () => {
-    if (!videoRef.current) return;
+  const handleVideoClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const video = e.currentTarget.querySelector('video');
+    if (!video) return;
     
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsPlaying(true);
+    if (video.paused) {
+      video.play().then(() => {
+        setIsPlaying(true);
+      }).catch((error) => {
+        console.error('Play failed:', error);
+      });
     } else {
-      videoRef.current.pause();
+      video.pause();
       setIsPlaying(false);
     }
   };
@@ -506,7 +511,6 @@ export const VideoWatch: React.FC = () => {
             post.media_type === 'video' ? (
               <div className="relative w-full h-full" onClick={handleVideoClick}>
                 <video
-                  ref={videoRef}
                   src={fullMediaUrl}
                   poster={
                     mediaUrl?.includes('cloudinary.com/') 
@@ -906,7 +910,6 @@ export const VideoWatch: React.FC = () => {
                   post.media_type === 'video' ? (
                     <div className="relative w-full aspect-video" onClick={handleVideoClick}>
                       <video
-                        ref={videoRef}
                         src={fullMediaUrl}
                         poster={
                           mediaUrl?.includes('cloudinary.com/') 
