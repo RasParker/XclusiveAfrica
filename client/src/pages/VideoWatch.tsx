@@ -534,8 +534,8 @@ export const VideoWatch: React.FC = () => {
                     className="absolute inset-0 flex items-center justify-center pointer-events-none"
                     style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
                   >
-                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
-                      <Play className="w-12 h-12 text-white" fill="white" />
+                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                      <Play className="w-8 h-8 text-white" fill="white" />
                     </div>
                   </div>
                 )}
@@ -933,8 +933,8 @@ export const VideoWatch: React.FC = () => {
                           className="absolute inset-0 flex items-center justify-center pointer-events-none"
                           style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}
                         >
-                          <div className="bg-white/20 backdrop-blur-sm rounded-full p-6">
-                            <Play className="w-16 h-16 text-white" fill="white" />
+                          <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                            <Play className="w-10 h-10 text-white" fill="white" />
                           </div>
                         </div>
                       )}
