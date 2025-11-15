@@ -1,4 +1,3 @@
-
 import { storage } from '../storage';
 import { eq, and, gte, lte, sum } from 'drizzle-orm';
 import { payment_transactions, creator_payouts } from '../../shared/schema';
@@ -22,17 +21,17 @@ export interface PayoutProvider {
 // Mock payout providers - replace with real implementations
 class MTNMobileMoneyProvider implements PayoutProvider {
   name = 'MTN Mobile Money';
-  
+
   async process(amount: number, recipient: any): Promise<{ success: boolean; transaction_id?: string; error?: string }> {
     // Mock implementation - replace with actual MTN MoMo API
     console.log(`Processing MTN MoMo payout: GHS ${amount} to ${recipient.phone}`);
-    
+
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     // Mock success (80% success rate for demo)
     const success = Math.random() > 0.2;
-    
+
     if (success) {
       return {
         success: true,
@@ -49,13 +48,13 @@ class MTNMobileMoneyProvider implements PayoutProvider {
 
 class VodafoneCashProvider implements PayoutProvider {
   name = 'Vodafone Cash';
-  
+
   async process(amount: number, recipient: any): Promise<{ success: boolean; transaction_id?: string; error?: string }> {
     console.log(`Processing Vodafone Cash payout: GHS ${amount} to ${recipient.phone}`);
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     const success = Math.random() > 0.2;
-    return success 
+    return success
       ? { success: true, transaction_id: `voda_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` }
       : { success: false, error: 'Vodafone Cash service temporarily unavailable' };
   }
@@ -63,13 +62,13 @@ class VodafoneCashProvider implements PayoutProvider {
 
 class BankTransferProvider implements PayoutProvider {
   name = 'Bank Transfer';
-  
+
   async process(amount: number, recipient: any): Promise<{ success: boolean; transaction_id?: string; error?: string }> {
     console.log(`Processing bank transfer: GHS ${amount} to ${recipient.account_number}`);
     await new Promise(resolve => setTimeout(resolve, 3000));
-    
+
     const success = Math.random() > 0.1; // Higher success rate for bank transfers
-    return success 
+    return success
       ? { success: true, transaction_id: `bank_${Date.now()}_${Math.random().toString(36).substr(2, 9)}` }
       : { success: false, error: 'Bank transfer failed - invalid account details' };
   }
@@ -84,38 +83,38 @@ export class PayoutService {
 
   // Calculate creator earnings for a specific period
   async calculateCreatorEarnings(
-    creatorId: number, 
-    startDate: Date, 
+    creatorId: number,
+    startDate: Date,
     endDate: Date
   ): Promise<PayoutCalculation> {
     try {
       // Get subscription revenue from payment transactions
       const transactions = await storage.getCreatorPaymentTransactions(creatorId, startDate, endDate);
-      
+
       let subscription_revenue = 0;
       let transaction_count = 0;
-      
+
       for (const transaction of transactions) {
         subscription_revenue += parseFloat(transaction.amount);
         transaction_count++;
       }
-      
+
       // Get PPV revenue
       const ppv_revenue = await storage.getCreatorPPVRevenue(creatorId, startDate, endDate);
-      
+
       // Calculate total revenue
       const gross_revenue = subscription_revenue + ppv_revenue;
-      
+
       // Get platform settings for commission rate
       const platformSettings = await storage.getPlatformSettings();
       const platform_fee_rate = platformSettings.commission_rate; // Use dynamic commission rate
       const paystack_fee_rate = 0.035; // 3.5% Paystack fee (approximate)
-      
+
       // Calculate fees on combined revenue
       const platform_fee = gross_revenue * platform_fee_rate;
       const paystack_fees = gross_revenue * paystack_fee_rate;
       const net_payout = gross_revenue - platform_fee - paystack_fees;
-      
+
       return {
         creator_id: creatorId,
         subscription_revenue,
@@ -137,25 +136,25 @@ export class PayoutService {
     try {
       // Minimum payout threshold
       const MINIMUM_PAYOUT = 10.00; // GHS 10
-      
+
       if (calculation.net_payout < MINIMUM_PAYOUT) {
         console.log(`Skipping payout for creator ${calculation.creator_id}: Below minimum threshold (GHS ${calculation.net_payout})`);
         return;
       }
-      
+
       // Get creator details
       const creator = await storage.getUser(calculation.creator_id);
       if (!creator) {
         throw new Error(`Creator ${calculation.creator_id} not found`);
       }
-      
+
       // Get creator's payout settings
       const payoutSettings = await storage.getCreatorPayoutSettings(calculation.creator_id);
       if (!payoutSettings || !payoutSettings.payout_method) {
         console.log(`Skipping payout for creator ${calculation.creator_id}: No payout method configured`);
         return;
       }
-      
+
       // Create pending payout record
       const payout = await storage.createCreatorPayout({
         creator_id: calculation.creator_id,
@@ -170,19 +169,19 @@ export class PayoutService {
         period_end,
         payment_method: payoutSettings.payout_method
       });
-      
+
       console.log(`Created payout record ${payout.id} for creator ${calculation.creator_id}: GHS ${calculation.net_payout}`);
-      
+
       // Process the actual payout
       const provider = this.providers.get(payoutSettings.payout_method);
       if (!provider) {
         await storage.updateCreatorPayoutStatus(payout.id, 'failed');
         throw new Error(`Unsupported payout method: ${payoutSettings.payout_method}`);
       }
-      
+
       try {
         const result = await provider.process(calculation.net_payout, payoutSettings);
-        
+
         if (result.success) {
           await storage.updateCreatorPayoutStatus(payout.id, 'completed', result.transaction_id);
           console.log(`Payout ${payout.id} completed successfully: ${result.transaction_id}`);
@@ -206,17 +205,17 @@ export class PayoutService {
       const now = new Date();
       const period_end = new Date(now.getFullYear(), now.getMonth(), 0); // Last day of previous month
       const period_start = new Date(period_end.getFullYear(), period_end.getMonth(), 1); // First day of previous month
-      
+
       console.log(`Processing monthly payouts for period: ${period_start.toISOString()} to ${period_end.toISOString()}`);
-      
+
       // Get all creators
       const creators = await storage.getAllCreators();
-      
+
       for (const creator of creators) {
         try {
           // Calculate earnings for this creator
           const calculation = await this.calculateCreatorEarnings(creator.id, period_start, period_end);
-          
+
           if (calculation.net_payout > 0) {
             await this.processCreatorPayout(calculation, period_start, period_end);
           }
@@ -225,7 +224,7 @@ export class PayoutService {
           // Continue with other creators
         }
       }
-      
+
       console.log('Monthly payout processing completed');
     } catch (error) {
       console.error('Error in monthly payout processing:', error);
@@ -235,7 +234,30 @@ export class PayoutService {
 
   // Get payout history for a creator
   async getCreatorPayoutHistory(creatorId: number, limit: number = 10): Promise<any[]> {
-    return storage.getCreatorPayouts(creatorId, limit);
+    try {
+      const payouts = await db
+        .select({
+          id: creator_payouts.id,
+          payout_amount: creator_payouts.payout_amount,
+          subscription_revenue: creator_payouts.subscription_revenue,
+          ppv_revenue: creator_payouts.ppv_revenue,
+          status: creator_payouts.status,
+          period_start: creator_payouts.period_start,
+          period_end: creator_payouts.period_end,
+          payout_method: creator_payouts.payout_method,
+          processed_at: creator_payouts.processed_at,
+          created_at: creator_payouts.created_at,
+        })
+        .from(creator_payouts)
+        .where(eq(creator_payouts.creator_id, creatorId))
+        .orderBy(desc(creator_payouts.created_at))
+        .limit(limit);
+
+      return payouts;
+    } catch (error) {
+      console.error('Error fetching payout history:', error);
+      throw error;
+    }
   }
 
   // Get payout statistics
