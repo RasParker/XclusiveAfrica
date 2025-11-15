@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -87,6 +87,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
   const caption = form.watch('caption');
   const accessTier = form.watch('accessTier');
   const ppvPrice = form.watch('ppvPrice');
+  const ppvCurrency = form.watch('ppvCurrency');
 
   useEffect(() => {
     const errors: string[] = [];
@@ -288,7 +289,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
     }
   };
 
-  const QuickPostContent = () => (
+  const QuickPostContent = useMemo(() => (
     <div className="space-y-4">
       {/* Caption Input */}
       <Form {...form}>
@@ -365,10 +366,10 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                 size="sm"
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 data-testid="button-advanced-options"
-                className={!form.watch('accessTier') ? 'text-blue-600 dark:text-blue-400' : ''}
+                className={!accessTier ? 'text-blue-600 dark:text-blue-400' : ''}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                {showAdvanced ? 'Less' : (!form.watch('accessTier') ? 'Select Audience' : 'More')}
+                {showAdvanced ? 'Less' : (!accessTier ? 'Select Audience' : 'More')}
               </Button>
             </div>
 
@@ -406,8 +407,8 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
             </div>
           )}
 
-          {/* Tier Selection - Show by default if not selected, or when advanced is expanded */}
-          {(!form.watch('accessTier') || showAdvanced) && (
+          {/* Tier Selection - Always show initially, can be toggled */}
+          {(!accessTier || showAdvanced) && (
             <div className="border-t pt-4 space-y-4">
               <FormField
                 control={form.control}
@@ -453,7 +454,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
               />
 
               {/* PPV Settings - Only show when PPV is selected */}
-              {form.watch('accessTier') === 'ppv' && (
+              {accessTier === 'ppv' && (
                 <div className="space-y-4 pt-4 border-t">
                   <div className="space-y-0.5">
                     <FormLabel className="text-sm font-medium">
@@ -475,7 +476,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-3 text-xs text-muted-foreground">
-                                {form.watch('ppvCurrency')}
+                                {ppvCurrency}
                               </span>
                               <Input
                                 type="number"
@@ -526,7 +527,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
         </form>
       </Form>
     </div>
-  );
+  ), [form, handleSubmit, mediaPreview, mediaType, removeMedia, handleFileUpload, showAdvanced, setShowAdvanced, isPublishing, isFormComplete, validationErrors, accessTier, ppvPrice, ppvCurrency, tiers]);
 
   // Mobile: Use Drawer (bottom sheet)
   if (isMobile) {
@@ -537,7 +538,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
             <DrawerTitle>Create Post</DrawerTitle>
           </DrawerHeader>
           <div className="px-4 pb-4">
-            <QuickPostContent />
+            {QuickPostContent}
           </div>
         </DrawerContent>
       </Drawer>
@@ -551,7 +552,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
         <DialogHeader>
           <DialogTitle>Create Post</DialogTitle>
         </DialogHeader>
-        <QuickPostContent />
+        {QuickPostContent}
       </DialogContent>
     </Dialog>
   );

@@ -479,6 +479,8 @@ export const VideoWatch: React.FC = () => {
                 className="w-full h-full video-element"
                 controls
                 playsInline
+                autoPlay
+                muted
                 onLoadedMetadata={handleVideoLoad}
                 style={{
                   objectFit: videoAspectRatio === 'landscape' ? 'contain' : 'contain',
@@ -862,6 +864,8 @@ export const VideoWatch: React.FC = () => {
                       }
                       className="w-full aspect-video"
                       controls
+                      autoPlay
+                      muted
                       onLoadedMetadata={handleVideoLoad}
                       style={{
                         objectFit: 'contain',
