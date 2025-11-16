@@ -235,24 +235,7 @@ export class PayoutService {
   // Get payout history for a creator
   async getCreatorPayoutHistory(creatorId: number, limit: number = 10): Promise<any[]> {
     try {
-      const payouts = await db
-        .select({
-          id: creator_payouts.id,
-          payout_amount: creator_payouts.payout_amount,
-          subscription_revenue: creator_payouts.subscription_revenue,
-          ppv_revenue: creator_payouts.ppv_revenue,
-          status: creator_payouts.status,
-          period_start: creator_payouts.period_start,
-          period_end: creator_payouts.period_end,
-          payout_method: creator_payouts.payout_method,
-          processed_at: creator_payouts.processed_at,
-          created_at: creator_payouts.created_at,
-        })
-        .from(creator_payouts)
-        .where(eq(creator_payouts.creator_id, creatorId))
-        .orderBy(desc(creator_payouts.created_at))
-        .limit(limit);
-
+      const payouts = await storage.getCreatorPayouts(creatorId, limit);
       return payouts;
     } catch (error) {
       console.error('Error fetching payout history:', error);
