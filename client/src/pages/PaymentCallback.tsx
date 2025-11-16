@@ -40,16 +40,29 @@ const PaymentCallback: React.FC = () => {
         const result = await response.json();
         console.log('Payment verification result:', result);
 
-        if (result.success && result.data.status === 'success') {
+        // Check if payment was successful (works for both subscription and PPV)
+        const isPPVPayment = result.data?.payment_type === 'ppv';
+        const isSubscriptionPayment = result.data?.status === 'success';
+        
+        if (result.success && (isPPVPayment || isSubscriptionPayment)) {
           setStatus('success');
-          setMessage('Payment successful! Your subscription is now active.');
+          
+          // Different messages for PPV vs subscription
+          if (isPPVPayment) {
+            setMessage('Content unlocked successfully!');
+            toast({
+              title: "Payment Successful",
+              description: "You now have access to this content!",
+            });
+          } else {
+            setMessage('Payment successful! Your subscription is now active.');
+            toast({
+              title: "Payment Successful",
+              description: "Your subscription has been activated successfully!",
+            });
+          }
 
-          toast({
-            title: "Payment Successful",
-            description: "Your subscription has been activated successfully!",
-          });
-
-          // Redirect after 3 seconds - after payment, fan has a subscription so go to feed
+          // Redirect after 3 seconds
           setTimeout(() => {
             const lastProfile = sessionStorage.getItem('lastCreatorProfile');
             if (lastProfile) {
