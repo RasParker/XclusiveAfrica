@@ -171,7 +171,7 @@ export const creator_payouts = pgTable("creator_payouts", {
   payout_amount: decimal("payout_amount", { precision: 10, scale: 2 }).notNull(),
   currency: text("currency").notNull().default("GHS"),
   status: text("status").notNull().default("pending"),
-  payment_method: text("payment_method"),
+  payout_method: text("payout_method"),
   payment_details: jsonb("payment_details"),
   processed_at: timestamp("processed_at"),
   notes: text("notes"),

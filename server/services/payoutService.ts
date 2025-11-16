@@ -167,7 +167,7 @@ export class PayoutService {
         status: 'pending',
         period_start,
         period_end,
-        payment_method: payoutSettings.payout_method
+        payout_method: payoutSettings.payout_method
       });
 
       console.log(`Created payout record ${payout.id} for creator ${calculation.creator_id}: GHS ${calculation.net_payout}`);

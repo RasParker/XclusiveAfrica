@@ -122,12 +122,14 @@ export const Earnings: React.FC = () => {
   const fetchPayoutData = async () => {
     try {
       setLoading(true);
+      let earningsData = null;
 
       // Fetch current month earnings
       const earningsResponse = await fetch(`/api/payouts/creator/${user.id}/current-earnings`);
       if (earningsResponse.ok) {
-        const earningsData = await earningsResponse.json();
-        setCurrentEarnings(earningsData.data);
+        const earningsResult = await earningsResponse.json();
+        earningsData = earningsResult.data;
+        setCurrentEarnings(earningsData);
       }
 
       // Fetch payout history
