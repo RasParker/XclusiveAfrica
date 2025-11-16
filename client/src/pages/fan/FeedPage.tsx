@@ -128,9 +128,9 @@ export const FeedPage: React.FC = () => {
             if (post.media_urls) {
               const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
               if (mediaUrls.length > 0 && mediaUrls[0]) {
-                const mediaUrl = mediaUrls[0];
+                const mediaUrl = String(mediaUrls[0]).trim();
                 // Use URL directly if it's already a full URL (http/https) or starts with /uploads/
-                thumbnail = mediaUrl.startsWith('http') || mediaUrl.startsWith('/uploads/') 
+                thumbnail = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://') || mediaUrl.startsWith('/uploads/') 
                   ? mediaUrl 
                   : `/uploads/${mediaUrl}`;
               }
@@ -844,7 +844,7 @@ export const FeedPage: React.FC = () => {
                             let displayUrl = thumbnailUrl;
                             if (post.type === 'video' && thumbnailUrl.includes('cloudinary.com/')) {
                               displayUrl = thumbnailUrl.replace('/upload/', '/upload/so_0,w_640,h_360,c_fill,f_jpg/').replace('.mp4', '.jpg');
-                            } else if (!thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/uploads/')) {
+                            } else if (!thumbnailUrl.startsWith('http://') && !thumbnailUrl.startsWith('https://') && !thumbnailUrl.startsWith('/uploads/')) {
                               displayUrl = `/uploads/${thumbnailUrl}`;
                             }
 

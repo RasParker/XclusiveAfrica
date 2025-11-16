@@ -74,9 +74,9 @@ export const ManageContent: React.FC = () => {
               if (post.media_urls) {
                 const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
                 if (mediaUrls.length > 0 && mediaUrls[0]) {
-                  const mediaUrl = mediaUrls[0];
+                  const mediaUrl = String(mediaUrls[0]).trim();
                   // Use URL directly if it's already a full URL (http/https) or starts with /uploads/
-                  mediaPreview = mediaUrl.startsWith('http') || mediaUrl.startsWith('/uploads/') 
+                  mediaPreview = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://') || mediaUrl.startsWith('/uploads/') 
                     ? mediaUrl 
                     : `/uploads/${mediaUrl}`;
                 }
