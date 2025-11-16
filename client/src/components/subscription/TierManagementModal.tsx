@@ -645,41 +645,46 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                 </Card>
               ) : (
                 <div className="space-y-3">
-                  {changeHistory.map((change) => (
-                    <Card key={change.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              {change.change_type === 'upgrade' ? (
-                                <ArrowUp className="h-4 w-4 text-green-600" />
-                              ) : (
-                                <ArrowDown className="h-4 w-4 text-orange-600" />
-                              )}
-                              <span className="font-medium">
-                                {change.from_tier ? `${change.from_tier.name} → ` : ''}
-                                {change.to_tier.name}
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {change.change_type}
-                              </Badge>
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {new Date(change.effective_date).toLocaleDateString()}
-                              {change.proration_amount !== "0.00" && (
-                                <span className="ml-3">
-                                  Amount: GHS {change.proration_amount}
+                  {changeHistory.map((change) => {
+                    if (!change.to_tier || !change.to_tier.name) {
+                      return null;
+                    }
+                    return (
+                      <Card key={change.id}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                {change.change_type === 'upgrade' ? (
+                                  <ArrowUp className="h-4 w-4 text-green-600" />
+                                ) : (
+                                  <ArrowDown className="h-4 w-4 text-orange-600" />
+                                )}
+                                <span className="font-medium">
+                                  {change.from_tier?.name ? `${change.from_tier.name} → ` : ''}
+                                  {change.to_tier.name}
                                 </span>
-                              )}
+                                <Badge variant="outline" className="text-xs">
+                                  {change.change_type}
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {new Date(change.effective_date).toLocaleDateString()}
+                                {change.proration_amount !== "0.00" && (
+                                  <span className="ml-3">
+                                    Amount: GHS {change.proration_amount}
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                            <Badge variant="secondary">
+                              {change.billing_impact}
+                            </Badge>
                           </div>
-                          <Badge variant="secondary">
-                            {change.billing_impact}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
             </TabsContent>
