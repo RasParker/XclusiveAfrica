@@ -224,6 +224,7 @@ export interface IStorage {
   getPPVPurchasesByUser(userId: number, limit?: number, offset?: number): Promise<PPVPurchaseWithPost[]>;
   getPPVPurchasesByPost(postId: number, limit?: number, offset?: number): Promise<PPVPurchase[]>;
   getCreatorPPVRevenue(creatorId: number, startDate?: Date, endDate?: Date): Promise<number>;
+  getCreatorPPVStats(creatorId: number, startDate?: Date, endDate?: Date): Promise<{ revenue: number; purchaseCount: number; averagePrice: number }>;
   incrementPPVSalesCount(postId: number): Promise<void>;
 
   // Creator payout settings methods
@@ -1215,6 +1216,42 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error calculating creator PPV revenue:', error);
       return 0;
+    }
+  }
+
+  async getCreatorPPVStats(creatorId: number, startDate?: Date, endDate?: Date): Promise<{ revenue: number; purchaseCount: number; averagePrice: number }> {
+    try {
+      const conditions = [
+        eq(posts.creator_id, creatorId),
+        eq(ppv_purchases.status, 'completed')
+      ];
+
+      if (startDate) {
+        conditions.push(gte(ppv_purchases.purchased_at, startDate));
+      }
+
+      if (endDate) {
+        conditions.push(lte(ppv_purchases.purchased_at, endDate));
+      }
+
+      const result = await db
+        .select({
+          revenue: sql<number>`COALESCE(SUM(${ppv_purchases.amount}), 0)`,
+          purchaseCount: sql<number>`COUNT(${ppv_purchases.id})`,
+          averagePrice: sql<number>`COALESCE(AVG(${ppv_purchases.amount}), 0)`
+        })
+        .from(ppv_purchases)
+        .innerJoin(posts, eq(ppv_purchases.post_id, posts.id))
+        .where(and(...conditions));
+
+      return {
+        revenue: Number(result[0]?.revenue || 0),
+        purchaseCount: Number(result[0]?.purchaseCount || 0),
+        averagePrice: Number(result[0]?.averagePrice || 0)
+      };
+    } catch (error) {
+      console.error('Error getting creator PPV stats:', error);
+      return { revenue: 0, purchaseCount: 0, averagePrice: 0 };
     }
   }
 

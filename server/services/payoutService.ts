@@ -6,6 +6,8 @@ export interface PayoutCalculation {
   creator_id: number;
   subscription_revenue: number;
   ppv_revenue: number;
+  ppv_purchase_count: number;
+  ppv_average_price: number;
   gross_revenue: number;
   platform_fee: number;
   paystack_fees: number;
@@ -99,8 +101,9 @@ export class PayoutService {
         transaction_count++;
       }
 
-      // Get PPV revenue
-      const ppv_revenue = await storage.getCreatorPPVRevenue(creatorId, startDate, endDate);
+      // Get PPV stats (revenue, purchase count, average price)
+      const ppvStats = await storage.getCreatorPPVStats(creatorId, startDate, endDate);
+      const ppv_revenue = ppvStats.revenue;
 
       // Calculate total revenue
       const gross_revenue = subscription_revenue + ppv_revenue;
@@ -119,6 +122,8 @@ export class PayoutService {
         creator_id: creatorId,
         subscription_revenue,
         ppv_revenue,
+        ppv_purchase_count: ppvStats.purchaseCount,
+        ppv_average_price: ppvStats.averagePrice,
         gross_revenue,
         platform_fee,
         paystack_fees,

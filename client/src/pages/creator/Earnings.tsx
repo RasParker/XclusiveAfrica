@@ -50,26 +50,20 @@ const TierCard: React.FC<{ tier: any }> = ({ tier }) => (
           <h4 className="font-medium text-foreground text-sm">{tier.name}</h4>
           <Badge variant="secondary" className="text-xs">{tier.percentage.toFixed(1)}%</Badge>
         </div>
-        {!tier.isPPV ? (
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-muted-foreground">Price</p>
-              <p className="font-medium">GHS {tier.price.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Subscribers</p>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="rounded-full w-6 h-6 p-0 flex items-center justify-center text-xs">
-                  {tier.subscribers}
-                </Badge>
-              </div>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-muted-foreground">{tier.isPPV ? 'Avg Price' : 'Price'}</p>
+            <p className="font-medium">GHS {tier.price.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">{tier.isPPV ? 'Purchases' : 'Subscribers'}</p>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="rounded-full w-6 h-6 p-0 flex items-center justify-center text-xs">
+                {tier.subscribers}
+              </Badge>
             </div>
           </div>
-        ) : (
-          <div className="text-sm">
-            <p className="text-muted-foreground">One-time content purchases</p>
-          </div>
-        )}
+        </div>
         <div className="pt-2 border-t border-border/20">
           <p className="text-muted-foreground text-sm">Monthly Revenue</p>
           <p className="font-semibold text-foreground">GHS {tier.monthlyRevenue.toFixed(2)}</p>
@@ -175,8 +169,8 @@ export const Earnings: React.FC = () => {
         if (earningsData?.ppv_revenue && parseFloat(earningsData.ppv_revenue) > 0) {
           breakdown.push({
             name: 'Pay Per View',
-            price: 0, // PPV doesn't have a fixed price
-            subscribers: 0, // PPV tracks purchases, not subscribers
+            price: earningsData.ppv_average_price ? parseFloat(earningsData.ppv_average_price) : 0,
+            subscribers: earningsData.ppv_purchase_count || 0, // Use purchase count instead of subscribers
             monthlyRevenue: parseFloat(earningsData.ppv_revenue),
             percentage: 0,
             isPPV: true
@@ -295,16 +289,12 @@ export const Earnings: React.FC = () => {
                             <tr key={index} className="border-b border-border/20">
                               <td className="py-3 px-4 font-medium text-foreground text-sm">{tier.name}</td>
                               <td className="py-3 px-4 text-muted-foreground text-sm">
-                                {tier.isPPV ? '-' : `GHS ${tier.price.toFixed(2)}`}
+                                {tier.isPPV ? `GHS ${tier.price.toFixed(2)} (avg)` : `GHS ${tier.price.toFixed(2)}`}
                               </td>
                               <td className="py-3 px-4">
-                                {tier.isPPV ? (
-                                  <span className="text-xs text-muted-foreground">-</span>
-                                ) : (
-                                  <Badge variant="outline" className="rounded-full w-6 h-6 p-0 flex items-center justify-center text-xs">
-                                    {tier.subscribers}
-                                  </Badge>
-                                )}
+                                <Badge variant="outline" className="rounded-full w-6 h-6 p-0 flex items-center justify-center text-xs">
+                                  {tier.subscribers}
+                                </Badge>
                               </td>
                               <td className="py-3 px-4 font-medium text-foreground text-sm">GHS {tier.monthlyRevenue.toFixed(2)}</td>
                               <td className="py-3 px-4">
@@ -314,7 +304,9 @@ export const Earnings: React.FC = () => {
                           ))}
                           <tr className="bg-muted/20">
                             <td className="py-3 px-4 font-semibold text-foreground text-sm">Total</td>
-                            <td className="py-3 px-4 text-sm">-</td>
+                            <td className="py-3 px-4 font-semibold text-foreground text-sm">
+                              GHS {tierBreakdown.reduce((sum, tier) => sum + (tier.price * tier.subscribers), 0).toFixed(2)}
+                            </td>
                             <td className="py-3 px-4">
                               <Badge variant="outline" className="rounded-full w-6 h-6 p-0 flex items-center justify-center text-xs bg-green-100 text-green-700">
                                 {tierBreakdown.reduce((sum, tier) => sum + tier.subscribers, 0)}
