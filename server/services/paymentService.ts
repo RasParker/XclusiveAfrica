@@ -342,7 +342,7 @@ export class PaymentService {
     const baseUrl = process.env.REPL_SLUG && process.env.REPL_OWNER
       ? `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app`
       : 'http://localhost:5000';
-    const callbackUrl = `${baseUrl}/payment/callback`;
+    const callbackUrl = `${baseUrl}/api/payments/callback`;
 
     return this.initializePayment({
       email,
@@ -406,7 +406,7 @@ export class PaymentService {
     const baseUrl = process.env.REPL_SLUG && process.env.REPL_OWNER
       ? `https://${process.env.REPL_SLUG}-${process.env.REPL_OWNER}.replit.app`
       : 'http://localhost:5000';
-    const callbackUrl = `${baseUrl}/payment/callback`;
+    const callbackUrl = `${baseUrl}/api/payments/callback`;
 
     console.log('🎯 PPV Payment initialized with method:', paymentMethod, 'channels:', channels);
 

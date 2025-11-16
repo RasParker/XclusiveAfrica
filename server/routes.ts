@@ -3824,12 +3824,32 @@ app.post('/api/conversations', async (req, res) => {
     }
   });
 
-  // Payment callback route - serve the React app for payment callback handling
+  // Payment callback route - redirect to React app route for payment callback handling
+  console.log('🔧 Registering /payment/callback route...');
   app.get('/payment/callback', (req, res) => {
-    // This will be handled by the React router, just serve the main HTML
-    res.sendFile(path.join(__dirname, '../client/index.html'));
+    const { reference, status } = req.query;
+    console.log(`📥 Payment callback route HIT! reference=${reference}, status=${status}`);
+    
+    if (!reference) {
+      return res.status(400).send(`
+        <html>
+          <head><title>Payment Error</title></head>
+          <body>
+            <h1>Payment Error</h1>
+            <p>No payment reference found</p>
+            <script>setTimeout(() => window.close(), 3000);</script>
+          </body>
+        </html>
+      `);
+    }
+
+    const frontendCallbackUrl = `/payment-callback?reference=${reference}&status=${status || 'pending'}`;
+    console.log(`🔀 Redirecting to frontend: ${frontendCallbackUrl}`);
+    
+    return res.redirect(frontendCallbackUrl);
   });
 
+  console.log('✅ /payment/callback route registered successfully');
   return httpServer;
 }
 
