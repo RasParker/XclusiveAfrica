@@ -66,6 +66,8 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -181,9 +183,43 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
     if (mediaPreview) {
       URL.revokeObjectURL(mediaPreview);
     }
+    if (thumbnailPreview) {
+      URL.revokeObjectURL(thumbnailPreview);
+    }
     setMediaFile(null);
     setMediaPreview(null);
     setMediaType(null);
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload an image file for the thumbnail',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setThumbnailFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setThumbnailPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveThumbnail = () => {
+    if (thumbnailPreview) {
+      URL.revokeObjectURL(thumbnailPreview);
+    }
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
   };
 
   const handleSubmit = async (data: FormData) => {
@@ -209,8 +245,33 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
     setIsPublishing(true);
 
     try {
-      // Upload media file first if it exists
+      // Upload media files
       let uploadedMediaUrls: string[] = [];
+      
+      // If it's a video with a thumbnail, upload thumbnail first
+      if (mediaType === 'video' && thumbnailFile) {
+        const thumbnailFormData = new FormData();
+        thumbnailFormData.append('media', thumbnailFile);
+
+        const thumbnailUploadResponse = await fetch('/api/cloudinary/post-media', {
+          method: 'POST',
+          body: thumbnailFormData,
+        });
+
+        if (!thumbnailUploadResponse.ok) {
+          const errorData = await thumbnailUploadResponse.json();
+          throw new Error(errorData.error || 'Failed to upload thumbnail');
+        }
+
+        const thumbnailResult = await thumbnailUploadResponse.json();
+        if (thumbnailResult.url) {
+          uploadedMediaUrls.push(thumbnailResult.url);
+        } else {
+          throw new Error('Thumbnail upload did not return a valid URL');
+        }
+      }
+
+      // Upload main media file if it exists
       if (mediaFile) {
         const formData = new FormData();
         formData.append('media', mediaFile);
@@ -226,11 +287,15 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
         }
 
         const uploadResult = await uploadResponse.json();
-        uploadedMediaUrls = uploadResult.url ? [uploadResult.url] : [];
-
-        if (uploadedMediaUrls.length === 0) {
+        if (uploadResult.url) {
+          uploadedMediaUrls.push(uploadResult.url);
+        } else {
           throw new Error('Media upload did not return a valid URL');
         }
+      }
+
+      if (mediaFile && uploadedMediaUrls.length === 0) {
+        throw new Error('Media upload did not return a valid URL');
       }
 
       // Prepare post data for API
@@ -338,6 +403,61 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
               >
                 <X className="w-4 h-4" />
               </Button>
+            </div>
+          )}
+
+          {/* Video Thumbnail Upload - Only show for videos */}
+          {mediaType === 'video' && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Video Thumbnail (Optional)</Label>
+              <p className="text-xs text-muted-foreground">Upload a custom thumbnail image for your video</p>
+              
+              {thumbnailPreview ? (
+                <div className="relative rounded-lg overflow-hidden bg-muted">
+                  <img
+                    src={thumbnailPreview}
+                    alt="Thumbnail preview"
+                    className="w-full h-32 object-cover"
+                    data-testid="img-thumbnail-preview"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={handleRemoveThumbnail}
+                    data-testid="button-remove-thumbnail"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed rounded-lg p-6 text-center bg-muted/30">
+                  <Image className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Upload a thumbnail for your video
+                  </p>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleThumbnailChange}
+                    className="hidden"
+                    id="thumbnail-upload"
+                    data-testid="input-thumbnail"
+                  />
+                  <Label
+                    htmlFor="thumbnail-upload"
+                    className="cursor-pointer"
+                  >
+                    <Button type="button" variant="outline" size="sm" asChild>
+                      <span data-testid="button-upload-thumbnail">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Choose Thumbnail
+                      </span>
+                    </Button>
+                  </Label>
+                </div>
+              )}
             </div>
           )}
 
@@ -527,7 +647,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
         </form>
       </Form>
     </div>
-  ), [form, handleSubmit, mediaPreview, mediaType, removeMedia, handleFileUpload, showAdvanced, setShowAdvanced, isPublishing, isFormComplete, validationErrors, accessTier, ppvPrice, ppvCurrency, tiers]);
+  ), [form, handleSubmit, mediaPreview, mediaType, thumbnailPreview, removeMedia, handleFileUpload, handleThumbnailChange, handleRemoveThumbnail, showAdvanced, setShowAdvanced, isPublishing, isFormComplete, validationErrors, accessTier, ppvPrice, ppvCurrency, tiers]);
 
   // Mobile: Use Drawer (bottom sheet)
   if (isMobile) {
