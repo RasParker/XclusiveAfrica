@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 import { ContentCard } from '@/components/creator/ContentCard';
+import { QuickEditModal } from '@/components/creator/QuickEditModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -43,6 +44,8 @@ interface ContentItem {
   mediaPreview?: string;
   category: string;
   scheduledFor?: string;
+  ppv_sales_count?: number;
+  rawPost?: any;
 }
 
 export const ManageContent: React.FC = () => {
@@ -54,17 +57,16 @@ export const ManageContent: React.FC = () => {
   const [viewingContent, setViewingContent] = useState<ContentItem | null>(null);
   const [expandedModalCaption, setExpandedModalCaption] = useState(false);
   const [activeTab, setActiveTab] = useState('published');
+  const [quickEditPost, setQuickEditPost] = useState<any | null>(null);
 
-  // Fetch user's posts
-  useEffect(() => {
-    const fetchContent = async () => {
-      if (!user) return;
+  const fetchContent = async () => {
+    if (!user) return;
 
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/posts?creatorId=${user.id}&includeAll=true`);
-        if (response.ok) {
-          const allPosts = await response.json();
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/posts?creatorId=${user.id}&includeAll=true`);
+      if (response.ok) {
+        const allPosts = await response.json();
 
           // Transform posts to match our interface (posts already filtered by creator on server)
           const userPosts = allPosts
@@ -116,24 +118,28 @@ export const ManageContent: React.FC = () => {
                 mediaPreview: mediaPreview,
                 category: 'General',
                 scheduledFor: post.scheduled_for || null,
+                ppv_sales_count: post.ppv_sales_count || 0,
+                rawPost: post,
               };
             });
 
-          setContent(userPosts);
-          console.log('Fetched user content:', userPosts);
-        }
-      } catch (error) {
-        console.error('Error fetching content:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load your content. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
+        setContent(userPosts);
+        console.log('Fetched user content:', userPosts);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your content. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Fetch user's posts
+  useEffect(() => {
     fetchContent();
 
     // Listen for new posts
@@ -154,10 +160,30 @@ export const ManageContent: React.FC = () => {
   const draftPosts = content.filter(item => item.status === 'Draft');
 
   const handleEdit = (contentId: string) => {
-    navigate(`/creator/edit-post/${contentId}`);
+    const contentItem = content.find(item => item.id === contentId);
+    
+    // If content has been purchased, open quick edit modal instead
+    if (contentItem && contentItem.ppv_sales_count && contentItem.ppv_sales_count > 0) {
+      setQuickEditPost(contentItem.rawPost);
+    } else {
+      // Navigate to full edit page for unpurchased content
+      navigate(`/creator/edit-post/${contentId}`);
+    }
   };
 
   const handleDelete = async (contentId: string) => {
+    const contentItem = content.find(item => item.id === contentId);
+    
+    // Check if content has purchases before attempting delete
+    if (contentItem && contentItem.ppv_sales_count && contentItem.ppv_sales_count > 0) {
+      toast({
+        title: "Cannot delete content",
+        description: `This content has been purchased by ${contentItem.ppv_sales_count} ${contentItem.ppv_sales_count === 1 ? 'person' : 'people'} and cannot be deleted.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const response = await fetch(`/api/posts/${contentId}`, {
         method: 'DELETE'
@@ -170,7 +196,12 @@ export const ManageContent: React.FC = () => {
           description: "Your content has been deleted successfully.",
         });
       } else {
-        throw new Error('Failed to delete post');
+        const errorData = await response.json();
+        toast({
+          title: "Error",
+          description: errorData.error || "Failed to delete content. Please try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       toast({
@@ -430,6 +461,20 @@ export const ManageContent: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Quick Edit Modal for Purchased Content */}
+      {quickEditPost && (
+        <QuickEditModal
+          open={!!quickEditPost}
+          onOpenChange={(open) => !open && setQuickEditPost(null)}
+          post={quickEditPost}
+          onSuccess={() => {
+            setQuickEditPost(null);
+            // Refetch content to show updated data
+            fetchContent();
+          }}
+        />
+      )}
     </div>
   );
 };

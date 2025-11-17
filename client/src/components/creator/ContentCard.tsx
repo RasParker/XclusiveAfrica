@@ -34,6 +34,7 @@ interface ContentCardProps {
   mediaPreview?: string;
   category: string;
   scheduledFor?: string;
+  ppv_sales_count?: number;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onPublish: (id: string) => void;
@@ -53,12 +54,14 @@ export const ContentCard: React.FC<ContentCardProps> = ({
   mediaPreview,
   category,
   scheduledFor,
+  ppv_sales_count = 0,
   onEdit,
   onDelete,
   onPublish,
   onViewContent
 }) => {
   const [expandedCaption, setExpandedCaption] = useState(false);
+  const hasPurchases = ppv_sales_count > 0;
 
   const truncateText = (text: string, maxLength: number = 100) => {
     if (text.length <= maxLength) {
@@ -163,8 +166,16 @@ export const ContentCard: React.FC<ContentCardProps> = ({
             >
               {caption}
             </h4>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <span className="text-xs text-muted-foreground">{tier}</span>
+              {hasPurchases && (
+                <>
+                  <span className="text-xs text-muted-foreground">•</span>
+                  <Badge variant="secondary" className="text-xs h-5" data-testid={`badge-purchases-${id}`}>
+                    {ppv_sales_count} Purchase{ppv_sales_count !== 1 ? 's' : ''}
+                  </Badge>
+                </>
+              )}
               <span className="text-xs text-muted-foreground">•</span>
               {status === 'Scheduled' && scheduledFor ? (
                 <>
@@ -213,9 +224,10 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                   size="sm"
                   onClick={(e) => {
                     e.preventDefault();
-                    onViewContent?.({ id, caption, type, tier, status, date, views, likes, comments, mediaPreview, category, scheduledFor, onEdit, onDelete, onPublish, onViewContent });
+                    onViewContent?.({ id, caption, type, tier, status, date, views, likes, comments, mediaPreview, category, scheduledFor, ppv_sales_count, onEdit, onDelete, onPublish, onViewContent });
                   }}
                   className="h-8 w-8 p-0"
+                  data-testid={`button-view-${id}`}
                 >
                   <Eye className="w-4 h-4" />
                 </Button>
@@ -227,6 +239,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                     onEdit(id);
                   }}
                   className="h-8 w-8 p-0"
+                  data-testid={`button-edit-${id}`}
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
@@ -239,21 +252,25 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                       onPublish(id);
                     }}
                     className="h-8 w-8 p-0 text-success"
+                    data-testid={`button-publish-${id}`}
                   >
                     <CheckCircle className="w-4 h-4" />
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onDelete(id);
-                  }}
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {!hasPurchases && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onDelete(id);
+                    }}
+                    className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
+                    data-testid={`button-delete-${id}`}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>

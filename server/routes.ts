@@ -832,10 +832,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const postId = parseInt(req.params.id);
 
+      // Get existing post to check if it has purchases
+      const existingPost = await storage.getPost(postId);
+      if (!existingPost) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      // Check if content has been purchased
+      const hasPurchases = existingPost.ppv_sales_count > 0;
+
       // Handle date conversion for scheduled_for field
       const updateData = { ...req.body };
       if (updateData.scheduled_for && typeof updateData.scheduled_for === 'string') {
         updateData.scheduled_for = new Date(updateData.scheduled_for);
+      }
+
+      // If content has been purchased, restrict certain edits
+      if (hasPurchases) {
+        // Check for restricted field changes
+        const restrictedFields = ['media_type', 'ppv_price', 'ppv_currency', 'is_ppv_enabled', 'tier'];
+        const attemptedRestrictedEdits = restrictedFields.filter(field => 
+          updateData.hasOwnProperty(field) && updateData[field] !== (existingPost as any)[field]
+        );
+
+        if (attemptedRestrictedEdits.length > 0) {
+          return res.status(403).json({ 
+            error: "Cannot modify media type, price, or access tier for purchased content",
+            restricted_fields: attemptedRestrictedEdits
+          });
+        }
+
+        // Special handling for media_urls: only allow thumbnail changes (first element)
+        // Block if trying to add/remove media or change non-thumbnail media
+        if (updateData.hasOwnProperty('media_urls')) {
+          const oldUrls = Array.isArray(existingPost.media_urls) ? existingPost.media_urls : [];
+          const newUrls = Array.isArray(updateData.media_urls) ? updateData.media_urls : [];
+          
+          // Only allow if same length and only first element (thumbnail) changes
+          if (oldUrls.length !== newUrls.length) {
+            return res.status(403).json({ 
+              error: "Cannot add or remove media files for purchased content. Only thumbnail updates are allowed.",
+              restricted_fields: ['media_urls']
+            });
+          }
+          
+          // Check if anything other than first element changed
+          for (let i = 1; i < oldUrls.length; i++) {
+            if (oldUrls[i] !== newUrls[i]) {
+              return res.status(403).json({ 
+                error: "Cannot modify media files for purchased content. Only thumbnail updates are allowed.",
+                restricted_fields: ['media_urls']
+              });
+            }
+          }
+        }
+
+        // Only allow caption (content), thumbnail (media_urls[0]), and title updates for purchased content
+        const allowedFields = ['content', 'media_urls', 'title', 'updated_at'];
+        Object.keys(updateData).forEach(key => {
+          if (!allowedFields.includes(key)) {
+            delete updateData[key];
+          }
+        });
       }
 
       const post = await storage.updatePost(postId, updateData);
@@ -859,6 +917,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const post = await storage.getPost(postId);
       if (!post) {
         return res.status(404).json({ error: "Post not found" });
+      }
+
+      // Check if content has been purchased - prevent deletion
+      if (post.ppv_sales_count > 0) {
+        return res.status(403).json({ 
+          error: "Cannot delete content that has been purchased",
+          ppv_sales_count: post.ppv_sales_count
+        });
       }
 
       // Delete the post
