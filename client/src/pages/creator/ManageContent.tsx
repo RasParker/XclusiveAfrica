@@ -75,12 +75,29 @@ export const ManageContent: React.FC = () => {
               let mediaPreview = null;
               if (post.media_urls) {
                 const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : [post.media_urls];
-                if (mediaUrls.length > 0 && mediaUrls[0]) {
-                  const mediaUrl = String(mediaUrls[0]).trim();
-                  // Use URL directly if it's already a full URL (http/https) or starts with /uploads/
-                  mediaPreview = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://') || mediaUrl.startsWith('/uploads/') 
-                    ? mediaUrl 
-                    : `/uploads/${mediaUrl}`;
+                
+                // For videos, find the actual video file (not the thumbnail)
+                if (post.media_type === 'video') {
+                  // Look for the first URL that has a video extension
+                  const videoUrl = mediaUrls.find((url: string) => {
+                    return url && url.match(/\.(mp4|mov|webm|avi)(\?|$)/i);
+                  });
+                  
+                  if (videoUrl) {
+                    const mediaUrl = String(videoUrl).trim();
+                    mediaPreview = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://') || mediaUrl.startsWith('/uploads/') 
+                      ? mediaUrl 
+                      : `/uploads/${mediaUrl}`;
+                  }
+                } else {
+                  // For images and other content, use the first URL
+                  if (mediaUrls.length > 0 && mediaUrls[0]) {
+                    const mediaUrl = String(mediaUrls[0]).trim();
+                    // Use URL directly if it's already a full URL (http/https) or starts with /uploads/
+                    mediaPreview = mediaUrl.startsWith('http://') || mediaUrl.startsWith('https://') || mediaUrl.startsWith('/uploads/') 
+                      ? mediaUrl 
+                      : `/uploads/${mediaUrl}`;
+                  }
                 }
               }
 
