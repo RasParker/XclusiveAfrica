@@ -35,6 +35,7 @@ interface ContentCardProps {
   category: string;
   scheduledFor?: string;
   ppv_sales_count?: number;
+  rawPost?: any;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onPublish: (id: string) => void;
@@ -55,6 +56,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
   category,
   scheduledFor,
   ppv_sales_count = 0,
+  rawPost,
   onEdit,
   onDelete,
   onPublish,
@@ -236,7 +238,12 @@ export const ContentCard: React.FC<ContentCardProps> = ({
                   size="sm"
                   onClick={(e) => {
                     e.preventDefault();
-                    onViewContent?.({ id, caption, type, tier, status, date, views, likes, comments, mediaPreview, category, scheduledFor, ppv_sales_count, onEdit, onDelete, onPublish, onViewContent });
+                    onViewContent?.({ 
+                      id, caption, type, tier, status, date, views, likes, comments, 
+                      mediaPreview, category, scheduledFor, ppv_sales_count, 
+                      rawPost, 
+                      onEdit, onDelete, onPublish, onViewContent 
+                    });
                   }}
                   className="h-8 w-8 p-0"
                   data-testid={`button-view-${id}`}
