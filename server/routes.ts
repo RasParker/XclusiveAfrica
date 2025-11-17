@@ -862,25 +862,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        // Special handling for media_urls: only allow thumbnail changes (first element)
-        // Block if trying to add/remove media or change non-thumbnail media
+        // Special handling for media_urls: only allow thumbnail changes
+        // For video posts: allow thumbnail updates while protecting video files
+        // For image posts: protect all images except allow adding/replacing a thumbnail
         if (updateData.hasOwnProperty('media_urls')) {
           const oldUrls = Array.isArray(existingPost.media_urls) ? existingPost.media_urls : [];
           const newUrls = Array.isArray(updateData.media_urls) ? updateData.media_urls : [];
           
-          // Only allow if same length and only first element (thumbnail) changes
-          if (oldUrls.length !== newUrls.length) {
-            return res.status(403).json({ 
-              error: "Cannot add or remove media files for purchased content. Only thumbnail updates are allowed.",
-              restricted_fields: ['media_urls']
-            });
-          }
-          
-          // Check if anything other than first element changed
-          for (let i = 1; i < oldUrls.length; i++) {
-            if (oldUrls[i] !== newUrls[i]) {
+          if (existingPost.media_type === 'video') {
+            // For video posts: extract and compare video URLs only (allow thumbnail changes)
+            const videoExtensions = /\.(mp4|mov|webm|avi|mkv|flv|wmv)(\?|$)/i;
+            const oldVideoUrls = oldUrls.filter((url: string) => url && url.match(videoExtensions)).sort();
+            const newVideoUrls = newUrls.filter((url: string) => url && url.match(videoExtensions)).sort();
+            
+            // Ensure video files remain unchanged
+            if (oldVideoUrls.length !== newVideoUrls.length || 
+                oldVideoUrls.some((url, i) => url !== newVideoUrls[i])) {
               return res.status(403).json({ 
-                error: "Cannot modify media files for purchased content. Only thumbnail updates are allowed.",
+                error: "Cannot modify video files for purchased content. Only thumbnail updates are allowed.",
+                restricted_fields: ['media_urls']
+              });
+            }
+          } else {
+            // For image/other posts: protect all media except allow thumbnail replacement
+            // Ensure we still have at least one media file and non-thumbnail media is unchanged
+            if (newUrls.length === 0) {
+              return res.status(403).json({ 
+                error: "Cannot remove all media files from purchased content.",
+                restricted_fields: ['media_urls']
+              });
+            }
+            
+            // Allow thumbnail (index 0) to change, but preserve all other media files
+            const oldNonThumbnail = oldUrls.slice(1);
+            const newNonThumbnail = newUrls.slice(1);
+            
+            if (oldNonThumbnail.length !== newNonThumbnail.length ||
+                oldNonThumbnail.some((url, i) => url !== newNonThumbnail[i])) {
+              return res.status(403).json({ 
+                error: "Cannot add or remove media files for purchased content. Only thumbnail updates are allowed.",
                 restricted_fields: ['media_urls']
               });
             }
