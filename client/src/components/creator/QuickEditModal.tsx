@@ -67,10 +67,9 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
       // Upload new thumbnail if one was selected
       if (thumbnailFile) {
         const formData = new FormData();
-        formData.append('file', thumbnailFile);
-        formData.append('upload_preset', 'xclusive_media');
+        formData.append('media', thumbnailFile);
 
-        const uploadResponse = await fetch('/api/cloudinary/upload', {
+        const uploadResponse = await fetch('/api/cloudinary/post-media', {
           method: 'POST',
           body: formData,
         });
