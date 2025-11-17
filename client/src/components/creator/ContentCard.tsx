@@ -122,29 +122,41 @@ export const ContentCard: React.FC<ContentCardProps> = ({
           {/* Thumbnail */}
           <div className="flex-shrink-0">
             {mediaPreview ? (
-              type === 'Video' ? (
-                <video
-                  src={mediaPreview}
-                  className="w-16 h-16 sm:w-40 sm:h-auto sm:aspect-video object-cover rounded-lg"
-                  muted
-                  preload="metadata"
-                  onError={(e) => {
-                    console.error('Video thumbnail load error:', mediaPreview);
-                  }}
-                />
-              ) : (
-                <img
-                  src={mediaPreview}
-                  alt={caption}
-                  className="w-16 h-16 sm:w-40 sm:h-auto sm:aspect-video object-cover rounded-lg"
-                  onError={(e) => {
-                    console.error('Image thumbnail load error:', mediaPreview);
-                    const target = e.target as HTMLImageElement;
-                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
-                    target.className = "w-full h-full object-cover opacity-50";
-                  }}
-                />
-              )
+              (() => {
+                // Check if mediaPreview is an image (thumbnail) or video
+                const isImageUrl = mediaPreview.match(/\.(jpg|jpeg|png|gif|webp)(\?|$)/i);
+                const isVideoUrl = mediaPreview.match(/\.(mp4|mov|webm|avi)(\?|$)/i);
+                
+                // If it's clearly an image URL or if type is Video but URL is image (thumbnail case)
+                if (isImageUrl || (type === 'Video' && !isVideoUrl)) {
+                  return (
+                    <img
+                      src={mediaPreview}
+                      alt={caption}
+                      className="w-16 h-16 sm:w-40 sm:h-auto sm:aspect-video object-cover rounded-lg"
+                      onError={(e) => {
+                        console.error('Image thumbnail load error:', mediaPreview);
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzVMMTI1IDEwMEgxMTJWMTI1SDg4VjEwMEg3NUwxMDAgNzVaIiBmaWxsPSIjOWNhM2FmIi8+Cjx0ZXh0IHg9IjEwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOWNhM2FmIiBmb250LXNpemU9IjEyIj5JbWFnZSBub3QgZm91bmQ8L3RleHQ+Cjwvc3ZnPg==';
+                        target.className = "w-full h-full object-cover opacity-50";
+                      }}
+                    />
+                  );
+                }
+                
+                // Otherwise render as video
+                return (
+                  <video
+                    src={mediaPreview}
+                    className="w-16 h-16 sm:w-40 sm:h-auto sm:aspect-video object-cover rounded-lg"
+                    muted
+                    preload="metadata"
+                    onError={(e) => {
+                      console.error('Video thumbnail load error:', mediaPreview);
+                    }}
+                  />
+                );
+              })()
             ) : (
               <div className="w-16 h-16 sm:w-40 sm:h-auto sm:aspect-video bg-gradient-to-br from-accent/20 to-accent/10 rounded-lg flex items-center justify-center">
                 {getTypeIcon()}
