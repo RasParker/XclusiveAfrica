@@ -647,11 +647,11 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
   if (isMobile) {
     return (
       <Drawer open={isOpen} onOpenChange={onClose}>
-        <DrawerContent className="max-h-[90vh]" data-testid="quick-post-drawer">
-          <DrawerHeader className="pb-2">
+        <DrawerContent className="max-h-[85vh]" data-testid="quick-post-drawer">
+          <DrawerHeader className="pb-2 flex-shrink-0">
             <DrawerTitle>Create Post</DrawerTitle>
           </DrawerHeader>
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-4 overflow-y-auto flex-1">
             {QuickPostContent}
           </div>
         </DrawerContent>
@@ -662,11 +662,13 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
   // Desktop: Use Modal Dialog
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]" data-testid="quick-post-modal">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] flex flex-col" data-testid="quick-post-modal">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Create Post</DialogTitle>
         </DialogHeader>
-        {QuickPostContent}
+        <div className="overflow-y-auto flex-1 -mx-6 px-6">
+          {QuickPostContent}
+        </div>
       </DialogContent>
     </Dialog>
   );
