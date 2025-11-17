@@ -235,6 +235,32 @@ export const ManageContent: React.FC = () => {
     setExpandedModalCaption(false);
   };
 
+  // Helper function to get the actual video URL from media_urls array
+  const getVideoUrl = (item: ContentItem): string | null => {
+    if (!item.rawPost?.media_urls) return item.mediaPreview || null;
+    
+    const mediaUrls = Array.isArray(item.rawPost.media_urls) 
+      ? item.rawPost.media_urls 
+      : [item.rawPost.media_urls];
+    
+    // Find the first URL that's actually a video (has video extension)
+    const videoUrl = mediaUrls.find((url: string) => {
+      return url && url.match(/\.(mp4|mov|webm|avi)(\?|$)/i);
+    });
+    
+    // If we found a video URL, use it; otherwise fall back to checking if first URL is a video
+    if (videoUrl) return videoUrl;
+    
+    // If mediaUrls[0] is a video (not a thumbnail), use it
+    if (mediaUrls.length > 0 && mediaUrls[0]) {
+      const firstUrl = mediaUrls[0];
+      const isVideo = firstUrl.match(/\.(mp4|mov|webm|avi)(\?|$)/i);
+      if (isVideo) return firstUrl;
+    }
+    
+    // Fall back to mediaPreview
+    return item.mediaPreview || null;
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -431,7 +457,7 @@ export const ManageContent: React.FC = () => {
               {viewingContent.mediaPreview ? (
                 viewingContent.type === 'Video' ? (
                   <video 
-                    src={viewingContent.mediaPreview}
+                    src={getVideoUrl(viewingContent) || viewingContent.mediaPreview}
                     className="w-full h-full"
                     controls
                     autoPlay
