@@ -183,9 +183,6 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
     if (mediaPreview) {
       URL.revokeObjectURL(mediaPreview);
     }
-    if (thumbnailPreview) {
-      URL.revokeObjectURL(thumbnailPreview);
-    }
     setMediaFile(null);
     setMediaPreview(null);
     setMediaType(null);
@@ -215,9 +212,6 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
   };
 
   const handleRemoveThumbnail = () => {
-    if (thumbnailPreview) {
-      URL.revokeObjectURL(thumbnailPreview);
-    }
     setThumbnailFile(null);
     setThumbnailPreview(null);
   };
