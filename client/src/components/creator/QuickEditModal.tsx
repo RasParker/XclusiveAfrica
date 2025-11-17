@@ -89,7 +89,17 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
 
       // Only update media_urls if we have a new thumbnail
       if (thumbnailFile && thumbnailUrl) {
-        updateData.media_urls = [thumbnailUrl];
+        // Preserve existing video URLs while adding/replacing thumbnail
+        const existingUrls = post.media_urls || [];
+        
+        // Find video URLs (not thumbnails) from existing media_urls
+        const videoUrls = existingUrls.filter((url: string) => 
+          url && url.match(/\.(mp4|mov|webm|avi)(\?|$)/i)
+        );
+        
+        // New structure: [thumbnail, ...video_urls]
+        // This ensures thumbnail is first (for display) and video URLs are preserved
+        updateData.media_urls = [thumbnailUrl, ...videoUrls];
       }
 
       const response = await fetch(`/api/posts/${post.id}`, {
