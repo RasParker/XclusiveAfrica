@@ -506,21 +506,6 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
             </Button>
           </div>
 
-          {/* Validation Feedback */}
-          {validationErrors.length > 0 && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 space-y-1">
-              <p className="text-sm font-medium text-amber-800 dark:text-amber-200">To publish your post:</p>
-              <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-0.5">
-                {validationErrors.map((error, index) => (
-                  <li key={index} className="flex items-center gap-2">
-                    <span className="w-1 h-1 bg-amber-600 dark:bg-amber-400 rounded-full"></span>
-                    {error}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           {/* Tier Selection - Always show initially, can be toggled */}
           {(!accessTier || showAdvanced) && (
             <div className="border-t pt-4 space-y-4">
