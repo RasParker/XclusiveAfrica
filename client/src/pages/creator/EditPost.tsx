@@ -29,6 +29,7 @@ import {
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 const MAX_FILE_SIZE = 16 * 1024 * 1024; // 16MB
+const MAX_THUMBNAIL_SIZE = 10 * 1024 * 1024; // 10MB (Cloudinary free tier limit)
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
 const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
 
@@ -164,6 +165,15 @@ export const EditPost: React.FC = () => {
       toast({
         title: 'Invalid file type',
         description: 'Please upload an image file for the thumbnail',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (file.size > MAX_THUMBNAIL_SIZE) {
+      toast({
+        title: 'File too large',
+        description: `Thumbnail must be less than ${Math.round(MAX_THUMBNAIL_SIZE / 1024 / 1024)} MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)} MB.`,
         variant: 'destructive',
       });
       return;

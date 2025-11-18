@@ -79,9 +79,10 @@ export class CloudinaryService {
         resource_type: 'image',
         bytes: result.bytes
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Cloudinary image upload error:', error);
-      throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMessage = error?.message || error?.error?.message || 'Unknown error';
+      throw new Error(`Failed to upload image: ${errorMessage}`);
     }
   }
 
@@ -112,9 +113,10 @@ export class CloudinaryService {
         bytes: result.bytes,
         duration: result.duration
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Cloudinary video upload error:', error);
-      throw new Error(`Failed to upload video: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMessage = error?.message || error?.error?.message || 'Unknown error';
+      throw new Error(`Failed to upload video: ${errorMessage}`);
     }
   }
 
