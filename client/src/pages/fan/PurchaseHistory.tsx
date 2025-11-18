@@ -147,13 +147,13 @@ export default function PurchaseHistory() {
                           {purchase.currency} {parseFloat(purchase.amount).toFixed(2)}
                         </span>
                         <span>•</span>
-                        <span className="capitalize" data-testid={`text-payment-method-${purchase.id}`}>
-                          {purchase.payment_method.replace('_', ' ')}
+                        <span className="text-xs" data-testid={`text-date-${purchase.id}`}>
+                          {formatDistanceToNow(new Date(purchase.purchased_at), { addSuffix: true })}
                         </span>
                       </div>
                       
-                      <p className="text-muted-foreground text-xs" data-testid={`text-date-${purchase.id}`}>
-                        Purchased {formatDistanceToNow(new Date(purchase.purchased_at), { addSuffix: true })}
+                      <p className="text-muted-foreground text-xs capitalize" data-testid={`text-payment-method-${purchase.id}`}>
+                        {purchase.payment_method.replace('_', ' ')}
                       </p>
                     </div>
                   </div>
