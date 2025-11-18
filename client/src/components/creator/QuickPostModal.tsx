@@ -70,7 +70,6 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isFormComplete, setIsFormComplete] = useState(false);
 
@@ -140,7 +139,6 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
     if (!isOpen) {
       form.reset();
       removeMedia();
-      setShowAdvanced(false);
     }
   }, [isOpen, form]);
 
@@ -473,18 +471,6 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
                   </div>
                 </Button>
               </Label>
-              
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                data-testid="button-advanced-options"
-                className={!accessTier ? 'text-blue-600 dark:text-blue-400' : ''}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {showAdvanced ? 'Less' : (!accessTier ? 'Select Audience' : 'More')}
-              </Button>
             </div>
 
             <Button 
@@ -506,8 +492,8 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
             </Button>
           </div>
 
-          {/* Tier Selection - Always show initially, can be toggled */}
-          {(!accessTier || showAdvanced) && (
+          {/* Progressive Disclosure: Tier Selection appears after caption is filled */}
+          {caption?.trim() && (
             <div className="border-t pt-4 space-y-4">
               <FormField
                 control={form.control}
@@ -626,7 +612,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
         </form>
       </Form>
     </div>
-  ), [form, handleSubmit, mediaPreview, mediaType, thumbnailPreview, removeMedia, handleFileUpload, handleThumbnailChange, handleRemoveThumbnail, showAdvanced, setShowAdvanced, isPublishing, isFormComplete, validationErrors, accessTier, ppvPrice, ppvCurrency, tiers]);
+  ), [form, handleSubmit, mediaPreview, mediaType, thumbnailPreview, removeMedia, handleFileUpload, handleThumbnailChange, handleRemoveThumbnail, isPublishing, isFormComplete, validationErrors, accessTier, ppvPrice, ppvCurrency, tiers, caption]);
 
   // Mobile: Use Drawer (bottom sheet)
   if (isMobile) {
