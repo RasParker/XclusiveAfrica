@@ -452,8 +452,32 @@ export const VideoWatch: React.FC = () => {
     );
   }
 
+  // Helper function to get the actual video URL from media_urls array
+  const getVideoUrl = (): string | null => {
+    if (!post?.media_urls) {
+      return null;
+    }
+    
+    const mediaUrls = Array.isArray(post.media_urls) 
+      ? post.media_urls 
+      : [post.media_urls];
+    
+    // Find the first URL that's actually a video (has video extension)
+    const videoUrl = mediaUrls.find((url: string) => {
+      return url && url.match(/\.(mp4|mov|webm|avi)(\?|$)/i);
+    });
+    
+    if (videoUrl) {
+      return videoUrl.startsWith('http') ? videoUrl : `/uploads/${videoUrl}`;
+    }
+    
+    // If no video extension found, use the last item (convention: video is usually last)
+    const lastUrl = mediaUrls[mediaUrls.length - 1];
+    return lastUrl?.startsWith('http') ? lastUrl : `/uploads/${lastUrl}`;
+  };
+
   const mediaUrl = Array.isArray(post.media_urls) ? post.media_urls[0] : post.media_urls;
-  const fullMediaUrl = mediaUrl?.startsWith('http') ? mediaUrl : `/uploads/${mediaUrl}`;
+  const fullMediaUrl = getVideoUrl() || (mediaUrl?.startsWith('http') ? mediaUrl : `/uploads/${mediaUrl}`);
 
   return (
     <div className={`min-h-screen bg-background ${isImmersive ? 'is-immersive' : ''}`}>
