@@ -498,6 +498,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           LEFT JOIN tier_hierarchy ON LOWER(subscription_tiers.name) = tier_hierarchy.tier_name
           WHERE subscriptions.fan_id = $1 AND subscriptions.status = 'active'
         ),
+        user_ppv_purchases AS (
+          SELECT DISTINCT post_id 
+          FROM ppv_purchases 
+          WHERE user_id = $1 AND status = 'completed'
+        ),
         accessible_posts AS (
           -- Posts from followed creators (all tiers for conversion - locked content redacted but thumbnails preserved)
           SELECT 
@@ -505,7 +510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             posts.creator_id,
             posts.title,
             CASE 
-              WHEN posts.tier = 'public' THEN posts.content
+              WHEN posts.tier = 'public' OR user_ppv_purchases.post_id IS NOT NULL THEN posts.content
               ELSE 'Exclusive content for subscribers'  -- Placeholder for locked posts
             END as content,
             posts.media_urls,  -- Keep media_urls for blurred thumbnails on locked content
@@ -533,12 +538,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ) as creator,
             'follow' as access_type,
             CASE 
-              WHEN posts.tier = 'public' THEN true
+              WHEN posts.tier = 'public' OR user_ppv_purchases.post_id IS NOT NULL THEN true
               ELSE false
             END as has_access
           FROM posts 
           LEFT JOIN users ON posts.creator_id = users.id
           LEFT JOIN user_follows ON posts.creator_id = user_follows.creator_id
+          LEFT JOIN user_ppv_purchases ON posts.id = user_ppv_purchases.post_id
           WHERE user_follows.creator_id IS NOT NULL 
             AND (posts.status = 'published' OR (posts.status = 'scheduled' AND posts.scheduled_for <= NOW()))
 
@@ -552,6 +558,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             CASE 
               WHEN posts.tier = 'public' 
                 OR user_subscriptions.tier_level >= COALESCE(post_tier.tier_level, 999)
+                OR user_ppv_purchases.post_id IS NOT NULL
               THEN posts.content
               ELSE 'Exclusive content for higher-tier subscribers'  -- Redact if tier level insufficient
             END as content,
@@ -582,6 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             CASE 
               WHEN posts.tier = 'public' 
                 OR user_subscriptions.tier_level >= COALESCE(post_tier.tier_level, 999)
+                OR user_ppv_purchases.post_id IS NOT NULL
               THEN true
               ELSE false
             END as has_access
@@ -589,6 +597,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           LEFT JOIN users ON posts.creator_id = users.id
           LEFT JOIN user_subscriptions ON posts.creator_id = user_subscriptions.creator_id
           LEFT JOIN tier_hierarchy AS post_tier ON LOWER(posts.tier) = post_tier.tier_name
+          LEFT JOIN user_ppv_purchases ON posts.id = user_ppv_purchases.post_id
           WHERE user_subscriptions.creator_id IS NOT NULL 
             AND (posts.status = 'published' OR (posts.status = 'scheduled' AND posts.scheduled_for <= NOW()))
         ),
