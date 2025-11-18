@@ -142,7 +142,7 @@ export default function PurchaseHistory() {
                     </h3>
                     
                     <div className="space-y-1.5 text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
+                      <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
                         <span className="font-semibold text-foreground" data-testid={`text-amount-${purchase.id}`}>
                           {purchase.currency} {parseFloat(purchase.amount).toFixed(2)}
                         </span>
@@ -150,11 +150,11 @@ export default function PurchaseHistory() {
                         <span className="text-xs" data-testid={`text-date-${purchase.id}`}>
                           {formatDistanceToNow(new Date(purchase.purchased_at), { addSuffix: true })}
                         </span>
+                        <span>•</span>
+                        <span className="text-xs capitalize" data-testid={`text-payment-method-${purchase.id}`}>
+                          {purchase.payment_method.replace('_', ' ')}
+                        </span>
                       </div>
-                      
-                      <p className="text-muted-foreground text-xs capitalize" data-testid={`text-payment-method-${purchase.id}`}>
-                        {purchase.payment_method.replace('_', ' ')}
-                      </p>
                     </div>
                   </div>
                 </Link>
