@@ -69,35 +69,36 @@ export default function PurchaseHistory() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold" data-testid="heading-purchase-history">
-          My Unlocked Content
-        </h1>
-        <p className="text-muted-foreground">
-          Content you've purchased with permanent access
-        </p>
-      </div>
+    <div className="w-full max-w-none px-4 py-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold" data-testid="heading-purchase-history">
+            My Unlocked Content
+          </h1>
+          <p className="text-muted-foreground">
+            Content you've purchased with permanent access
+          </p>
+        </div>
 
-      {purchases.length === 0 ? (
-        <Card className="p-12 text-center space-y-4">
-          <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
-            <ShoppingBag className="w-8 h-8 text-muted-foreground" />
-          </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold" data-testid="text-empty-title">No Purchases Yet</h3>
-            <p className="text-muted-foreground" data-testid="text-empty-description">
-              When you unlock content with Pay Per View, it will appear here
-            </p>
-          </div>
-          <Link to="/explore">
-            <Button className="mt-4" data-testid="button-explore">
-              Explore Content
-            </Button>
-          </Link>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {purchases.length === 0 ? (
+          <Card className="p-12 text-center space-y-4">
+            <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
+              <ShoppingBag className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold" data-testid="text-empty-title">No Purchases Yet</h3>
+              <p className="text-muted-foreground" data-testid="text-empty-description">
+                When you unlock content with Pay Per View, it will appear here
+              </p>
+            </div>
+            <Link to="/explore">
+              <Button className="mt-4" data-testid="button-explore">
+                Explore Content
+              </Button>
+            </Link>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
           {purchases.map((purchase) => {
             const getVideoThumbnail = (url: string) => {
               if (url.includes('cloudinary.com')) {
@@ -160,14 +161,15 @@ export default function PurchaseHistory() {
               </Card>
             );
           })}
-        </div>
-      )}
+          </div>
+        )}
 
-      {purchases.length > 0 && (
-        <div className="text-center text-sm text-muted-foreground pt-4" data-testid="text-purchase-count">
-          Showing {purchases.length} purchase{purchases.length !== 1 ? 's' : ''}
-        </div>
-      )}
+        {purchases.length > 0 && (
+          <div className="text-center text-sm text-muted-foreground pt-4" data-testid="text-purchase-count">
+            Showing {purchases.length} purchase{purchases.length !== 1 ? 's' : ''}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
