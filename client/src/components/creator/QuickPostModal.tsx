@@ -453,43 +453,23 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
             </div>
           )}
 
-          {/* Media Upload & Quick Actions */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Input
-                type="file"
-                accept=".jpg,.jpeg,.png,.gif,.mp4,.mov"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="quick-media-upload"
-              />
-              <Label htmlFor="quick-media-upload" className="cursor-pointer">
-                <Button type="button" variant="ghost" size="sm" asChild>
-                  <div data-testid="button-upload-media">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Media
-                  </div>
-                </Button>
-              </Label>
-            </div>
-
-            <Button 
-              type="submit" 
-              disabled={isPublishing || !isFormComplete}
-              data-testid="button-publish-post"
-            >
-              {isPublishing ? (
-                <>
-                  <Clock className="w-4 h-4 mr-2 animate-spin" />
-                  Publishing...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Publish
-                </>
-              )}
-            </Button>
+          {/* Media Upload */}
+          <div className="flex items-center gap-2">
+            <Input
+              type="file"
+              accept=".jpg,.jpeg,.png,.gif,.mp4,.mov"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="quick-media-upload"
+            />
+            <Label htmlFor="quick-media-upload" className="cursor-pointer">
+              <Button type="button" variant="ghost" size="sm" asChild>
+                <div data-testid="button-upload-media">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Media
+                </div>
+              </Button>
+            </Label>
           </div>
 
           {/* Progressive Disclosure: Tier Selection appears after caption is filled */}
@@ -609,6 +589,28 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
               )}
             </div>
           )}
+
+          {/* Publish Button - Always at the bottom */}
+          <div className="border-t pt-4">
+            <Button 
+              type="submit" 
+              disabled={isPublishing || !isFormComplete}
+              className="w-full"
+              data-testid="button-publish-post"
+            >
+              {isPublishing ? (
+                <>
+                  <Clock className="w-4 h-4 mr-2 animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Publish
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
