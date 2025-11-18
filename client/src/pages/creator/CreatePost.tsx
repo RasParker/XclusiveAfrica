@@ -61,6 +61,8 @@ export const CreatePost: React.FC = () => {
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDraftSaving, setIsDraftSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -152,6 +154,34 @@ export const CreatePost: React.FC = () => {
     setMediaType(null);
     setVideoAspectRatio(null);
     setVideoDimensions(null);
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please upload an image file for the thumbnail',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setThumbnailFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setThumbnailPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveThumbnail = () => {
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
   };
 
   const handleSubmit = async (data: FormData, action: 'draft' | 'schedule' | 'publish') => {
@@ -197,8 +227,33 @@ export const CreatePost: React.FC = () => {
         return;
       }
 
-      // Upload media file first if it exists
+      // Upload media files
       let uploadedMediaUrls: string[] = [];
+
+      // Upload thumbnail first if it exists (for video posts)
+      if (mediaType === 'video' && thumbnailFile) {
+        const thumbnailFormData = new FormData();
+        thumbnailFormData.append('media', thumbnailFile);
+
+        const thumbnailUploadResponse = await fetch('/api/cloudinary/post-media', {
+          method: 'POST',
+          body: thumbnailFormData,
+        });
+
+        if (!thumbnailUploadResponse.ok) {
+          const errorData = await thumbnailUploadResponse.json();
+          throw new Error(errorData.error || 'Failed to upload thumbnail');
+        }
+
+        const thumbnailResult = await thumbnailUploadResponse.json();
+        if (thumbnailResult.url) {
+          uploadedMediaUrls.push(thumbnailResult.url);
+        } else {
+          throw new Error('Thumbnail upload did not return a valid URL');
+        }
+      }
+
+      // Upload main media file if it exists
       if (mediaFile) {
         try {
           const formData = new FormData();
@@ -215,9 +270,9 @@ export const CreatePost: React.FC = () => {
           }
 
           const uploadResult = await uploadResponse.json();
-          uploadedMediaUrls = uploadResult.url ? [uploadResult.url] : [];
-
-          if (uploadedMediaUrls.length === 0) {
+          if (uploadResult.url) {
+            uploadedMediaUrls.push(uploadResult.url);
+          } else {
             throw new Error('Media upload did not return a valid URL');
           }
         } catch (uploadError) {
@@ -229,6 +284,10 @@ export const CreatePost: React.FC = () => {
           });
           return;
         }
+      }
+
+      if (mediaFile && uploadedMediaUrls.length === 0) {
+        throw new Error('Media upload did not return a valid URL');
       }
 
       // Handle scheduled date and time
@@ -407,6 +466,61 @@ export const CreatePost: React.FC = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Video Thumbnail Upload - Only show when video is uploaded */}
+                {mediaType === 'video' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Video Thumbnail (Optional)</Label>
+                    <p className="text-xs text-muted-foreground">Upload a custom thumbnail image for your video</p>
+                    
+                    {thumbnailPreview ? (
+                      <div className="relative rounded-lg overflow-hidden bg-muted">
+                        <img
+                          src={thumbnailPreview}
+                          alt="Thumbnail preview"
+                          className="w-full h-32 object-cover"
+                          data-testid="img-thumbnail-preview"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={handleRemoveThumbnail}
+                          data-testid="button-remove-thumbnail"
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed rounded-lg p-6 text-center bg-muted/30">
+                        <Image className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Upload a thumbnail for your video
+                        </p>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleThumbnailChange}
+                          className="hidden"
+                          id="thumbnail-upload"
+                          data-testid="input-thumbnail"
+                        />
+                        <Label
+                          htmlFor="thumbnail-upload"
+                          className="cursor-pointer"
+                        >
+                          <Button type="button" variant="outline" size="sm" asChild>
+                            <span data-testid="button-upload-thumbnail">
+                              <Upload className="w-4 h-4 mr-2" />
+                              Choose Thumbnail
+                            </span>
+                          </Button>
+                        </Label>
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

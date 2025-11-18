@@ -34,20 +34,6 @@ const ACCEPTED_VIDEO_TYPES = ["video/mp4", "video/quicktime"];
 
 const formSchema = z.object({
   caption: z.string().min(1, "Caption is required").max(2000, "Caption must be less than 2000 characters"),
-  accessTier: z.string().min(1, "Please select an access tier"),
-  ppvPrice: z.coerce.number().positive("Price must be a positive number").optional().or(z.literal(undefined)),
-  ppvCurrency: z.string().default('GHS'),
-  scheduledDate: z.date().optional(),
-  scheduledTime: z.string().optional(),
-}).refine((data) => {
-  // If accessTier is PPV, price is required and must be positive
-  if (data.accessTier === 'ppv' && (!data.ppvPrice || data.ppvPrice <= 0)) {
-    return false;
-  }
-  return true;
-}, {
-  message: "PPV price is required when Pay Per View is selected",
-  path: ["ppvPrice"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -67,25 +53,18 @@ export const EditPost: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
+  const [hadOriginalThumbnail, setHadOriginalThumbnail] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [originalPost, setOriginalPost] = useState<any>(null);
-  const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
-    const [videoAspectRatio, setVideoAspectRatio] = useState<'landscape' | 'portrait' | null>(null);
-  const [videoDimensions, setVideoDimensions] = useState<{ width: number; height: number } | null>(null);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       caption: '',
-      accessTier: 'free',
-      ppvPrice: undefined,
-      ppvCurrency: 'GHS',
-      scheduledDate: undefined,
-      scheduledTime: '',
     },
   });
 
@@ -110,20 +89,9 @@ export const EditPost: React.FC = () => {
       try {
         console.log('Fetching data for post:', postId);
 
-        // Fetch both post data and creator tiers
-        const [postResponse, tiersResponse] = await Promise.all([
-          fetch(`/api/posts/${postId}`),
-          fetch(`/api/creators/${user.id}/tiers`)
-        ]);
+        const postResponse = await fetch(`/api/posts/${postId}`);
 
-        // Process both responses
-        let postData = null;
-        let tiersData = [];
-
-        if (postResponse.ok) {
-          postData = await postResponse.json();
-          console.log('Fetched post data:', postData);
-        } else {
+        if (!postResponse.ok) {
           console.error('Failed to fetch post data:', postResponse.status);
           toast({
             title: "Error",
@@ -134,94 +102,21 @@ export const EditPost: React.FC = () => {
           return;
         }
 
-        if (tiersResponse.ok) {
-          tiersData = await tiersResponse.json();
-          setTiers(tiersData);
-          console.log('Fetched tiers data:', tiersData);
-        } else {
-          console.error('Failed to fetch tiers');
-          setTiers([]);
+        const postData = await postResponse.json();
+        console.log('Fetched post data:', postData);
+
+        // Set caption
+        form.setValue('caption', postData.content || '');
+
+        // Set existing thumbnail preview if exists
+        if (postData.media_urls && postData.media_urls.length > 0) {
+          const thumbnailUrl = Array.isArray(postData.media_urls) 
+            ? postData.media_urls[0] 
+            : postData.media_urls;
+          setThumbnailPreview(thumbnailUrl);
         }
 
-        // Now process the post data with tiers available
-        if (postData) {
-          // Pre-populate form with existing post data - handle case mismatch
-          let accessTier = postData.tier === 'public' ? 'free' : postData.tier;
-
-          // Check if this is a PPV post
-          if (postData.is_ppv_enabled || postData.tier === 'ppv') {
-            accessTier = 'ppv';
-          }
-
-          // Fix case sensitivity issues by finding matching tier
-          if (accessTier !== 'free' && accessTier !== 'ppv' && tiersData.length > 0) {
-            const matchingTier = tiersData.find((tier: SubscriptionTier) => 
-              tier.name.toLowerCase() === accessTier.toLowerCase()
-            );
-            if (matchingTier) {
-              accessTier = matchingTier.name;
-            }
-          }
-
-          console.log('Mapped access tier:', accessTier, 'from original:', postData.tier);
-
-          // Handle scheduled date and time
-          let scheduledDate = undefined;
-          let scheduledTime = '';
-          if (postData.scheduled_for) {
-            const scheduledDateTime = new Date(postData.scheduled_for);
-            scheduledDate = scheduledDateTime;
-            // Format time as HH:MM for input field
-            const hours = scheduledDateTime.getHours().toString().padStart(2, '0');
-            const minutes = scheduledDateTime.getMinutes().toString().padStart(2, '0');
-            scheduledTime = `${hours}:${minutes}`;
-          }
-
-          const formDataObj = {
-            caption: postData.content || '',
-            accessTier: accessTier,
-            ppvPrice: postData.ppv_price || undefined,
-            ppvCurrency: postData.ppv_currency || 'GHS',
-            scheduledDate: scheduledDate,
-            scheduledTime: scheduledTime,
-          };
-
-          console.log('Setting form data:', formDataObj);
-
-          // Use setValue instead of reset for better control
-          form.setValue('caption', formDataObj.caption);
-          form.setValue('accessTier', formDataObj.accessTier);
-          if (formDataObj.ppvPrice) {
-            form.setValue('ppvPrice', formDataObj.ppvPrice);
-          }
-          if (formDataObj.ppvCurrency) {
-            form.setValue('ppvCurrency', formDataObj.ppvCurrency);
-          }
-          if (formDataObj.scheduledDate) {
-            form.setValue('scheduledDate', formDataObj.scheduledDate);
-          }
-          if (formDataObj.scheduledTime) {
-            form.setValue('scheduledTime', formDataObj.scheduledTime);
-          }
-
-          // Set media preview if exists
-          if (postData.media_urls && postData.media_urls.length > 0) {
-            // Handle media_urls as array (from database) or string (legacy)
-            const mediaFileName = Array.isArray(postData.media_urls) 
-              ? postData.media_urls[0] 
-              : postData.media_urls;
-
-            const mediaUrl = mediaFileName.startsWith('/uploads/')
-              ? mediaFileName
-              : `/uploads/${mediaFileName}`;
-
-            console.log('Setting media preview:', mediaUrl);
-            setMediaPreview(mediaUrl);
-            setMediaType(postData.media_type === 'image' ? 'image' : 'video');
-          }
-
-          setOriginalPost(postData);
-        }
+        setOriginalPost(postData);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast({
@@ -238,55 +133,32 @@ export const EditPost: React.FC = () => {
     fetchData();
   }, [postId, user?.id, form, toast, navigate]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
+    if (!file.type.startsWith('image/')) {
       toast({
-        title: "File too large",
-        description: "Please select a file smaller than 16MB.",
-        variant: "destructive",
+        title: 'Invalid file type',
+        description: 'Please upload an image file for the thumbnail',
+        variant: 'destructive',
       });
       return;
     }
 
-    // Validate file type
-    const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type);
-    const isVideo = ACCEPTED_VIDEO_TYPES.includes(file.type);
-
-    if (!isImage && !isVideo) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select a valid image (.jpg, .png, .gif) or video (.mp4, .mov) file.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setMediaFile(file);
-    setMediaType(isImage ? 'image' : 'video');
-
-    // Create preview URL
-    const previewUrl = URL.createObjectURL(file);
-    setMediaPreview(previewUrl);
-
-    toast({
-      title: "Media uploaded",
-      description: `${file.name} has been selected successfully.`,
-    });
+    setThumbnailFile(file);
+    setThumbnailRemoved(false); // Reset removed flag when uploading new thumbnail
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setThumbnailPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const removeMedia = () => {
-    if (mediaPreview && mediaPreview.startsWith('blob:')) {
-      URL.revokeObjectURL(mediaPreview);
-    }
-    setMediaFile(null);
-    setMediaPreview(null);
-    setMediaType(null);
-        setVideoAspectRatio(null);
-        setVideoDimensions(null);
+  const handleRemoveThumbnail = () => {
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+    setThumbnailRemoved(true);
   };
 
   const handleSubmit = async (data: FormData) => {
@@ -295,117 +167,88 @@ export const EditPost: React.FC = () => {
     setIsSaving(true);
 
     try {
-      // Upload new media file if it exists, otherwise keep existing media
-      let uploadedMediaUrls = originalPost.media_urls || [];
-      if (mediaFile) {
-        const formData = new FormData();
-        formData.append('media', mediaFile);
+      let thumbnailUrl = originalPost.media_urls?.[0]; // Keep existing thumbnail by default
 
-        const uploadResponse = await fetch('/api/upload/post-media', {
+      // Upload new thumbnail if one was selected
+      if (thumbnailFile) {
+        const formData = new FormData();
+        formData.append('media', thumbnailFile);
+
+        const uploadResponse = await fetch('/api/cloudinary/post-media', {
           method: 'POST',
           body: formData,
         });
 
         if (!uploadResponse.ok) {
-          throw new Error('Failed to upload media');
+          const errorData = await uploadResponse.json();
+          throw new Error(errorData.error || 'Failed to upload thumbnail');
         }
 
-        const uploadResult = await uploadResponse.json();
-        uploadedMediaUrls = [uploadResult.filename];
+        const uploadData = await uploadResponse.json();
+        thumbnailUrl = uploadData.url;
       }
 
-      // Handle scheduled date and time
-      let scheduled_for = null;
-      if (data.scheduledDate && data.scheduledTime) {
-        const [hours, minutes] = data.scheduledTime.split(':');
-        const scheduledDateTime = new Date(data.scheduledDate);
-        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-        scheduled_for = scheduledDateTime; // Send as Date object, not ISO string
-      }
-
-      // Prepare updated post data
-      const isPPV = data.accessTier === 'ppv';
-      const updatedPostData = {
-        title: data.caption?.substring(0, 50) || originalPost.title,
-        content: data.caption || originalPost.content,
-        media_type: mediaType || originalPost.media_type,
-        media_urls: uploadedMediaUrls,
-        tier: isPPV ? 'ppv' : (data.accessTier === 'free' ? 'public' : data.accessTier),
-        scheduled_for: scheduled_for,
-        status: scheduled_for ? 'scheduled' : originalPost.status,
-        is_ppv_enabled: isPPV,
-        ppv_price: isPPV && data.ppvPrice ? data.ppvPrice : null,
-        ppv_currency: isPPV && data.ppvCurrency ? data.ppvCurrency : null
+      // Update post with new caption and/or thumbnail
+      const updateData: any = {
+        content: data.caption,
       };
 
-      console.log('Updating post with data:', updatedPostData);
+      // Handle thumbnail updates
+      if (thumbnailFile && thumbnailUrl) {
+        // Replace first URL (thumbnail) with new one, keep rest intact
+        const existingUrls = originalPost.media_urls || [];
+        
+        if (originalPost.media_type === 'video' && existingUrls.length > 1) {
+          // Keep all URLs after the first (thumbnail) - preserves video and any other media
+          updateData.media_urls = [thumbnailUrl, ...existingUrls.slice(1)];
+        } else {
+          // For single media posts (images), just replace with new thumbnail
+          updateData.media_urls = [thumbnailUrl];
+        }
+      } else if (thumbnailRemoved) {
+        // If thumbnail was explicitly removed, drop first URL (thumbnail), keep rest
+        const existingUrls = originalPost.media_urls || [];
+        
+        if (originalPost.media_type === 'video' && existingUrls.length > 1) {
+          // Keep all URLs after the first (preserves video and any other media)
+          updateData.media_urls = existingUrls.slice(1);
+        } else {
+          // For image posts, removing thumbnail means empty array
+          updateData.media_urls = [];
+        }
+      }
 
-      // Update the post via API
       const response = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedPostData),
+        body: JSON.stringify(updateData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update post');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update post');
       }
 
-      const updatedPost = await response.json();
-      console.log('Post updated successfully:', updatedPost);
-
       toast({
-        title: "Post updated",
-        description: "Your post has been updated successfully.",
+        title: 'Success',
+        description: 'Post updated successfully',
       });
 
-      // Navigate back to dashboard
       navigate('/creator/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating post:', error);
       toast({
-        title: "Error",
-        description: "Failed to update post. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to update post',
+        variant: 'destructive',
       });
     } finally {
       setIsSaving(false);
     }
   };
 
-    const handleMediaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setMediaFile(file);
-      const fileType = file.type.startsWith('image/') ? 'image' : 'video';
-      setMediaType(fileType);
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setMediaPreview(result);
-
-        // If it's a video, detect aspect ratio
-        if (fileType === 'video') {
-          const video = document.createElement('video');
-          video.src = result;
-          video.addEventListener('loadedmetadata', () => {
-            const aspectRatio = video.videoWidth / video.videoHeight;
-            setVideoDimensions({ width: video.videoWidth, height: video.videoHeight });
-
-            if (aspectRatio > 1) {
-              setVideoAspectRatio('landscape');
-            } else {
-              setVideoAspectRatio('portrait');
-            }
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -466,248 +309,57 @@ export const EditPost: React.FC = () => {
                   )}
                 />
 
-                {/* Media Upload */}
-                <div className="space-y-4">
-                  <Label>Media (Optional)</Label>
-
-                  {!mediaPreview ? (
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                      <Input
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.gif,.mp4,.mov"
-                        onChange={handleMediaChange}
-                        className="hidden"
-                        id="media-upload"
+                {/* Thumbnail Upload */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Thumbnail</Label>
+                  <p className="text-xs text-muted-foreground">Upload a custom thumbnail image</p>
+                  
+                  {thumbnailPreview ? (
+                    <div className="relative rounded-lg overflow-hidden bg-muted">
+                      <img
+                        src={thumbnailPreview}
+                        alt="Thumbnail preview"
+                        className="w-full h-48 object-cover"
+                        data-testid="img-thumbnail-preview"
                       />
-                      <Label htmlFor="media-upload" className="cursor-pointer">
-                        <div className="flex flex-col items-center gap-4">
-                          <Upload className="w-12 h-12 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm font-medium">Click to upload new media</p>
-                            <p className="text-xs text-muted-foreground">
-                              Images: JPG, PNG, GIF (max 16MB)<br />
-                              Videos: MP4, MOV (max 16MB)
-                            </p>
-                          </div>
-                        </div>
-                      </Label>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={handleRemoveThumbnail}
+                        data-testid="button-remove-thumbnail"
+                      >
+                        Remove
+                      </Button>
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      <div className="relative rounded-lg overflow-hidden bg-muted">
-                        {mediaType === 'image' ? (
-                          <img
-                            src={mediaPreview}
-                            alt="Preview"
-                            className="w-full h-64 object-cover"
-                          />
-                        ) : (
-                          <video
-                            src={mediaPreview}
-                            className="w-full h-64 object-cover"
-                            controls
-                          />
-                        )}
-                        <div className="absolute top-2 right-2">
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={removeMedia}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        {mediaType === 'image' ? <Image className="w-4 h-4" /> : <Video className="w-4 h-4" />}
-                        <span>Media preview</span>
-                      </div>
+                    <div className="border-2 border-dashed rounded-lg p-8 text-center bg-muted/30">
+                      <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Upload a new thumbnail
+                      </p>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleThumbnailChange}
+                        className="hidden"
+                        id="thumbnail-upload"
+                        data-testid="input-thumbnail"
+                      />
+                      <Label
+                        htmlFor="thumbnail-upload"
+                        className="cursor-pointer"
+                      >
+                        <Button type="button" variant="outline" size="sm" asChild>
+                          <span data-testid="button-upload-thumbnail">
+                            <Upload className="w-4 h-4 mr-2" />
+                            Choose Thumbnail
+                          </span>
+                        </Button>
+                      </Label>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card border-border/50">
-              <CardHeader>
-                <CardTitle>Access Settings</CardTitle>
-                <CardDescription>Choose who can see this post</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Access Tier */}
-                <FormField
-                  control={form.control}
-                  name="accessTier"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Access Level</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select access level" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="free">Free for all followers</SelectItem>
-                          <SelectItem value="ppv">Pay Per View (PPV)</SelectItem>
-                          {tiers.map((tier) => (
-                            <SelectItem key={tier.id} value={tier.name}>
-                              {tier.name} (GHS {tier.price}/month)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* PPV Settings - Only show when PPV is selected */}
-                {form.watch('accessTier') === 'ppv' && (
-                  <div className="space-y-4 border-t border-border pt-6">
-                    <div className="rounded-lg border border-border p-4 bg-muted/50">
-                      <div className="space-y-0.5 mb-4">
-                        <FormLabel className="text-base">
-                          Pay Per View Settings
-                        </FormLabel>
-                        <FormDescription>
-                          Set a one-time price for fans to purchase permanent access to this content without subscribing
-                        </FormDescription>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-4">
-                        {/* PPV Price */}
-                        <FormField
-                          control={form.control}
-                          name="ppvPrice"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Price</FormLabel>
-                              <FormControl>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-3 text-muted-foreground">
-                                    {form.watch('ppvCurrency') === 'GHS' ? 'GHS' : form.watch('ppvCurrency')}
-                                  </span>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0.01"
-                                    placeholder="0.00"
-                                    className="pl-14"
-                                    value={field.value ?? ''}
-                                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
-                                    data-testid="input-ppv-price"
-                                  />
-                                </div>
-                              </FormControl>
-                              <FormDescription>
-                                One-time payment for permanent access
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        {/* PPV Currency */}
-                        <FormField
-                          control={form.control}
-                          name="ppvCurrency"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Currency</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select currency" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="GHS">GHS (Ghanaian Cedi)</SelectItem>
-                                  <SelectItem value="USD">USD (US Dollar)</SelectItem>
-                                  <SelectItem value="EUR">EUR (Euro)</SelectItem>
-                                  <SelectItem value="GBP">GBP (British Pound)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card border-border/50">
-              <CardHeader>
-                <CardTitle>Schedule Settings</CardTitle>
-                <CardDescription>Update when this post should be published</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Schedule Options */}
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="scheduledDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Schedule Date (Optional)</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "PPP")
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date() || date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="scheduledTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Schedule Time</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Input
-                              type="time"
-                              {...field}
-                            />
-                            <Clock className="absolute right-3 top-3 h-4 w-4 opacity-50" />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
               </CardContent>
             </Card>
