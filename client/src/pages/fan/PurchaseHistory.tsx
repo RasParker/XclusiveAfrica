@@ -143,7 +143,7 @@ export default function PurchaseHistory() {
                     
                     <div className="space-y-1.5 text-sm">
                       <div className="flex items-center gap-2 text-muted-foreground flex-wrap">
-                        <span className="font-semibold text-foreground" data-testid={`text-amount-${purchase.id}`}>
+                        <span className="text-xs font-semibold" data-testid={`text-amount-${purchase.id}`}>
                           {purchase.currency} {parseFloat(purchase.amount).toFixed(2)}
                         </span>
                         <span>•</span>
