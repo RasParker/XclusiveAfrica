@@ -56,10 +56,10 @@ export const EditPost: React.FC = () => {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [thumbnailRemoved, setThumbnailRemoved] = useState(false);
-  const [hadOriginalThumbnail, setHadOriginalThumbnail] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [originalPost, setOriginalPost] = useState<any>(null);
+  const [isVideoWithThumbnail, setIsVideoWithThumbnail] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -108,15 +108,38 @@ export const EditPost: React.FC = () => {
         // Set caption
         form.setValue('caption', postData.content || '');
 
-        // Set existing thumbnail preview if exists
-        if (postData.media_urls && postData.media_urls.length > 0) {
-          const thumbnailUrl = Array.isArray(postData.media_urls) 
-            ? postData.media_urls[0] 
-            : postData.media_urls;
-          setThumbnailPreview(thumbnailUrl);
+        // Normalize media_urls to array - backend may return string or array
+        const mediaUrls: string[] = Array.isArray(postData.media_urls) 
+          ? postData.media_urls 
+          : typeof postData.media_urls === 'string' 
+            ? postData.media_urls.split(',').map((url: string) => url.trim()).filter((url: string) => url)
+            : [];
+
+        // Store normalized media_urls back to postData for consistency
+        const normalizedPostData = {
+          ...postData,
+          media_urls: mediaUrls
+        };
+
+        // Determine if this is a video post with a custom thumbnail
+        // Videos with custom thumbnails have 2+ URLs: [thumbnail, video, ...]
+        // Videos without custom thumbnails have 1 URL: [video]
+        // Images have 1 URL: [image]
+        const isVideo = normalizedPostData.media_type === 'video';
+        const hasCustomThumbnail = isVideo && mediaUrls.length > 1;
+        
+        setIsVideoWithThumbnail(hasCustomThumbnail);
+
+        // Set existing thumbnail preview only if it's an image or a video with custom thumbnail
+        if (mediaUrls.length > 0) {
+          if (!isVideo || hasCustomThumbnail) {
+            // For images or videos with custom thumbnails, show the first URL as thumbnail
+            setThumbnailPreview(mediaUrls[0]);
+          }
+          // For videos without custom thumbnails, don't show a preview (the first URL is the video itself)
         }
 
-        setOriginalPost(postData);
+        setOriginalPost(normalizedPostData);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast({
@@ -167,25 +190,38 @@ export const EditPost: React.FC = () => {
     setIsSaving(true);
 
     try {
-      let thumbnailUrl = originalPost.media_urls?.[0]; // Keep existing thumbnail by default
+      const existingUrls = Array.isArray(originalPost.media_urls) ? originalPost.media_urls : [];
+      const isVideo = originalPost.media_type === 'video';
+      let newThumbnailUrl: string | null = null;
 
       // Upload new thumbnail if one was selected
       if (thumbnailFile) {
-        const formData = new FormData();
-        formData.append('media', thumbnailFile);
+        try {
+          const formData = new FormData();
+          formData.append('media', thumbnailFile);
 
-        const uploadResponse = await fetch('/api/cloudinary/post-media', {
-          method: 'POST',
-          body: formData,
-        });
+          const uploadResponse = await fetch('/api/cloudinary/post-media', {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json();
-          throw new Error(errorData.error || 'Failed to upload thumbnail');
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || 'Failed to upload thumbnail');
+          }
+
+          const uploadData = await uploadResponse.json();
+          newThumbnailUrl = uploadData.url;
+        } catch (uploadError) {
+          console.error('Thumbnail upload error:', uploadError);
+          toast({
+            title: 'Upload failed',
+            description: uploadError instanceof Error ? uploadError.message : 'Failed to upload thumbnail. Please try again.',
+            variant: 'destructive',
+          });
+          setIsSaving(false);
+          return;
         }
-
-        const uploadData = await uploadResponse.json();
-        thumbnailUrl = uploadData.url;
       }
 
       // Update post with new caption and/or thumbnail
@@ -193,30 +229,33 @@ export const EditPost: React.FC = () => {
         content: data.caption,
       };
 
-      // Handle thumbnail updates
-      if (thumbnailFile && thumbnailUrl) {
-        // Replace first URL (thumbnail) with new one, keep rest intact
-        const existingUrls = originalPost.media_urls || [];
-        
-        if (originalPost.media_type === 'video' && existingUrls.length > 1) {
-          // Keep all URLs after the first (thumbnail) - preserves video and any other media
-          updateData.media_urls = [thumbnailUrl, ...existingUrls.slice(1)];
+      // Handle media_urls updates based on post type and thumbnail changes
+      if (newThumbnailUrl) {
+        // New thumbnail was uploaded
+        if (isVideo) {
+          if (isVideoWithThumbnail) {
+            // Video had a custom thumbnail - replace it: [new_thumbnail, video, ...]
+            updateData.media_urls = [newThumbnailUrl, ...existingUrls.slice(1)];
+          } else {
+            // Video didn't have a custom thumbnail - prepend it: [new_thumbnail, video]
+            updateData.media_urls = [newThumbnailUrl, ...existingUrls];
+          }
         } else {
-          // For single media posts (images), just replace with new thumbnail
-          updateData.media_urls = [thumbnailUrl];
+          // Image post - just replace the image
+          updateData.media_urls = [newThumbnailUrl];
         }
       } else if (thumbnailRemoved) {
-        // If thumbnail was explicitly removed, drop first URL (thumbnail), keep rest
-        const existingUrls = originalPost.media_urls || [];
-        
-        if (originalPost.media_type === 'video' && existingUrls.length > 1) {
-          // Keep all URLs after the first (preserves video and any other media)
+        // Thumbnail was explicitly removed
+        if (isVideo && isVideoWithThumbnail) {
+          // Video had a custom thumbnail - remove it, keep the video: [video, ...]
           updateData.media_urls = existingUrls.slice(1);
-        } else {
-          // For image posts, removing thumbnail means empty array
+        } else if (!isVideo) {
+          // Image post - removing the image means empty array
           updateData.media_urls = [];
         }
+        // If video without custom thumbnail, don't change media_urls
       }
+      // If no changes to thumbnail, don't include media_urls in update
 
       const response = await fetch(`/api/posts/${postId}`, {
         method: 'PUT',

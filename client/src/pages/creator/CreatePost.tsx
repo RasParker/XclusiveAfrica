@@ -232,24 +232,34 @@ export const CreatePost: React.FC = () => {
 
       // Upload thumbnail first if it exists (for video posts)
       if (mediaType === 'video' && thumbnailFile) {
-        const thumbnailFormData = new FormData();
-        thumbnailFormData.append('media', thumbnailFile);
+        try {
+          const thumbnailFormData = new FormData();
+          thumbnailFormData.append('media', thumbnailFile);
 
-        const thumbnailUploadResponse = await fetch('/api/cloudinary/post-media', {
-          method: 'POST',
-          body: thumbnailFormData,
-        });
+          const thumbnailUploadResponse = await fetch('/api/cloudinary/post-media', {
+            method: 'POST',
+            body: thumbnailFormData,
+          });
 
-        if (!thumbnailUploadResponse.ok) {
-          const errorData = await thumbnailUploadResponse.json();
-          throw new Error(errorData.error || 'Failed to upload thumbnail');
-        }
+          if (!thumbnailUploadResponse.ok) {
+            const errorData = await thumbnailUploadResponse.json();
+            throw new Error(errorData.error || 'Failed to upload thumbnail');
+          }
 
-        const thumbnailResult = await thumbnailUploadResponse.json();
-        if (thumbnailResult.url) {
-          uploadedMediaUrls.push(thumbnailResult.url);
-        } else {
-          throw new Error('Thumbnail upload did not return a valid URL');
+          const thumbnailResult = await thumbnailUploadResponse.json();
+          if (thumbnailResult.url) {
+            uploadedMediaUrls.push(thumbnailResult.url);
+          } else {
+            throw new Error('Thumbnail upload did not return a valid URL');
+          }
+        } catch (thumbnailError) {
+          console.error('Thumbnail upload error:', thumbnailError);
+          toast({
+            title: "Thumbnail upload failed",
+            description: thumbnailError instanceof Error ? thumbnailError.message : "Please try uploading again.",
+            variant: "destructive",
+          });
+          return;
         }
       }
 
