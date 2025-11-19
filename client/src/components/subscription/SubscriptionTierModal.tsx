@@ -70,6 +70,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
       
       // Check on mount and after a brief delay to ensure DOM is ready
       setTimeout(checkScroll, 100);
+      setTimeout(checkScroll, 300);
       
       // Set up ResizeObserver for dynamic container size changes
       const resizeObserver = new ResizeObserver(() => {
@@ -89,7 +90,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-4 sm:p-6 pb-0">
           <div className="flex items-center gap-3 mb-2">
             <Avatar className="h-12 w-12">
