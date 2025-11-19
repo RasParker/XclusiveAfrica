@@ -284,7 +284,7 @@ export const CreatePost: React.FC = () => {
 
   const handleSubmit = async (data: FormData, action: 'draft' | 'schedule' | 'publish') => {
     // Validate that we have either caption or media
-    if (!data.caption?.trim() && !mediaFile) {
+    if (!data.caption?.trim() && !mediaFile && !mediaPreview) {
       toast({
         title: "Content required",
         description: "Please provide a caption or upload media to create a post.",
@@ -538,7 +538,7 @@ export const CreatePost: React.FC = () => {
                 <div className="space-y-4">
                   <Label>Media (Optional)</Label>
 
-                  {!mediaFile ? (
+                  {!mediaFile && !mediaPreview ? (
                     <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
                       <Input
                         type="file"
@@ -587,10 +587,12 @@ export const CreatePost: React.FC = () => {
                           </Button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        {mediaType === 'image' ? <Image className="w-4 h-4" /> : <Video className="w-4 h-4" />}
-                        <span>{mediaFile.name} ({(mediaFile.size / 1024 / 1024).toFixed(1)} MB)</span>
-                      </div>
+                      {mediaFile && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          {mediaType === 'image' ? <Image className="w-4 h-4" /> : <Video className="w-4 h-4" />}
+                          <span>{mediaFile.name} ({(mediaFile.size / 1024 / 1024).toFixed(1)} MB)</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
