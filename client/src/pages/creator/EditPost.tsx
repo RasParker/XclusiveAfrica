@@ -324,7 +324,7 @@ export const EditPost: React.FC = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <EdgeToEdgeContainer maxWidth="4xl" enablePadding enableTopPadding>
+        <EdgeToEdgeContainer maxWidth="4xl" enablePadding enableTopPadding centerToViewport>
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
             <p className="mt-4 text-muted-foreground">Loading post...</p>
@@ -336,7 +336,7 @@ export const EditPost: React.FC = () => {
 
   return (
     <AppLayout>
-      <EdgeToEdgeContainer maxWidth="4xl" enablePadding enableTopPadding>
+      <EdgeToEdgeContainer maxWidth="4xl" enablePadding enableTopPadding centerToViewport>
         <div className="mb-8">
           <Button 
             variant="outline" 
