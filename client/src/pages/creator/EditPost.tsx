@@ -91,7 +91,7 @@ export const EditPost: React.FC = () => {
       try {
         console.log('Fetching data for post:', postId);
 
-        const postResponse = await fetch(`/api/posts/${postId}`);
+        const postResponse = await fetch(`/api/posts/${postId}?userId=${user.id}`);
 
         if (!postResponse.ok) {
           console.error('Failed to fetch post data:', postResponse.status);
