@@ -147,7 +147,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4 overflow-y-auto flex-1">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1 scrollbar-hide">
           {/* Purchase Badge */}
           <Badge variant="secondary" className="w-fit" data-testid="badge-purchased-indicator">
             {post.ppv_sales_count} Purchase{post.ppv_sales_count !== 1 ? 's' : ''}
