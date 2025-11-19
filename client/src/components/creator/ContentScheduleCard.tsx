@@ -102,7 +102,7 @@ export const ContentScheduleCard: React.FC<ContentScheduleCardProps> = ({
           <Badge variant="outline" className="text-xs">{tier}</Badge>
           {status === 'scheduled' && (
             <CountdownTimer 
-              targetDate={scheduledFor}
+              targetDate={scheduledFor || null}
               className="text-xs font-medium text-primary"
             />
           )}
