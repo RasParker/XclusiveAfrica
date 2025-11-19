@@ -138,7 +138,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]" data-testid="modal-quick-edit">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] flex flex-col" data-testid="modal-quick-edit">
         <DialogHeader>
           <DialogTitle>Quick Edit</DialogTitle>
           <DialogDescription>
@@ -147,7 +147,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           {/* Purchase Badge */}
           <Badge variant="secondary" className="w-fit" data-testid="badge-purchased-indicator">
             {post.ppv_sales_count} Purchase{post.ppv_sales_count !== 1 ? 's' : ''}
@@ -256,7 +256,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 pt-4 border-t">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
