@@ -81,6 +81,9 @@ function App() {
               {/* Public Routes */}
               <Route path="/explore" element={<Explore />} />
 
+              {/* Creator-specific routes - Must come BEFORE dynamic :username route */}
+              <Route path="/creator/create-post" element={<ProtectedRoute allowedRoles={['creator']}><CreatePost /></ProtectedRoute>} />
+
               {/* Public Creator Profile Route - Must be accessible to everyone */}
               <Route path="/creator/:username" element={<CreatorProfile />} />
 
