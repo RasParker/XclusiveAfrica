@@ -216,7 +216,7 @@ export const Earnings: React.FC = () => {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-xs sm:text-sm mb-1">Total Monthly Revenue</p>
+                  <p className="text-green-100 text-xs sm:text-sm mb-1">Gross Revenue</p>
                   <p className="text-2xl sm:text-3xl font-bold">GHS {currentEarnings?.gross_revenue?.toFixed(2) || '0.00'}</p>
                 </div>
                 <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-70" strokeWidth={1} />
