@@ -9,7 +9,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { EdgeToEdgeContainer } from '@/components/layout/EdgeToEdgeContainer';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
@@ -303,19 +302,19 @@ export const EditPost: React.FC = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <EdgeToEdgeContainer maxWidth="4xl" enablePadding enableTopPadding>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
             <p className="mt-4 text-muted-foreground">Loading post...</p>
           </div>
-        </EdgeToEdgeContainer>
+        </div>
       </AppLayout>
     );
   }
 
   return (
     <AppLayout>
-      <EdgeToEdgeContainer maxWidth="4xl" enablePadding enableTopPadding>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <Button 
             variant="outline" 
@@ -443,7 +442,7 @@ export const EditPost: React.FC = () => {
             </div>
           </form>
         </Form>
-      </EdgeToEdgeContainer>
+      </div>
     </AppLayout>
   );
 };
