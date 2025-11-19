@@ -608,7 +608,7 @@ export const Explore: React.FC = () => {
 
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Subscription tiers:</span>
-                      <span className="text-sm font-medium">
+                      <span className="text-sm text-muted-foreground">
                         {creator.tiers.length} option{creator.tiers.length !== 1 ? 's' : ''}
                       </span>
                     </div>
