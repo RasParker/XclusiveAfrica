@@ -90,7 +90,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-4 sm:p-6 pb-0">
           <div className="flex items-center gap-3 mb-2">
             <Avatar className="h-12 w-12">
@@ -108,7 +108,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
 
         <div className="p-4 sm:p-6 pt-4">
           {/* Desktop View - Horizontal Scroll */}
-          <div className="hidden sm:block relative">
+          <div className="hidden sm:block relative px-12">
             {showLeftScroll && (
               <Button
                 variant="ghost"
@@ -119,7 +119,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
                     setTimeout(() => checkScrollRef.current(), 400);
                   }
                 }}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/95 border border-border rounded-full shadow-lg"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-background/95 border border-border rounded-full shadow-lg hover:bg-background"
                 data-testid="button-scroll-left"
                 aria-label="Scroll to previous subscription tiers"
               >
@@ -137,7 +137,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
                     setTimeout(() => checkScrollRef.current(), 400);
                   }
                 }}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/95 border border-border rounded-full shadow-lg"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-background/95 border border-border rounded-full shadow-lg hover:bg-background"
                 data-testid="button-scroll-right"
                 aria-label="Scroll to next subscription tiers"
               >
