@@ -36,7 +36,8 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
 }) => {
   const [expandedTierId, setExpandedTierId] = useState<number | string | null>(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
-  const [showRightScroll, setShowRightScroll] = useState(false);
+  // Force right scroll button to show initially if there are 4+ tiers to verify button rendering
+  const [showRightScroll, setShowRightScroll] = useState(tiers.length >= 4);
   const tiersScrollRef = useRef<HTMLDivElement>(null);
   const checkScrollRef = useRef<() => void>(() => {});
 
