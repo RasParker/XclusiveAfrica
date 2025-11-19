@@ -36,8 +36,9 @@ export const AppLayout: React.FC<AppLayoutProps> = React.memo(({ children }) => 
       {/* Main Content */}
       <main 
         className={`
+          w-full flex-1
           ${isMobile ? 'pb-16 pt-16' : ''} 
-          ${!isMobile && user ? 'ml-64' : ''}
+          ${!isMobile && user ? 'pl-64' : ''}
           ${!isMobile && !user ? 'pt-16' : ''}
         `} 
         style={{ minHeight: '100vh' }}
