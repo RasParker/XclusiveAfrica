@@ -22,7 +22,7 @@ interface ContentScheduleCardProps {
   time: string;
   type: 'Image' | 'Video' | 'Text';
   tier: string;
-  status: 'Scheduled' | 'Draft';
+  status: 'scheduled' | 'draft';
   thumbnail?: string;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
@@ -100,7 +100,7 @@ export const ContentScheduleCard: React.FC<ContentScheduleCardProps> = ({
         <h4 className="font-medium text-sm line-clamp-1 break-words overflow-hidden truncate">{title || description || 'Untitled Post'}</h4>
         <div className="flex items-center gap-2 mt-1">
           <Badge variant="outline" className="text-xs">{tier}</Badge>
-          {status === 'Scheduled' && (
+          {status === 'scheduled' && (
             <CountdownTimer 
               targetDate={scheduledFor}
               className="text-xs font-medium text-primary"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,6 +59,7 @@ export const CreatePost: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
@@ -71,6 +72,8 @@ export const CreatePost: React.FC = () => {
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [videoAspectRatio, setVideoAspectRatio] = useState<'landscape' | 'portrait' | null>(null);
   const [videoDimensions, setVideoDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -105,6 +108,91 @@ export const CreatePost: React.FC = () => {
 
     fetchTiers();
   }, [user?.id]);
+
+  // Load draft post if draft ID is in URL
+  useEffect(() => {
+    const loadDraft = async () => {
+      const draftParam = searchParams.get('draft');
+      if (!draftParam || !user?.id) return;
+
+      setDraftId(draftParam);
+      setIsLoadingDraft(true);
+
+      try {
+        console.log('Loading draft post:', draftParam);
+        const response = await fetch(`/api/posts/${draftParam}?userId=${user.id}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to load draft');
+        }
+
+        const draftData = await response.json();
+        console.log('Draft data loaded:', draftData);
+
+        // Restore form values
+        form.setValue('caption', draftData.content || '');
+        
+        // Restore access tier
+        if (draftData.is_ppv_enabled) {
+          form.setValue('accessTier', 'ppv');
+          form.setValue('ppvPrice', draftData.ppv_price || undefined);
+          form.setValue('ppvCurrency', draftData.ppv_currency || 'GHS');
+        } else {
+          form.setValue('accessTier', draftData.tier || '');
+        }
+
+        // Restore scheduled date/time if present
+        if (draftData.scheduled_for) {
+          const scheduledDate = new Date(draftData.scheduled_for);
+          form.setValue('scheduledDate', scheduledDate);
+          const hours = scheduledDate.getHours().toString().padStart(2, '0');
+          const minutes = scheduledDate.getMinutes().toString().padStart(2, '0');
+          form.setValue('scheduledTime', `${hours}:${minutes}`);
+        }
+
+        // Restore media if present
+        const mediaUrls = Array.isArray(draftData.media_urls) 
+          ? draftData.media_urls 
+          : typeof draftData.media_urls === 'string'
+            ? draftData.media_urls.split(',').map((url: string) => url.trim()).filter((url: string) => url)
+            : [];
+
+        if (mediaUrls.length > 0) {
+          const isVideo = draftData.media_type === 'video';
+          setMediaType(draftData.media_type);
+          
+          if (isVideo && mediaUrls.length > 1) {
+            // Video with custom thumbnail: first is thumbnail, second is video
+            setThumbnailPreview(mediaUrls[0]);
+            setMediaPreview(mediaUrls[1]);
+          } else {
+            // Single media (image or video without custom thumbnail)
+            setMediaPreview(mediaUrls[0]);
+            if (isVideo && mediaUrls.length === 1) {
+              // Video without custom thumbnail
+              setThumbnailPreview(null);
+            }
+          }
+        }
+
+        toast({
+          title: "Draft loaded",
+          description: "Continue editing your draft post.",
+        });
+      } catch (error) {
+        console.error('Error loading draft:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load draft. Starting fresh.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingDraft(false);
+      }
+    };
+
+    loadDraft();
+  }, [searchParams, user?.id, form, toast]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -240,8 +328,24 @@ export const CreatePost: React.FC = () => {
       // Upload media files
       let uploadedMediaUrls: string[] = [];
 
+      // If we're editing a draft and haven't changed the media, use existing URLs
+      const hasNewMedia = mediaFile !== null;
+      const hasNewThumbnail = thumbnailFile !== null;
+      
+      // If no new media and we have preview URLs (from loaded draft), preserve them
+      if (!hasNewMedia && mediaPreview) {
+        // We're using existing media from the draft
+        if (mediaType === 'video' && thumbnailPreview) {
+          // Video with thumbnail: preserve both URLs
+          uploadedMediaUrls = [thumbnailPreview, mediaPreview];
+        } else {
+          // Single media (image or video without custom thumbnail)
+          uploadedMediaUrls = [mediaPreview];
+        }
+      }
+
       // Upload thumbnail first if it exists (for video posts)
-      if (mediaType === 'video' && thumbnailFile) {
+      if (mediaType === 'video' && hasNewThumbnail) {
         try {
           const thumbnailFormData = new FormData();
           thumbnailFormData.append('media', thumbnailFile);
@@ -273,8 +377,8 @@ export const CreatePost: React.FC = () => {
         }
       }
 
-      // Upload main media file if it exists
-      if (mediaFile) {
+      // Upload main media file if it exists and is new
+      if (hasNewMedia) {
         try {
           const formData = new FormData();
           formData.append('media', mediaFile);
@@ -337,11 +441,14 @@ export const CreatePost: React.FC = () => {
         ppv_currency: isPPV && data.ppvCurrency ? data.ppvCurrency : null
       };
 
-      console.log('Creating post with data:', postData);
+      console.log(draftId ? 'Updating draft with data:' : 'Creating post with data:', postData);
 
-      // Create the post via API
-      const response = await fetch('/api/posts', {
-        method: 'POST',
+      // Create or update the post via API
+      const apiUrl = draftId ? `/api/posts/${draftId}` : '/api/posts';
+      const apiMethod = draftId ? 'PUT' : 'POST';
+      
+      const response = await fetch(apiUrl, {
+        method: apiMethod,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -350,11 +457,11 @@ export const CreatePost: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create post');
+        throw new Error(errorData.error || `Failed to ${draftId ? 'update' : 'create'} post`);
       }
 
       const createdPost = await response.json();
-      console.log('Post created successfully:', createdPost);
+      console.log(draftId ? 'Draft updated successfully:' : 'Post created successfully:', createdPost);
 
       // Dispatch custom event to notify profile page
       window.dispatchEvent(new CustomEvent('localStorageChange', {

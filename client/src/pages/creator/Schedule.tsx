@@ -26,7 +26,7 @@ interface ScheduledPost {
   time: string;
   type: 'Image' | 'Video' | 'Text';
   tier: string;
-  status: 'Scheduled' | 'Draft';
+  status: 'scheduled' | 'draft';
   thumbnail?: string;
 }
 
@@ -124,8 +124,8 @@ export const Schedule: React.FC = () => {
           setScheduledPosts(scheduledAndDraftPosts);
 
           // Calculate stats
-          const scheduled = scheduledAndDraftPosts.filter(p => p.status === 'scheduled').length;
-          const draft = scheduledAndDraftPosts.filter(p => p.status === 'draft').length;
+          const scheduled = scheduledAndDraftPosts.filter((p: ScheduledPost) => p.status === 'scheduled').length;
+          const draft = scheduledAndDraftPosts.filter((p: ScheduledPost) => p.status === 'draft').length;
 
           console.log('Stats - Scheduled:', scheduled, 'Draft:', draft);
 
@@ -154,7 +154,16 @@ export const Schedule: React.FC = () => {
   }, [user, toast]);
 
   const handleEdit = (id: string) => {
-    navigate(`/creator/edit-post/${id}`);
+    // Find the post to check its status
+    const post = scheduledPosts.find(p => p.id === id);
+    
+    // Draft posts should resume in the creation form
+    if (post?.status === 'draft') {
+      navigate(`/creator/create-post?draft=${id}`);
+    } else {
+      // Scheduled/published posts open in edit mode
+      navigate(`/creator/edit-post/${id}`);
+    }
   };
 
   const handleDelete = async (id: string) => {
