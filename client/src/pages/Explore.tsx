@@ -627,33 +627,15 @@ export const Explore: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        asChild
-                      >
-                        <Link to={`/creator/${creator.username}`}>
-                          View Profile
-                        </Link>
-                      </Button>
-                      {creator.tiers.length > 0 ? (
-                        <Button
-                          className="w-full"
-                          onClick={() => handleSubscribe(creator.display_name, Math.min(...creator.tiers.map((t: any) => t.price)))}
-                        >
-                          Subscribe from GHS {Math.min(...creator.tiers.map((t: any) => t.price))}/month
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          className="w-full"
-                          disabled
-                        >
-                          No subscription tiers available
-                        </Button>
-                      )}
-                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      asChild
+                    >
+                      <Link to={`/creator/${creator.username}`}>
+                        View Profile
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
