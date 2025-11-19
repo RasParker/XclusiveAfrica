@@ -52,10 +52,8 @@ export const ContentScheduleCard: React.FC<ContentScheduleCardProps> = ({
       <div className="flex-shrink-0">
         {thumbnail ? (
           (() => {
-            // Construct full URL - add /uploads/ prefix if not present
-            const mediaUrl = thumbnail.startsWith('/uploads/') 
-              ? thumbnail 
-              : `/uploads/${thumbnail}`;
+            // Use thumbnail URL directly (it's already a full Cloudinary URL)
+            const mediaUrl = thumbnail;
 
             return type === 'Video' ? (
               <video

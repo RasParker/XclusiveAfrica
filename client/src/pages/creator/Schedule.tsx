@@ -112,7 +112,7 @@ export const Schedule: React.FC = () => {
                 type: post.type,
                 tier: post.tier || 'Free',
                 status: post.status,
-                thumbnail: post.mediaPreview,
+                thumbnail: post.media_urls && post.media_urls.length > 0 ? post.media_urls[0] : null,
                 scheduledFor: post.scheduledFor
               };
 
