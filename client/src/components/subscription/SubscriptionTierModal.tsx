@@ -58,11 +58,28 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
       const container = tiersScrollRef.current;
       
       const checkScroll = () => {
-        if (!container) return;
-        setShowLeftScroll(container.scrollLeft > 0);
-        setShowRightScroll(
-          container.scrollLeft < container.scrollWidth - container.clientWidth - 10
-        );
+        if (!container) {
+          console.log('[SubscriptionModal] Container not found');
+          return;
+        }
+        
+        const scrollLeft = container.scrollLeft;
+        const scrollWidth = container.scrollWidth;
+        const clientWidth = container.clientWidth;
+        const canScrollRight = scrollLeft < scrollWidth - clientWidth - 10;
+        
+        console.log('[SubscriptionModal] Scroll check:', {
+          scrollLeft,
+          scrollWidth,
+          clientWidth,
+          diff: scrollWidth - clientWidth,
+          canScrollLeft: scrollLeft > 0,
+          canScrollRight,
+          tiersCount: tiers.length
+        });
+        
+        setShowLeftScroll(scrollLeft > 0);
+        setShowRightScroll(canScrollRight);
       };
       
       // Store function in ref for reuse
@@ -70,7 +87,6 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
       
       // Check on mount and after a brief delay to ensure DOM is ready
       setTimeout(checkScroll, 100);
-      setTimeout(checkScroll, 300);
       
       // Set up ResizeObserver for dynamic container size changes
       const resizeObserver = new ResizeObserver(() => {
@@ -108,7 +124,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
 
         <div className="p-4 sm:p-6 pt-4">
           {/* Desktop View - Horizontal Scroll */}
-          <div className="hidden sm:block relative px-12">
+          <div className="hidden sm:block relative">
             {showLeftScroll && (
               <Button
                 variant="ghost"
