@@ -128,17 +128,38 @@ export const EditPost: React.FC = () => {
         // Videos without custom thumbnails have 1 URL: [video]
         // Images have 1 URL: [image]
         const isVideo = normalizedPostData.media_type === 'video';
-        const hasCustomThumbnail = isVideo && mediaUrls.length > 1;
+        
+        // Helper function to check if URL is an image based on extension
+        const isImageUrl = (url: string) => {
+          const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+          const lowerUrl = url.toLowerCase();
+          return imageExtensions.some(ext => lowerUrl.includes(ext));
+        };
+        
+        let hasCustomThumbnail = false;
+        
+        if (isVideo && mediaUrls.length > 0) {
+          if (mediaUrls.length > 1) {
+            // Multiple URLs - first should be thumbnail, rest are video
+            hasCustomThumbnail = true;
+          } else if (mediaUrls.length === 1 && isImageUrl(mediaUrls[0])) {
+            // Single URL that's an image for a video post = thumbnail only
+            hasCustomThumbnail = true;
+          }
+        }
         
         setIsVideoWithThumbnail(hasCustomThumbnail);
 
-        // Set existing thumbnail preview only if it's an image or a video with custom thumbnail
+        // Set existing thumbnail preview
         if (mediaUrls.length > 0) {
-          if (!isVideo || hasCustomThumbnail) {
-            // For images or videos with custom thumbnails, show the first URL as thumbnail
+          if (!isVideo) {
+            // Image post - show the image
+            setThumbnailPreview(mediaUrls[0]);
+          } else if (hasCustomThumbnail) {
+            // Video with custom thumbnail - show the first URL (thumbnail)
             setThumbnailPreview(mediaUrls[0]);
           }
-          // For videos without custom thumbnails, don't show a preview (the first URL is the video itself)
+          // For videos without custom thumbnails, don't show a preview
         }
 
         setOriginalPost(normalizedPostData);
