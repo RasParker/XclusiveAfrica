@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Settings, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 
 interface SubscriptionTierModalProps {
   isOpen: boolean;
@@ -35,6 +35,10 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
   userIsLoggedIn
 }) => {
   const [expandedTierId, setExpandedTierId] = useState<number | string | null>(null);
+  const [showLeftScroll, setShowLeftScroll] = useState(false);
+  const [showRightScroll, setShowRightScroll] = useState(false);
+  const tiersScrollRef = useRef<HTMLDivElement>(null);
+  const checkScrollRef = useRef<() => void>(() => {});
 
   const handleTierClick = (tier: any) => {
     if (!userIsLoggedIn) {
@@ -48,9 +52,44 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
     setExpandedTierId(expandedTierId === tierId ? null : tierId);
   };
 
+  // Initialize scroll button visibility when modal opens
+  useEffect(() => {
+    if (isOpen && tiersScrollRef.current) {
+      const container = tiersScrollRef.current;
+      
+      const checkScroll = () => {
+        if (!container) return;
+        setShowLeftScroll(container.scrollLeft > 0);
+        setShowRightScroll(
+          container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+        );
+      };
+      
+      // Store function in ref for reuse
+      checkScrollRef.current = checkScroll;
+      
+      // Check on mount and after a brief delay to ensure DOM is ready
+      setTimeout(checkScroll, 100);
+      
+      // Set up ResizeObserver for dynamic container size changes
+      const resizeObserver = new ResizeObserver(() => {
+        checkScroll();
+      });
+      resizeObserver.observe(container);
+      
+      // Also check on window resize
+      window.addEventListener('resize', checkScroll);
+      
+      return () => {
+        window.removeEventListener('resize', checkScroll);
+        resizeObserver.disconnect();
+      };
+    }
+  }, [isOpen, tiers]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-4 sm:p-6 pb-0">
           <div className="flex items-center gap-3 mb-2">
             <Avatar className="h-12 w-12">
@@ -67,13 +106,59 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
         </DialogHeader>
 
         <div className="p-4 sm:p-6 pt-4">
-          {/* Desktop View - Grid Layout */}
-          <div className="hidden sm:block">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Desktop View - Horizontal Scroll */}
+          <div className="hidden sm:block relative">
+            {showLeftScroll && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  if (tiersScrollRef.current) {
+                    tiersScrollRef.current.scrollBy({ left: -400, behavior: 'smooth' });
+                    setTimeout(() => checkScrollRef.current(), 400);
+                  }
+                }}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/95 border border-border rounded-full shadow-lg"
+                data-testid="button-scroll-left"
+                aria-label="Scroll to previous subscription tiers"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+            )}
+            
+            {showRightScroll && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  if (tiersScrollRef.current) {
+                    tiersScrollRef.current.scrollBy({ left: 400, behavior: 'smooth' });
+                    setTimeout(() => checkScrollRef.current(), 400);
+                  }
+                }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/95 border border-border rounded-full shadow-lg"
+                data-testid="button-scroll-right"
+                aria-label="Scroll to next subscription tiers"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            )}
+
+            <div 
+              ref={tiersScrollRef}
+              className="flex gap-5 overflow-x-auto scrollbar-hide scroll-smooth"
+              onScroll={() => {
+                checkScrollRef.current();
+              }}
+              role="list"
+              aria-label="Subscription tiers"
+              data-testid="tiers-scroll-container"
+            >
               {tiers.map((tier, index) => (
                 <div
                   key={tier.id}
-                  className="flex flex-col h-full p-5 border border-border/40 rounded-xl hover:border-border/60 transition-all duration-200 ease-out cursor-pointer hover:shadow-sm hover:-translate-y-0.5"
+                  role="listitem"
+                  className="flex flex-col h-full p-6 border border-border/40 rounded-xl hover:border-border/60 transition-all duration-200 ease-out flex-shrink-0 w-[320px] cursor-pointer hover:shadow-sm hover:-translate-y-0.5"
                   onClick={() => handleTierClick(tier)}
                   data-testid={`tier-card-${tier.id}`}
                 >
