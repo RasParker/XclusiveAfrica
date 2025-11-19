@@ -166,8 +166,11 @@ export const ManageContent: React.FC = () => {
     // If content has been purchased, open quick edit modal instead
     if (contentItem && contentItem.ppv_sales_count && contentItem.ppv_sales_count > 0) {
       setQuickEditPost(contentItem.rawPost);
+    } else if (contentItem && contentItem.status === 'Draft') {
+      // Draft posts should resume in the create post form
+      navigate(`/creator/create-post?draft=${contentId}`);
     } else {
-      // Navigate to full edit page for unpurchased content
+      // Navigate to full edit page for scheduled/published content
       navigate(`/creator/edit-post/${contentId}`);
     }
   };
