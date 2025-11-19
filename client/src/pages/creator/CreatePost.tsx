@@ -349,7 +349,8 @@ export const CreatePost: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create post');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create post');
       }
 
       const createdPost = await response.json();
@@ -375,7 +376,7 @@ export const CreatePost: React.FC = () => {
       console.error('Error creating post:', error);
       toast({
         title: "Error",
-        description: `Failed to ${action} post. Please try again.`,
+        description: error instanceof Error ? error.message : `Failed to ${action} post. Please try again.`,
         variant: "destructive",
       });
     } finally {

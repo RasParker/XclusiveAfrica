@@ -316,7 +316,8 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create post');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create post');
       }
 
       const createdPost = await response.json();
@@ -338,7 +339,7 @@ export const QuickPostModal: React.FC<QuickPostModalProps> = ({ isOpen, onClose,
       console.error('Error creating post:', error);
       toast({
         title: "Error",
-        description: "Failed to publish post. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to publish post. Please try again.",
         variant: "destructive",
       });
     } finally {
