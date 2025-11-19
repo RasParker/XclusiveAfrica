@@ -765,7 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         media_urls: req.body.media_urls,
         tier: req.body.tier,
         status: req.body.status || 'published',
-        scheduled_for: req.body.scheduled_for || null,
+        scheduled_for: req.body.scheduled_for ? new Date(req.body.scheduled_for) : null,
         is_ppv_enabled: req.body.is_ppv_enabled || false,
         ppv_price: req.body.ppv_price || null,
         ppv_currency: req.body.ppv_currency || 'GHS',
