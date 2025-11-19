@@ -606,25 +606,11 @@ export const Explore: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">Subscription tiers:</span>
-                        <span className="text-sm font-medium">
-                          {creator.tiers.length} option{creator.tiers.length !== 1 ? 's' : ''}
-                        </span>
-                      </div>
-                      {creator.tiers.length > 0 ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">From</span>
-                          <span className="font-semibold text-accent">
-                            GHS {Math.min(...creator.tiers.map((t: any) => t.price))}/month
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">No tiers available</span>
-                        </div>
-                      )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Subscription tiers:</span>
+                      <span className="text-sm font-medium">
+                        {creator.tiers.length} option{creator.tiers.length !== 1 ? 's' : ''}
+                      </span>
                     </div>
 
                     <Button
