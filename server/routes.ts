@@ -21,7 +21,7 @@ import payoutRoutes from './routes/payouts';
 import adminRoutes from './routes/admin';
 import subscriptionRoutes from './routes/subscriptions';
 import cloudinaryRoutes from './routes/cloudinary';
-import { authenticateToken } from "./middleware/auth";
+import { authenticateToken, optionalAuth } from "./middleware/auth";
 import bcrypt from "bcryptjs";
 import * as schema from '../shared/schema';
 import jwt from 'jsonwebtoken';
@@ -391,12 +391,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Post routes
   // Get all posts for feed and creator content
   // Get all posts endpoint
-  app.get("/api/posts", async (req, res) => {
+  app.get("/api/posts", optionalAuth, async (req: any, res) => {
     try {
       const { status, creatorId, includeAll } = req.query;
       
-      // Get authenticated user ID from session if available
-      const authenticatedUserId = (req as any).session?.user?.id;
+      // Get authenticated user ID from optionalAuth middleware
+      const authenticatedUserId = req.user?.id || null;
 
       console.log('Fetching posts with params:', { status, creatorId, includeAll, authenticatedUserId });
 
@@ -637,10 +637,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get single post by ID
-  app.get('/api/posts/:id', async (req, res) => {
+  app.get('/api/posts/:id', optionalAuth, async (req: any, res) => {
     try {
       const { id } = req.params;
-      const userId = req.query.userId ? parseInt(req.query.userId as string) : null;
+      const userId = req.user?.id || null;
 
       // First increment view count
       await db.update(posts)
@@ -738,13 +738,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       // ========================
 
-      // Return post with access info
+      // Determine if content should be locked
+      const isLocked = !hasAccess && (postData.tier !== 'public' || postData.is_ppv_enabled);
+
+      // Return post with access info and redaction for locked content
       const responsePost = {
         ...postData,
         has_access: hasAccess,
         access_reason: accessReason,
-        // Hide media if no access
-        media_urls: hasAccess ? postData.media_urls : [],
+        is_locked: isLocked,
+        // Redact content for locked posts
+        content: hasAccess ? postData.content : (postData.content ? postData.content.substring(0, 150) + '...' : null),
+        // Show only thumbnail for locked media
+        media_urls: hasAccess ? postData.media_urls : (postData.media_urls && postData.media_urls.length > 0 ? [postData.media_urls[0]] : []),
+        // Add unlock options for locked content
+        unlock_options: isLocked ? {
+          can_subscribe: postData.tier !== 'public',
+          can_purchase_ppv: postData.is_ppv_enabled,
+          ppv_price: postData.ppv_price,
+          ppv_currency: postData.ppv_currency,
+          required_tier: postData.tier
+        } : null
       };
 
       res.json(responsePost);
@@ -1204,7 +1218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Subscription tier routes
-  app.get("/api/creators/:creatorId/tiers", async (req, res) => {
+  app.get("/api/creators/:creatorId/tiers", optionalAuth, async (req: any, res) => {
     try {
       const creatorId = parseInt(req.params.creatorId);
       const tiers = await storage.getSubscriptionTiers(creatorId);
@@ -1678,7 +1692,7 @@ app.get('/api/fan/:fanId/favorites', async (req, res) => {
   });
 
   // Creator routes
-  app.get("/api/creators", async (req, res) => {
+  app.get("/api/creators", optionalAuth, async (req: any, res) => {
     try {
       // Fetch all users with creator role
       const creators = await storage.getCreators();
@@ -1689,7 +1703,7 @@ app.get('/api/fan/:fanId/favorites', async (req, res) => {
   });
 
   // Categories routes
-  app.get("/api/categories", async (req, res) => {
+  app.get("/api/categories", optionalAuth, async (req: any, res) => {
     try {
       const includeInactive = req.query.include_inactive === 'true';
       const categories = await storage.getCategories(includeInactive);
@@ -1791,7 +1805,7 @@ app.get('/api/fan/:fanId/favorites', async (req, res) => {
     }
   });
 
-  app.get("/api/categories/:id/creators", async (req, res) => {
+  app.get("/api/categories/:id/creators", optionalAuth, async (req: any, res) => {
     try {
       const categoryId = parseInt(req.params.id);
       const creators = await storage.getCreatorsByCategory(categoryId);

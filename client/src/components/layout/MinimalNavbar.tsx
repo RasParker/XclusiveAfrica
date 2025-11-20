@@ -64,7 +64,17 @@ export const MinimalNavbar: React.FC = React.memo(() => {
 
   // Navigation items based on user role
   const getNavigationItems = () => {
-    if (!user) return [];
+    if (!user) {
+      // Public navigation items for unauthenticated users
+      return [
+        { 
+          label: 'Explore', 
+          href: '/explore', 
+          icon: Compass,
+          active: location.pathname === '/explore'
+        }
+      ];
+    }
 
     const commonItems = [
       { 
@@ -210,6 +220,16 @@ export const MinimalNavbar: React.FC = React.memo(() => {
           <div className="hidden md:flex items-center space-x-3">
             <ThemeToggle />
             {user && <NotificationBell />}
+            {!user && (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" asChild data-testid="button-signin">
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button size="sm" asChild data-testid="button-signup">
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </div>
+            )}
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -253,6 +273,11 @@ export const MinimalNavbar: React.FC = React.memo(() => {
 
           {/* Mobile Hamburger Menu */}
           <div className="md:hidden flex items-center space-x-3">
+            {!user && (
+              <Button variant="ghost" size="sm" asChild data-testid="button-mobile-signin">
+                <Link to="/login">Sign In</Link>
+              </Button>
+            )}
             {user && <NotificationBell />}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>

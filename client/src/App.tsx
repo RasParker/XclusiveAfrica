@@ -11,6 +11,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 // Lazy load pages for better performance
+const Home = React.lazy(() => import('@/pages/Home').then(m => ({ default: m.Home })));
 const Login = React.lazy(() => import('@/pages/Login').then(m => ({ default: m.Login })));
 const Signup = React.lazy(() => import('@/pages/Signup').then(m => ({ default: m.Signup })));
 const AdminLogin = React.lazy(() => import('@/pages/AdminLogin').then(m => ({ default: m.AdminLogin })));
@@ -78,8 +79,10 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
 
-              {/* Public Routes */}
+              {/* Public Routes - No authentication required */}
+              <Route path="/" element={<Home />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/video/:id" element={<VideoWatch />} />
 
               {/* Creator-specific routes - Must come BEFORE dynamic :username route */}
               <Route path="/creator/create-post" element={<ProtectedRoute allowedRoles={['creator']}><CreatePost /></ProtectedRoute>} />
@@ -137,10 +140,6 @@ function App() {
               <Route path="/admin/system-alerts" element={<ProtectedRoute allowedRoles={['admin']}><SystemAlerts /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['admin']}><AdminSettings /></ProtectedRoute>} />
               <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={['admin']}><Notifications /></ProtectedRoute>} />
-
-              {/* Default route */}
-              <Route path="/" element={<Login />} />
-              <Route path="/video/:id" element={<VideoWatch />} />
 
               {/* Catch-all route for undefined paths */}
               <Route path="*" element={<NotFound />} />
