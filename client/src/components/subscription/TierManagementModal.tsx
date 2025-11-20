@@ -587,18 +587,18 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
               ) : (
                 downgradeOptions.map((tier) => (
                   <Card key={tier.id} className="border-orange-200 hover:border-orange-300 transition-colors">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-3">
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                        <div className="space-y-2 text-center sm:text-left">
+                          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-3">
                             <ArrowDown className="h-5 w-5 text-orange-600" />
-                            <h3 className="text-lg font-semibold">{tier.name}</h3>
+                            <h3 className="text-base sm:text-lg font-semibold">{tier.name}</h3>
                             <Badge variant="outline" className="border-orange-200">
                               GHS {tier.price}/month
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">{tier.description}</p>
-                          <div className="flex items-center gap-4 text-sm">
+                          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-4 text-xs sm:text-sm">
                             <div className="flex items-center gap-1">
                               <Clock className="h-4 w-4" />
                               <span>Takes effect next billing cycle</span>
@@ -613,7 +613,7 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                           onClick={() => handleDowngrade(tier.id)}
                           disabled={loading || processingTierId === tier.id}
                           variant="outline"
-                          className="border-orange-300 text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:border-orange-600 dark:hover:bg-orange-950"
+                          className="w-full sm:w-auto border-orange-300 text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:border-orange-600 dark:hover:bg-orange-950"
                           data-testid={`button-downgrade-tier-${tier.id}`}
                         >
                           {processingTierId === tier.id ? "Processing..." : "Schedule Downgrade"}
