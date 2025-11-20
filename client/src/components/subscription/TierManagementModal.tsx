@@ -588,32 +588,41 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                 downgradeOptions.map((tier) => (
                   <Card key={tier.id} className="border-orange-200 hover:border-orange-300 transition-colors">
                     <CardContent className="p-3 sm:p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                        <div className="space-y-2 text-center sm:text-left">
-                          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-3">
-                            <ArrowDown className="h-5 w-5 text-orange-600" />
-                            <h3 className="text-base sm:text-lg font-semibold">{tier.name}</h3>
-                            <Badge variant="outline" className="border-orange-200">
-                              GHS {tier.price}/month
-                            </Badge>
+                      <div className="space-y-3">
+                        {/* Tier name and price row */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <ArrowDown className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
+                            <h3 className="text-sm sm:text-base font-semibold truncate">{tier.name}</h3>
                           </div>
-                          <p className="text-sm text-muted-foreground">{tier.description}</p>
-                          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-4 text-xs sm:text-sm">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              <span>Takes effect next billing cycle</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <CreditCard className="h-4 w-4" />
-                              <span>GHS {Math.abs(tier.proration_amount).toFixed(2)} credit applied</span>
-                            </div>
+                          <span className="text-sm sm:text-base font-bold text-orange-700 whitespace-nowrap flex-shrink-0">
+                            GHS {tier.price}/mo
+                          </span>
+                        </div>
+                        
+                        {/* Description */}
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">{tier.description}</p>
+                        
+                        {/* Payment info row */}
+                        <div className="flex items-center justify-between gap-2 text-xs sm:text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1 min-w-0 flex-1">
+                            <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">
+                              Credit: GHS {Math.abs(tier.proration_amount).toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+                            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                            <span>Next billing</span>
                           </div>
                         </div>
+                        
+                        {/* Downgrade button */}
                         <Button
                           onClick={() => handleDowngrade(tier.id)}
                           disabled={loading || processingTierId === tier.id}
                           variant="outline"
-                          className="w-full sm:w-auto border-orange-300 text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:border-orange-600 dark:hover:bg-orange-950"
+                          className="w-full border-orange-300 text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:border-orange-600 dark:hover:bg-orange-950 text-sm sm:text-base"
                           data-testid={`button-downgrade-tier-${tier.id}`}
                         >
                           {processingTierId === tier.id ? "Processing..." : "Schedule Downgrade"}
