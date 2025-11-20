@@ -309,7 +309,7 @@ export const MinimalNavbar: React.FC = React.memo(() => {
                           className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                             item.active 
                               ? 'bg-accent text-foreground shadow-sm' 
-                              : 'text-muted-foreground hover:text-white hover:bg-accent'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                           }`}
                         >
                           <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -344,7 +344,7 @@ export const MinimalNavbar: React.FC = React.memo(() => {
                             <Link
                               to={`/${user.role}/settings`}
                               onClick={closeMobileMenu}
-                              className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-white hover:bg-accent"
+                              className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent"
                             >
                               <Settings className="h-5 w-5" />
                               <span>Settings</span>
@@ -353,7 +353,7 @@ export const MinimalNavbar: React.FC = React.memo(() => {
                               <Link
                                 to={`/creator/${user.username}`}
                                 onClick={closeMobileMenu}
-                                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-white hover:bg-accent"
+                                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent"
                               >
                                 <User className="h-5 w-5" />
                                 <span>My Profile</span>
@@ -362,7 +362,7 @@ export const MinimalNavbar: React.FC = React.memo(() => {
                             <Button
                               variant="ghost"
                               onClick={() => { handleLogout(); closeMobileMenu(); }}
-                              className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-white hover:bg-accent w-full justify-start"
+                              className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-accent w-full justify-start"
                             >
                               <LogOut className="h-5 w-5" />
                               <span>Log out</span>
