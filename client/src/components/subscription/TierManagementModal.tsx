@@ -446,38 +446,49 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
           {/* Pending Changes Alert */}
           {pendingChanges.length > 0 && (
             <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 space-y-3">
-                    <h4 className="font-semibold text-orange-800 dark:text-orange-200">
+              <CardContent className="p-3 sm:p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 flex-shrink-0" />
+                    <h4 className="text-sm sm:text-base font-semibold text-orange-800 dark:text-orange-200">
                       Pending Changes
                     </h4>
-                    {pendingChanges.map((change) => (
-                      <div key={change.id} className="flex items-center justify-between gap-3">
-                        <div className="flex-1">
-                          <span className="font-medium text-orange-900 dark:text-orange-100">
+                  </div>
+                  
+                  {pendingChanges.map((change) => (
+                    <div key={change.id} className="space-y-2 pt-2 border-t border-orange-200 dark:border-orange-800">
+                      {/* Tier name and price row */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600 flex-shrink-0" />
+                          <span className="text-sm sm:text-base font-medium text-orange-900 dark:text-orange-100 truncate">
                             {change.change_type === 'downgrade' ? 'Downgrade' : 'Change'} to {change?.to_tier?.name || 'Unknown Tier'}
                           </span>
-                          <div className="text-sm text-muted-foreground">
-                            Effective: {change?.scheduled_date ? new Date(change.scheduled_date).toLocaleDateString() : 'N/A'}
-                          </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <Badge variant="outline" className="whitespace-nowrap">
-                            GHS {change?.to_tier?.price || '0'}/month
-                          </Badge>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => cancelPendingChange(change.id)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
+                        <span className="text-xs sm:text-sm font-bold text-orange-700 whitespace-nowrap flex-shrink-0">
+                          GHS {change?.to_tier?.price || '0'}/mo
+                        </span>
                       </div>
-                    ))}
-                  </div>
+                      
+                      {/* Effective date and action row */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground min-w-0 flex-1">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">
+                            {change?.scheduled_date ? new Date(change.scheduled_date).toLocaleDateString() : 'N/A'}
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => cancelPendingChange(change.id)}
+                          className="text-xs sm:text-sm h-7 sm:h-8 px-2 sm:px-3 flex-shrink-0"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
