@@ -245,25 +245,25 @@ export const ManageSubscriptions: React.FC = () => {
           </Card>
 
           <Card className="bg-gradient-card border-border/50">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Monthly Spending</p>
-                  <p className="text-2xl font-bold text-foreground">GHS {totalMonthlySpend}</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">Monthly Spending</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">GHS {totalMonthlySpend}</p>
                 </div>
-                <CreditCard className="h-8 w-8" strokeWidth={1} style={{ color: '#b3b3b3' }} />
+                <CreditCard className="h-6 w-6 sm:h-8 sm:w-8" strokeWidth={1} style={{ color: '#b3b3b3' }} />
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-card border-border/50">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Member Since</p>
-                  <p className="text-2xl font-bold text-foreground">Jan 2024</p>
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground">Member Since</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground">Jan 2024</p>
                 </div>
-                <Calendar className="h-8 w-8" strokeWidth={1} style={{ color: '#b3b3b3' }} />
+                <Calendar className="h-6 w-6 sm:h-8 sm:w-8" strokeWidth={1} style={{ color: '#b3b3b3' }} />
               </div>
             </CardContent>
           </Card>
