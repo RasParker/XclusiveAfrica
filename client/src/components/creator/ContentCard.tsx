@@ -215,24 +215,26 @@ export const ContentCard: React.FC<ContentCardProps> = ({
 
             {/* Stats and Actions Row */}
             <div className="flex items-center justify-between">
-              {/* Stats */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Eye className="w-3 h-3" />
-                  <span>{views}</span>
+              {/* Stats - Only show for published and scheduled posts */}
+              {status !== 'Draft' && (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Eye className="w-3 h-3" />
+                    <span>{views}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Heart className="w-3 h-3" />
+                    <span>{likes}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <MessageCircle className="w-3 h-3" />
+                    <span>{comments}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Heart className="w-3 h-3" />
-                  <span>{likes}</span>
-                </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MessageCircle className="w-3 h-3" />
-                  <span>{comments}</span>
-                </div>
-              </div>
+              )}
 
               {/* Actions */}
-              <div className="flex items-center gap-1">
+              <div className={`flex items-center gap-1 ${status === 'Draft' ? 'ml-auto' : ''}`}>
                 <Button
                   variant="ghost"
                   size="sm"
