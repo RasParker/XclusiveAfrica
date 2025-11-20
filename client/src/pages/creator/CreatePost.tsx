@@ -822,30 +822,35 @@ export const CreatePost: React.FC = () => {
                     name="scheduledTime"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Schedule Time</FormLabel>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              const input = document.getElementById('time-input') as HTMLInputElement;
-                              input?.showPicker();
-                            }}
-                          >
-                            {field.value || <span>Pick a time</span>}
-                            <Clock className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                        <Input
-                          id="time-input"
-                          type="time"
-                          className="sr-only"
-                          {...field}
-                        />
+                        <FormLabel>Schedule Time (Optional)</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value || <span>Pick a time</span>}
+                                <Clock className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-4" align="start">
+                            <div className="space-y-2">
+                              <Label htmlFor="time-picker">Select time</Label>
+                              <Input
+                                id="time-picker"
+                                type="time"
+                                value={field.value || ''}
+                                onChange={(e) => field.onChange(e.target.value)}
+                                className="w-full"
+                              />
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
