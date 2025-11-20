@@ -218,7 +218,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
                       <span className="text-sm text-muted-foreground/70 font-medium">/ month</span>
                     </div>
                     <Button 
-                      className="w-full bg-accent hover:bg-accent/90 text-white font-semibold"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTierClick(tier);
@@ -293,7 +293,7 @@ export const SubscriptionTierModal: React.FC<SubscriptionTierModalProps> = ({
                       )}
 
                       <Button 
-                        className="w-full bg-accent hover:bg-accent/90 text-white font-semibold"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleTierClick(tier);

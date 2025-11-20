@@ -556,7 +556,7 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                         <Button
                           onClick={() => handleUpgrade(tier.id)}
                           disabled={loading || processingTierId === tier.id}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white text-sm sm:text-base"
+                          className="w-full bg-success hover:bg-success/90 text-success-foreground text-sm sm:text-base"
                           data-testid={`button-upgrade-tier-${tier.id}`}
                         >
                           {processingTierId === tier.id ? "Processing..." : "Upgrade Now"}

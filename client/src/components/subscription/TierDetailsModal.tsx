@@ -57,7 +57,7 @@ export const TierDetailsModal: React.FC<TierDetailsModalProps> = ({
                   <Star className="h-3 w-3 mr-1" />
                   Popular
                 </Badge>
-                <Badge className="text-xs" style={{ backgroundColor: '#262626', color: 'white' }}>
+                <Badge className="text-xs bg-muted text-foreground">
                   Monthly
                 </Badge>
               </div>
@@ -113,7 +113,7 @@ export const TierDetailsModal: React.FC<TierDetailsModalProps> = ({
           <Separator />
 
           {/* Subscription Terms */}
-          <div className="space-y-3 text-sm text-muted-foreground p-4 rounded-lg" style={{ backgroundColor: '#262626' }}>
+          <div className="space-y-3 text-sm text-muted-foreground p-4 rounded-lg bg-muted/50">
             <h4 className="font-medium text-foreground">Subscription Terms:</h4>
             <ul className="space-y-1 text-xs">
               <li>• Recurring monthly billing</li>
@@ -126,7 +126,7 @@ export const TierDetailsModal: React.FC<TierDetailsModalProps> = ({
           {/* Subscribe Button */}
           <Button
             onClick={handleSubscribe}
-            className="w-full bg-red-600 hover:bg-red-700 text-white py-6 text-lg font-semibold"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-6 text-lg font-semibold"
             size="lg"
           >
             Subscribe for GHS {tier.price}/month
