@@ -181,7 +181,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         {/* Mobile View - Collapsible */}
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="sm:hidden">
           <CollapsibleTrigger asChild>
-            <div className="p-4 cursor-pointer hover:bg-accent/5 transition-colors">
+            <div className="p-4 sm:p-6 cursor-pointer hover:bg-accent/5 transition-colors">
               <div className="flex items-center gap-3">
                 <Avatar className="h-12 w-12 flex-shrink-0">
                   <AvatarImage src={subscription.creator.avatar} alt={subscription.creator.username} />
@@ -226,9 +226,9 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
           </CollapsibleTrigger>
 
           <CollapsibleContent>
-            <div className="px-4 pb-4 space-y-4">
+            <div className="px-4 pb-4 sm:px-6 sm:pb-6 space-y-4">
               {/* Billing Info */}
-              <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+              <div className="bg-muted/30 rounded-lg p-3 sm:p-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Next billing</span>
                   <span className="text-sm font-medium">{
