@@ -2012,7 +2012,7 @@ export const CreatorProfile: React.FC = () => {
                     <div className="flex items-center gap-3 md:gap-3 flex-wrap">
                       {creator.tiers.slice(0, 3).map((tier: any, index: number) => (
                         <div key={tier.id} className="flex items-center gap-1">
-                          <span className="text-sm md:text-base font-medium text-accent whitespace-nowrap">GHS {tier.price}</span>
+                          <span className="text-sm md:text-base font-semibold text-foreground whitespace-nowrap">GHS {tier.price}</span>
                           {index < Math.min(creator.tiers.length - 1, 2) && (
                             <span className="text-xs md:text-sm text-muted-foreground mx-1">•</span>
                           )}
