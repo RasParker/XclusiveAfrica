@@ -615,7 +615,7 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                           onClick={() => handleDowngrade(tier.id)}
                           disabled={loading || processingTierId === tier.id}
                           variant="outline"
-                          className="border-orange-300 text-orange-700 hover:bg-orange-50"
+                          className="border-orange-300 text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:border-orange-600 dark:hover:bg-orange-950"
                           data-testid={`button-downgrade-tier-${tier.id}`}
                         >
                           {processingTierId === tier.id ? "Processing..." : "Schedule Downgrade"}
