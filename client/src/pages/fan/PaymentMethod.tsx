@@ -269,7 +269,7 @@ export const PaymentMethod: React.FC = () => {
                   <p className="text-sm text-muted-foreground">Next billing date</p>
                   <p className="font-medium">February 15, 2024</p>
                 </div>
-                <div>
+                <div className="text-right">
                   <p className="text-sm text-muted-foreground">Amount due</p>
                   <p className="font-medium">GHS 25.00</p>
                 </div>
