@@ -181,45 +181,53 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         {/* Mobile View - Collapsible */}
         <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="sm:hidden">
           <CollapsibleTrigger asChild>
-            <div className="p-4 sm:p-6 cursor-pointer hover:bg-accent/5 transition-colors">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 flex-shrink-0">
-                  <AvatarImage src={subscription.creator.avatar} alt={subscription.creator.username} />
-                  <AvatarFallback>{subscription.creator.display_name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-base font-semibold text-foreground truncate">
-                      {subscription.creator.display_name}
-                    </h3>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <Badge variant={subscription.status === 'active' ? 'default' : 'destructive'} className="text-xs">
-                        {subscription.status}
-                      </Badge>
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between gap-2 mt-1">
-                    <p className="text-sm text-muted-foreground truncate">
-                      @{subscription.creator.username}
+            <div className="p-4 cursor-pointer hover:bg-accent/5 transition-colors relative">
+              {/* Status Badge - Top Right */}
+              <div className="absolute top-3 right-3">
+                <Badge variant={
+                  subscription.status === 'active' ? 'success' : 
+                  subscription.status === 'paused' ? 'secondary' : 'destructive'
+                } className="text-xs">
+                  {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                </Badge>
+              </div>
+
+              <div className="space-y-3">
+                {/* Avatar and Text Row */}
+                <div className="flex items-start gap-3 pr-20">
+                  <Avatar className="w-10 h-10 flex-shrink-0">
+                    <AvatarImage 
+                      src={subscription.creator.avatar} 
+                      alt={subscription.creator.username}
+                      className="object-cover" 
+                    />
+                    <AvatarFallback className="text-xs">
+                      {subscription.creator.display_name?.charAt(0) || subscription.creator.username.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {subscription.creator.display_name || subscription.creator.username}
                     </p>
-                    <p className="text-sm font-semibold text-foreground flex-shrink-0">
-                      GHS {subscription.tier.price}/mo
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-semibold text-foreground">{subscription.tier.name}</span> • GHS {subscription.tier.price}/month
                     </p>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="outline" className="text-xs">{subscription.tier.name}</Badge>
                     {subscription.pending_changes && subscription.pending_changes.length > 0 && (
-                      <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
+                      <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200 mt-1">
                         <Clock className="h-3 w-3 mr-1" />
-                        Pending
+                        Pending change
                       </Badge>
                     )}
                   </div>
+                </div>
+
+                {/* Chevron indicator centered below */}
+                <div className="flex justify-center">
+                  {isExpanded ? (
+                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  )}
                 </div>
               </div>
             </div>

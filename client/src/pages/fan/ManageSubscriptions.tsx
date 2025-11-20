@@ -321,16 +321,23 @@ export const ManageSubscriptions: React.FC = () => {
                   </Button>
                 </div>
               ) : (
-                activeSubscriptions.map((subscription) => (
-                  <SubscriptionCard
-                    key={subscription.id}
-                    subscription={subscription}
-                    onPauseResume={handlePauseResume}
-                    onCancel={handleCancel}
-                    onToggleAutoRenew={handleToggleAutoRenew}
-                    onSubscriptionUpdate={fetchSubscriptions}
-                  />
-                ))
+                <div className="space-y-4">
+                  {activeSubscriptions.map((subscription) => (
+                    <SubscriptionCard
+                      key={subscription.id}
+                      subscription={subscription}
+                      onPauseResume={handlePauseResume}
+                      onCancel={handleCancel}
+                      onToggleAutoRenew={handleToggleAutoRenew}
+                      onSubscriptionUpdate={fetchSubscriptions}
+                    />
+                  ))}
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                    <Button variant="premium" asChild>
+                      <Link to="/explore">Discover More Creators</Link>
+                    </Button>
+                  </div>
+                </div>
               )}
             </>
           )}
