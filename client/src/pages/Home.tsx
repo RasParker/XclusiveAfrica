@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Navbar } from '@/components/shared/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { Star, Users, DollarSign, Crown, TrendingUp } from 'lucide-react';
 
@@ -67,8 +66,6 @@ export const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10"></div>
