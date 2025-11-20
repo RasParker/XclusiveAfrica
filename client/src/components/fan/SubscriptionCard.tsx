@@ -238,19 +238,19 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               {/* Billing Info */}
               <div className="bg-muted/30 rounded-lg p-3 sm:p-4 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Next billing</span>
-                  <span className="text-sm font-medium">{
+                  <span className="text-xs text-muted-foreground">Next billing</span>
+                  <span className="text-xs font-medium">{
                       subscription.next_billing_date 
                         ? new Date(subscription.next_billing_date).toLocaleDateString()
                         : 'N/A'
                     }</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Joined</span>
-                  <span className="text-sm font-medium">{new Date(subscription.created_at).toLocaleDateString()}</span>
+                  <span className="text-xs text-muted-foreground">Joined</span>
+                  <span className="text-xs font-medium">{new Date(subscription.created_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor={`auto-renew-${subscription.id}`} className="text-xs sm:text-sm text-muted-foreground">
+                  <Label htmlFor={`auto-renew-${subscription.id}`} className="text-xs text-muted-foreground">
                     Auto-renew
                   </Label>
                   <Switch
