@@ -821,14 +821,31 @@ export const CreatePost: React.FC = () => {
                     control={form.control}
                     name="scheduledTime"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>Schedule Time</FormLabel>
                         <FormControl>
-                          <Input
-                            type="time"
-                            {...field}
-                          />
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const input = document.getElementById('time-input') as HTMLInputElement;
+                              input?.showPicker();
+                            }}
+                          >
+                            {field.value || <span>Pick a time</span>}
+                            <Clock className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
                         </FormControl>
+                        <Input
+                          id="time-input"
+                          type="time"
+                          className="sr-only"
+                          {...field}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
