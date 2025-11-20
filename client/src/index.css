@@ -456,10 +456,7 @@
     background-color: transparent !important;
   }
 
-  /* Global button hover state */
-  .btn-hover-dark:hover {
-    background-color: #1e1e24 !important;
-  }
+  /* Removed hardcoded dark hover - now uses button variant styles */
 
   .tab-trigger::after {
     content: '';
@@ -562,7 +559,7 @@
   }
 
   .btn-gold-gradient:hover {
-    background: #1e1e24;
+    background: hsl(var(--accent));
     border-color: hsl(var(--primary));
   }
 
@@ -971,21 +968,7 @@
   background: hsl(var(--primary));
 }
 
-/* Specific override for View Profile button hover color */
-.view-profile-btn:hover,
-button.view-profile-btn:hover,
-a button.view-profile-btn:hover,
-.view-profile-btn:hover *,
-button[class*="view-profile-btn"]:hover {
-  background-color: #22222a !important;
-  background: #22222a !important;
-}
-
-/* Additional specific targeting for outline buttons */
-button[class*="outline"]:hover,
-.inline-flex.items-center.justify-center[class*="outline"]:hover {
-  background-color: #22222a !important;
-}
+/* Removed hardcoded dark hover overrides - button variants now control all hover states */
 
 
 /* Pause button hover styling */
