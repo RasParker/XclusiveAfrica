@@ -454,7 +454,7 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
                       Pending Changes
                     </h4>
                     {pendingChanges.map((change) => (
-                      <div key={change.id} className="mt-2 p-3 bg-white dark:bg-gray-800 rounded-md border">
+                      <div key={change.id} className="mt-2 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-md border border-orange-200 dark:border-orange-800">
                         <div className="flex items-center justify-between">
                           <div>
                             <span className="font-medium">
