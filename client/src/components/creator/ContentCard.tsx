@@ -2,6 +2,13 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { 
   Edit3, 
   Trash2, 
@@ -17,7 +24,7 @@ import {
   FileText,
   Edit,
   CheckCircle,
-
+  MoreVertical,
 } from 'lucide-react';
 
 
@@ -234,64 +241,74 @@ export const ContentCard: React.FC<ContentCardProps> = ({
               )}
 
               {/* Actions */}
-              <div className={`flex items-center gap-1 ${status === 'Draft' ? 'ml-auto' : ''}`}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onViewContent?.({ 
-                      id, caption, type, tier, status, date, views, likes, comments, 
-                      mediaPreview, category, scheduledFor, ppv_sales_count, 
-                      rawPost, 
-                      onEdit, onDelete, onPublish, onViewContent 
-                    });
-                  }}
-                  className="h-8 w-8 p-0"
-                  data-testid={`button-view-${id}`}
-                >
-                  <Eye className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onEdit(id);
-                  }}
-                  className="h-8 w-8 p-0"
-                  data-testid={`button-edit-${id}`}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-                {status === 'Draft' && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onPublish(id);
-                    }}
-                    className="h-8 w-8 p-0 text-success"
-                    data-testid={`button-publish-${id}`}
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                  </Button>
-                )}
-                {!hasPurchases && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onDelete(id);
-                    }}
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
-                    data-testid={`button-delete-${id}`}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
+              <div className={`flex items-center ${status === 'Draft' ? 'ml-auto' : ''}`}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      data-testid={`button-menu-${id}`}
+                    >
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onViewContent?.({ 
+                          id, caption, type, tier, status, date, views, likes, comments, 
+                          mediaPreview, category, scheduledFor, ppv_sales_count, 
+                          rawPost, 
+                          onEdit, onDelete, onPublish, onViewContent 
+                        });
+                      }}
+                      data-testid={`button-view-${id}`}
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Content
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onEdit(id);
+                      }}
+                      data-testid={`button-edit-${id}`}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    {status === 'Draft' && (
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onPublish(id);
+                        }}
+                        data-testid={`button-publish-${id}`}
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Publish
+                      </DropdownMenuItem>
+                    )}
+                    {!hasPurchases && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.preventDefault();
+                            onDelete(id);
+                          }}
+                          className="text-destructive focus:text-destructive"
+                          data-testid={`button-delete-${id}`}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
