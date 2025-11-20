@@ -476,7 +476,7 @@ export const Explore: React.FC = () => {
                   className={`flex-shrink-0 rounded-lg px-4 ${
                     selectedCategory === 'All'
                       ? 'bg-white text-black hover:bg-white/90'
-                      : 'hover:bg-[#1e1e24] hover:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0'
+                      : 'hover:bg-accent hover:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0'
                   }`}
                   data-testid="category-filter-all"
                 >
@@ -495,7 +495,7 @@ export const Explore: React.FC = () => {
                       className={`flex-shrink-0 rounded-lg px-4 ${
                         selectedCategory === category.name
                           ? 'bg-white text-black hover:bg-white/90'
-                          : 'hover:bg-[#1e1e24] hover:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0'
+                          : 'hover:bg-accent hover:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0'
                       }`}
                       data-testid={`category-filter-${category.slug}`}
                     >
