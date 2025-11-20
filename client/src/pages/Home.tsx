@@ -68,12 +68,12 @@ export const Home: React.FC = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10 -z-10 pointer-events-none"></div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center space-y-8">
             <h1 className="text-4xl md:text-6xl font-bold text-foreground">
               Monetize Your{' '}
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
+              <span className="text-gradient-primary">
                 Creativity
               </span>
             </h1>
