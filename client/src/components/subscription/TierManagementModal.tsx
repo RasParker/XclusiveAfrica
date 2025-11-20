@@ -448,34 +448,32 @@ export const TierManagementModal: React.FC<TierManagementModalProps> = ({
             <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/20">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <Clock className="h-5 w-5 text-orange-500 mt-0.5" />
-                  <div className="flex-1">
+                  <Clock className="h-5 w-5 text-orange-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 space-y-3">
                     <h4 className="font-semibold text-orange-800 dark:text-orange-200">
                       Pending Changes
                     </h4>
                     {pendingChanges.map((change) => (
-                      <div key={change.id} className="mt-2 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-md border border-orange-200 dark:border-orange-800">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="font-medium">
-                              {change.change_type === 'downgrade' ? 'Downgrade' : 'Change'} to {change?.to_tier?.name || 'Unknown Tier'}
-                            </span>
-                            <div className="text-sm text-muted-foreground">
-                              Effective: {change?.scheduled_date ? new Date(change.scheduled_date).toLocaleDateString() : 'N/A'}
-                            </div>
+                      <div key={change.id} className="flex items-center justify-between gap-3">
+                        <div className="flex-1">
+                          <span className="font-medium text-orange-900 dark:text-orange-100">
+                            {change.change_type === 'downgrade' ? 'Downgrade' : 'Change'} to {change?.to_tier?.name || 'Unknown Tier'}
+                          </span>
+                          <div className="text-sm text-muted-foreground">
+                            Effective: {change?.scheduled_date ? new Date(change.scheduled_date).toLocaleDateString() : 'N/A'}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">
-                              GHS {change?.to_tier?.price || '0'}/month
-                            </Badge>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => cancelPendingChange(change.id)}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Badge variant="outline" className="whitespace-nowrap">
+                            GHS {change?.to_tier?.price || '0'}/month
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => cancelPendingChange(change.id)}
+                          >
+                            Cancel
+                          </Button>
                         </div>
                       </div>
                     ))}
