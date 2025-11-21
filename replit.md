@@ -1,7 +1,15 @@
 # Xclusive Creator Platform
 
 ## Overview
-The Xclusive Creator Platform is a full-stack application designed to empower content creators to monetize their content through **subscriptions** and **Pay-Per-View (PPV)** purchases, along with fan interactions. It offers comprehensive tools for creators to manage their content, define subscription tiers, enable PPV pricing on individual posts, track earnings, and engage with their audience. For fans, the platform provides access to exclusive content through either subscription or one-time PPV purchases, subscription management, purchase history tracking, and direct messaging with creators. The platform aims to be a leading solution for content monetization, fostering direct creator-fan relationships and providing a robust ecosystem for digital content.
+The Xclusive Creator Platform is a full-stack application **designed for African content creators** to monetize their content through **subscriptions** and **Pay-Per-View (PPV)** purchases. The platform empowers creators across the African continent with comprehensive tools to manage their content, define subscription tiers, enable PPV pricing on individual posts, track earnings, and engage with their audience. For fans, the platform provides access to exclusive content through either subscription or one-time PPV purchases, subscription management, purchase history tracking, and direct messaging with creators.
+
+**Market Focus**: 
+- **Target Market**: African content creators and their audiences
+- **Pilot Phase**: Launching in Ghana
+- **Payment Infrastructure**: Built on Paystack for seamless African payment processing
+- **Default Currency**: GHS (Ghana Cedi), with multi-currency support
+
+The platform aims to be a leading solution for content monetization in Africa, fostering direct creator-fan relationships and providing a robust ecosystem for digital content tailored to African creators' needs.
 
 ## User Preferences
 - Development workflow: Use `npm run dev` for development with hot reload
@@ -9,7 +17,7 @@ The Xclusive Creator Platform is a full-stack application designed to empower co
 - Code style: TypeScript with proper type definitions throughout
 
 ## System Architecture
-The platform utilizes a modern full-stack architecture. The frontend is built with **React and TypeScript**, leveraging **Vite** for a fast development experience and **Tailwind CSS** with **shadcn/ui** for a responsive and consistent user interface. **TanStack Query (React Query)** manages state and data fetching. The backend is an **Express.js** application also written in **TypeScript**. Data persistence is handled by **Supabase PostgreSQL** and managed with **Drizzle ORM** and the `postgres-js` client. Authentication is managed via a **custom JWT-based system**. File uploads are handled by **Multer**, and **Stripe** is integrated for payment processing. Real-time features such as notifications and messaging are supported by **WebSockets**. The system supports a multi-role structure (Admin, Creator, Fan) with distinct permissions and provides features like content management, tiered subscriptions, real-time messaging, and an analytics dashboard for creators. The design ensures a consistent user experience with a focus on mobile responsiveness and a "showcase approach" for locked content to encourage conversions. Critical security measures are implemented, including complete content redaction for unauthorized users on the backend.
+The platform utilizes a modern full-stack architecture optimized for African creators. The frontend is built with **React and TypeScript**, leveraging **Vite** for a fast development experience and **Tailwind CSS** with **shadcn/ui** for a responsive and consistent user interface. **TanStack Query (React Query)** manages state and data fetching. The backend is an **Express.js** application also written in **TypeScript**. Data persistence is handled by **Supabase PostgreSQL** and managed with **Drizzle ORM** and the `postgres-js` client. Authentication is managed via a **custom JWT-based system**. File uploads are handled by **Multer**, and **Paystack** is integrated for payment processing (primary payment gateway for African markets). Real-time features such as notifications and messaging are supported by **WebSockets**. The system supports a multi-role structure (Admin, Creator, Fan) with distinct permissions and provides features like content management, tiered subscriptions, PPV purchases, real-time messaging, and an analytics dashboard for creators. The design ensures a consistent user experience with a focus on mobile responsiveness and a "showcase approach" for locked content to encourage conversions. Critical security measures are implemented, including complete content redaction for unauthorized users on the backend.
 
 ## Monetization Features
 
@@ -117,7 +125,7 @@ const getVideoUrl = (): string | null => {
 
 ## External Dependencies
 - **Supabase PostgreSQL**: Managed cloud database for data storage.
-- **Stripe**: Payment gateway for subscription processing and tips.
+- **Paystack**: Primary payment gateway optimized for African markets, supporting card payments, mobile money, and bank transfers across multiple African countries.
 - **Multer**: Node.js middleware for handling `multipart/form-data`, primarily for file uploads.
 - **Vite**: Frontend build tool.
 - **Tailwind CSS**: Utility-first CSS framework.
@@ -125,3 +133,6 @@ const getVideoUrl = (): string | null => {
 - **TanStack Query (React Query)**: Data fetching and state management library.
 - **Drizzle ORM**: TypeScript ORM for database interactions.
 - **postgres-js**: PostgreSQL client for Node.js.
+
+## Future Considerations
+- **Platform Name**: Considering rebranding to "Jukwaa" (Swahili for "platform/stage") to strengthen pan-African identity and appeal.
