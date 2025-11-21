@@ -1,4 +1,4 @@
-// Core types for Xclusive platform
+// Core types for Jukwaa platform
 
 export interface User {
   id: number;

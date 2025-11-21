@@ -3288,7 +3288,7 @@ app.post('/api/conversations', async (req, res) => {
         return res.status(401).json({ error: "Not authenticated" });
       }
 
-      const { title = 'Test Push Notification', message = 'This is a test push notification from Xclusive Creator Hub'} = req.body;
+      const { title = 'Test Push Notification', message = 'This is a test push notification from Jukwaa Creator Hub'} = req.body;
 
       // In a real implementation, you would:
       // 1. Get the user's push subscription from the database
