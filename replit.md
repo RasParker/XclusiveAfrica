@@ -1,7 +1,7 @@
 # Xclusive Creator Platform
 
 ## Overview
-The Xclusive Creator Platform is a full-stack application designed to empower content creators to monetize their content through subscriptions and fan interactions. It offers comprehensive tools for creators to manage their content, define subscription tiers, track earnings, and engage with their audience. For fans, the platform provides access to exclusive content, subscription management, and direct messaging with creators. The platform aims to be a leading solution for content monetization, fostering direct creator-fan relationships and providing a robust ecosystem for digital content.
+The Xclusive Creator Platform is a full-stack application designed to empower content creators to monetize their content through **subscriptions** and **Pay-Per-View (PPV)** purchases, along with fan interactions. It offers comprehensive tools for creators to manage their content, define subscription tiers, enable PPV pricing on individual posts, track earnings, and engage with their audience. For fans, the platform provides access to exclusive content through either subscription or one-time PPV purchases, subscription management, purchase history tracking, and direct messaging with creators. The platform aims to be a leading solution for content monetization, fostering direct creator-fan relationships and providing a robust ecosystem for digital content.
 
 ## User Preferences
 - Development workflow: Use `npm run dev` for development with hot reload
@@ -10,6 +10,67 @@ The Xclusive Creator Platform is a full-stack application designed to empower co
 
 ## System Architecture
 The platform utilizes a modern full-stack architecture. The frontend is built with **React and TypeScript**, leveraging **Vite** for a fast development experience and **Tailwind CSS** with **shadcn/ui** for a responsive and consistent user interface. **TanStack Query (React Query)** manages state and data fetching. The backend is an **Express.js** application also written in **TypeScript**. Data persistence is handled by **Supabase PostgreSQL** and managed with **Drizzle ORM** and the `postgres-js` client. Authentication is managed via a **custom JWT-based system**. File uploads are handled by **Multer**, and **Stripe** is integrated for payment processing. Real-time features such as notifications and messaging are supported by **WebSockets**. The system supports a multi-role structure (Admin, Creator, Fan) with distinct permissions and provides features like content management, tiered subscriptions, real-time messaging, and an analytics dashboard for creators. The design ensures a consistent user experience with a focus on mobile responsiveness and a "showcase approach" for locked content to encourage conversions. Critical security measures are implemented, including complete content redaction for unauthorized users on the backend.
+
+## Monetization Features
+
+### Pay-Per-View (PPV) System
+The platform supports **Pay-Per-View** as an alternative monetization method alongside subscriptions. This allows creators to monetize individual pieces of content through one-time purchases.
+
+**Key Features**:
+- Creators can enable PPV on any post (text, image, or video content)
+- Flexible pricing per post with currency selection (default: GHS)
+- Fans can unlock content without subscribing by making a one-time payment
+- PPV purchases grant permanent access to the specific content
+- Purchase history tracking for fans
+- Sales count tracking per post for analytics
+
+**Database Schema** (`shared/schema.ts`):
+- `posts` table includes PPV fields:
+  - `is_ppv_enabled`: Boolean flag to enable PPV on a post
+  - `ppv_price`: Decimal field for the price amount
+  - `ppv_currency`: Text field for currency (default: 'GHS')
+  - `ppv_sales_count`: Integer tracking total sales
+- `ppv_purchases` table tracks all PPV transactions:
+  - Links user, post, transaction details, and purchase timestamp
+  - Includes amount, currency, payment method, and status
+
+**Backend Implementation**:
+- **Routes** (`server/routes/payment.ts`):
+  - `POST /api/payment/initialize-ppv`: Initialize PPV payment for a post
+  - `GET /api/payment/ppv-access/:userId/:postId`: Check if user has PPV access
+  - `GET /api/payment/ppv-purchases/:userId`: Get user's purchase history
+- **Storage Layer** (`server/storage.ts`): Methods for creating, retrieving, and checking PPV purchases
+- **Payment Service** (`server/services/paymentService.ts`): Integration with Paystack for PPV payments
+- **Webhook Handling**: Processes successful PPV payments and creates purchase records
+
+**Frontend Implementation**:
+- **Create/Edit Post** (`client/src/pages/creator/CreatePost.tsx`): UI for enabling PPV and setting price
+- **Locked Content Overlay** (`client/src/components/content/LockedContentOverlay.tsx`): Shows PPV pricing and unlock options
+- **Unlock Options Modal** (`client/src/components/payment/UnlockOptionsModal.tsx`): Presents choice between subscription or PPV
+- **PPV Payment Modal** (`client/src/components/payment/PPVPaymentModal.tsx`): Handles PPV payment flow
+- **Purchase History** (`client/src/pages/fan/PurchaseHistory.tsx`): Displays all PPV purchases for a fan
+- **Content Cards**: Display PPV badge when enabled on posts
+
+**Access Control Logic**:
+1. Check if user is the creator (always has access)
+2. Check if user has an active subscription to the creator
+3. Check if user has purchased PPV access to the specific post
+4. If none of above, show locked content overlay with unlock options
+
+**Payment Flow**:
+1. Fan clicks unlock on PPV-enabled content
+2. Modal presents subscription vs. PPV options
+3. If PPV selected, fan chooses payment method (card or mobile money)
+4. Payment initialized via Paystack
+5. On successful payment, purchase record created and access granted
+6. Fan can immediately view the unlocked content
+
+### Subscription System
+The platform supports tiered subscriptions for recurring revenue:
+- Creators define multiple subscription tiers with different pricing
+- Monthly billing cycle with automatic renewal
+- Tier upgrades/downgrades with proration
+- Access to all non-PPV creator content based on tier level
 
 ## Important Code Patterns
 
