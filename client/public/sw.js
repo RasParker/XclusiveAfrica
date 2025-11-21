@@ -24,7 +24,7 @@ self.addEventListener('push', (event) => {
   }
 
   const options = {
-    title: data.title || 'Xclusive Creator Hub',
+    title: data.title || 'Jukwaa Creator Hub',
     body: data.message || data.body || 'You have a new notification',
     icon: '/favicon.ico',
     badge: '/favicon.ico',

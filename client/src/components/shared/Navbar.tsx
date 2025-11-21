@@ -80,10 +80,10 @@ export const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
+              <span className="text-white font-bold text-lg">J</span>
             </div>
             <span className="text-xl font-bold text-gradient-primary">
-              Pénc
+              Jukwaa
             </span>
           </Link>
 
@@ -118,10 +118,10 @@ export const Navbar: React.FC = () => {
                   <div className="flex items-center justify-between p-6 border-b">
                     <Link to="/" className="flex items-center space-x-2" onClick={closeMobileMenu}>
                       <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">P</span>
+                        <span className="text-white font-bold text-lg">J</span>
                       </div>
                       <span className="text-xl font-bold text-gradient-primary">
-                        Pénc
+                        Jukwaa
                       </span>
                     </Link>
                   </div>
