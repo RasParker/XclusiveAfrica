@@ -1,7 +1,7 @@
-# Xclusive Creator Platform
+# Jukwaa Creator Platform
 
 ## Overview
-The Xclusive Creator Platform is a full-stack application **designed for African content creators** to monetize their content through **subscriptions** and **Pay-Per-View (PPV)** purchases. The platform empowers creators across the African continent with comprehensive tools to manage their content, define subscription tiers, enable PPV pricing on individual posts, track earnings, and engage with their audience. For fans, the platform provides access to exclusive content through either subscription or one-time PPV purchases, subscription management, purchase history tracking, and direct messaging with creators.
+The Jukwaa Creator Platform is a full-stack application **designed for African content creators** to monetize their content through **subscriptions** and **Pay-Per-View (PPV)** purchases. The platform empowers creators across the African continent with comprehensive tools to manage their content, define subscription tiers, enable PPV pricing on individual posts, track earnings, and engage with their audience. For fans, the platform provides access to exclusive content through either subscription or one-time PPV purchases, subscription management, purchase history tracking, and direct messaging with creators.
 
 **Market Focus**: 
 - **Target Market**: African content creators and their audiences

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.SESSION_SECRET || 'xclusive-secret-key-2024';
+const JWT_SECRET = process.env.SESSION_SECRET || 'jukwaa-secret-key-2024';
 
 if (!JWT_SECRET) {
   console.error('SESSION_SECRET environment variable is required');

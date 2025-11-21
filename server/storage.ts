@@ -88,7 +88,7 @@ export interface PlatformSettings {
 
 const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
   commission_rate: 0.05,
-  site_name: 'Xclusive',
+  site_name: 'Jukwaa',
   site_description: 'Premium content monetization platform',
   maintenance_mode: false,
   new_user_registration: true,

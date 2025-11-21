@@ -121,7 +121,7 @@ export class PaymentService {
 
   // Generate unique reference
   private generateReference(): string {
-    return `xclusive_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `jukwaa_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   // Store metadata for development mode

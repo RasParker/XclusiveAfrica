@@ -64,7 +64,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="xclusive-theme">
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="jukwaa-theme">
         <AuthProvider>
           <NotificationProvider>
             <Router>

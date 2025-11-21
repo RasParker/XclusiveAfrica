@@ -35,7 +35,7 @@ export const AdminSettings: React.FC = () => {
   });
 
   const [platformSettings, setPlatformSettings] = useState({
-    siteName: 'Xclusive',
+    siteName: 'Jukwaa',
     siteDescription: 'Premium content monetization platform',
     commissionRate: 10,
     minimumAge: 18,
@@ -54,8 +54,8 @@ export const AdminSettings: React.FC = () => {
   const [emailSettings, setEmailSettings] = useState({
     smtpServer: 'smtp.gmail.com',
     smtpPort: 587,
-    smtpUsername: 'noreply@xclusive.com',
-    fromEmail: 'Xclusive <noreply@xclusive.com>',
+    smtpUsername: 'noreply@jukwaa.com',
+    fromEmail: 'Jukwaa <noreply@jukwaa.com>',
   });
 
   const handleSave = () => {

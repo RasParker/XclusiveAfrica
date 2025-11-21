@@ -223,7 +223,7 @@ export const Signup: React.FC = () => {
 
       await signup(email, password, username, role, finalPrimaryCategory || undefined);
       toast({
-        title: "Welcome to Xclusive!",
+        title: "Welcome to Jukwaa!",
         description: `Your ${role} account has been created successfully.`,
       });
       
@@ -265,10 +265,10 @@ export const Signup: React.FC = () => {
     <div className="flex justify-center mb-6">
       <Link to="/" className="inline-flex items-center space-x-2">
         <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-          <span className="text-primary-foreground font-bold text-xl">P</span>
+          <span className="text-primary-foreground font-bold text-xl">J</span>
         </div>
         <span className="text-2xl font-bold text-gradient-primary">
-          Pénc
+          Jukwaa
         </span>
       </Link>
     </div>

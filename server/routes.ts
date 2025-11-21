@@ -67,7 +67,7 @@ const upload = multer({
   }
 });
 
-const JWT_SECRET = process.env.SESSION_SECRET || 'xclusive-secret-key-2024';
+const JWT_SECRET = process.env.SESSION_SECRET || 'jukwaa-secret-key-2024';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Use memory store for development

@@ -64,7 +64,7 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
 
 // Admin API request helper that includes auth token in Authorization header
 export const adminApiRequest = async (url: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('xclusive_token');
+  const token = localStorage.getItem('jukwaa_token');
 
   if (!token) {
     throw new Error('No authentication token found');
