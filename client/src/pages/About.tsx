@@ -43,13 +43,13 @@ const About = () => {
       <section className="relative py-20 px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
         <div className="max-w-4xl mx-auto text-center">
           <Badge variant="secondary" className="mb-4">
-            About Pénc
+            About Jukwaa
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Empowering Creators, Connecting Communities
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Pénc is the premium platform where creators build sustainable businesses and fans get exclusive access to their favorite content.
+            Jukwaa is the premium platform where creators build sustainable businesses and fans get exclusive access to their favorite content.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg">
@@ -85,7 +85,7 @@ const About = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Why Choose Pénc?
+              Why Choose Jukwaa?
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               We provide everything you need to build, grow, and monetize your creative passion.
@@ -119,7 +119,7 @@ const About = () => {
               <p className="text-muted-foreground mb-6">
                 We believe every creator deserves a platform that respects their work, 
                 values their content, and helps them build sustainable income streams. 
-                Pénc is designed by creators, for creators.
+                Jukwaa is designed by creators, for creators.
               </p>
               <div className="space-y-4">
                 {[

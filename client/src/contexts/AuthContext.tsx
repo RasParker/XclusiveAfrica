@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const verifySession = async () => {
       try {
         setIsLoading(true);
-        const storedUser = localStorage.getItem('xclusive_user');
+        const storedUser = localStorage.getItem('jukwaa_user');
         
         if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
           try {
@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }).catch((error) => {
                 // Session expired or invalid, clear local storage
                 console.log('Session expired, clearing local storage', error);
-                localStorage.removeItem('xclusive_user');
+                localStorage.removeItem('jukwaa_user');
                 setUser(null);
               }).finally(() => {
                 setIsLoading(false);
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           } catch (parseError) {
             console.error('Error parsing stored user data:', parseError);
-            localStorage.removeItem('xclusive_user');
+            localStorage.removeItem('jukwaa_user');
             setUser(null);
             setIsLoading(false);
           }
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('Session verification failed:', error);
         // Clear local storage on error
-        localStorage.removeItem('xclusive_user');
+        localStorage.removeItem('jukwaa_user');
         setUser(null);
         setIsLoading(false);
       }
@@ -108,9 +108,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await response.json();
 
       // Store user data and token
-      localStorage.setItem('xclusive_user', JSON.stringify(data.user));
+      localStorage.setItem('jukwaa_user', JSON.stringify(data.user));
       if (data.token) {
-        localStorage.setItem('xclusive_token', data.token);
+        localStorage.setItem('jukwaa_token', data.token);
       } else {
         console.warn('No token received from login endpoint');
       }
@@ -152,7 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(user);
-      localStorage.setItem('xclusive_user', JSON.stringify(user));
+      localStorage.setItem('jukwaa_user', JSON.stringify(user));
     } catch (error) {
       throw error;
     } finally {
@@ -172,8 +172,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       // Always clear client state
       setUser(null);
-      localStorage.removeItem('xclusive_user');
-      localStorage.removeItem('xclusive_token');
+      localStorage.removeItem('jukwaa_user');
+      localStorage.removeItem('jukwaa_token');
     }
   };
 
@@ -181,7 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       const updatedUser = { ...user, ...updates, updated_at: new Date().toISOString() };
       setUser(updatedUser);
-      localStorage.setItem('xclusive_user', JSON.stringify(updatedUser));
+      localStorage.setItem('jukwaa_user', JSON.stringify(updatedUser));
     }
   };
 

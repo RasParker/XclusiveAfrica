@@ -78,7 +78,7 @@ export const Home: React.FC = () => {
               </span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Join Xclusive, the premium platform where creators earn from exclusive content 
+              Join Jukwaa, the premium platform where creators earn from exclusive content 
               and fans get closer to their favorite creators through paid subscriptions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

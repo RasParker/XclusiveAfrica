@@ -73,7 +73,7 @@ export const Login: React.FC = () => {
       // Small delay to ensure state is updated
       setTimeout(async () => {
         // Get the user after login to determine redirect path
-        const storedUser = localStorage.getItem('xclusive_user');
+        const storedUser = localStorage.getItem('jukwaa_user');
         if (storedUser) {
           const user = JSON.parse(storedUser);
           

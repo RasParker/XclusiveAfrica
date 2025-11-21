@@ -52,9 +52,9 @@ export const AdminLogin: React.FC = () => {
         const data = await response.json();
 
         // Store both user data and token
-        localStorage.setItem('xclusive_user', JSON.stringify(data.user));
+        localStorage.setItem('jukwaa_user', JSON.stringify(data.user));
         if (data.token) {
-          localStorage.setItem('xclusive_token', data.token);
+          localStorage.setItem('jukwaa_token', data.token);
         } else {
           console.error('No token received from admin login');
           throw new Error('Authentication token not received');
@@ -104,10 +104,10 @@ export const AdminLogin: React.FC = () => {
         <div className="text-center">
           <Link to="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">P</span>
+              <span className="text-primary-foreground font-bold text-xl">J</span>
             </div>
             <span className="text-2xl font-bold text-gradient-primary">
-              Pénc
+              Jukwaa
             </span>
           </Link>
         </div>

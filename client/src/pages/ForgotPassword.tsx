@@ -44,10 +44,10 @@ export const ForgotPassword: React.FC = () => {
           <div className="text-center">
             <Link to="/" className="inline-flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xl">P</span>
+                <span className="text-primary-foreground font-bold text-xl">J</span>
               </div>
               <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Pénc
+                Jukwaa
               </span>
             </Link>
           </div>
@@ -82,10 +82,10 @@ export const ForgotPassword: React.FC = () => {
         <div className="text-center">
           <Link to="/" className="inline-flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">X</span>
+              <span className="text-primary-foreground font-bold text-xl">J</span>
             </div>
             <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Xclusive
+              Jukwaa
             </span>
           </Link>
         </div>

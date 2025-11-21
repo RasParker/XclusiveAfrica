@@ -21,10 +21,10 @@ const Index = () => {
         <div className="container flex h-16 items-center justify-between px-4">
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-primary/80 rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">P</span>
+              <span className="text-primary-foreground font-bold text-lg">J</span>
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              Pénc
+              Jukwaa
             </span>
           </Link>
           <div className="flex items-center space-x-2">
@@ -71,7 +71,7 @@ const Index = () => {
       <section className="py-12 px-4 bg-muted/50">
         <div className="container max-w-6xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
-            Why Choose Pénc?
+            Why Choose Jukwaa?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center">
